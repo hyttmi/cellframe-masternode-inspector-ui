@@ -3,13 +3,16 @@ class NodeManager {
         this.nodes = this.loadNodes();
         this.activeNodeId = this.loadActiveNode();
         this.charts = {};
-        this.refreshInterval = null;
+        this.systemRefreshInterval = null;
+        this.networkRefreshInterval = null;
         this.networkPreferences = this.loadNetworkPreferences();
         this.daysPreferences = this.loadDaysPreferences();
         this.availableNetworks = {};
         this.cachedNetworkData = {}; // Cache for network data
         this.cachedSystemData = {}; // Cache for system data
         this.lastUpdateTimestamps = {}; // Track when data was last updated
+        this.lastNetworkUpdate = {}; // Track when network data was last updated
+        this.refreshSettings = this.loadRefreshSettings();
         this.init();
     }
 
@@ -24,30 +27,30 @@ class NodeManager {
     }
 
     loadNodes() {
-        const stored = localStorage.getItem('cellframe_nodes');
+        const stored = localStorage.getItem('cfminspector_nodes');
         return stored ? JSON.parse(stored) : [];
     }
 
     saveNodes() {
-        localStorage.setItem('cellframe_nodes', JSON.stringify(this.nodes));
+        localStorage.setItem('cfminspector_nodes', JSON.stringify(this.nodes));
     }
 
     loadActiveNode() {
-        return localStorage.getItem('cellframe_active_node');
+        return localStorage.getItem('cfminspector_active_node');
     }
 
     saveActiveNode(nodeId) {
         this.activeNodeId = nodeId;
-        localStorage.setItem('cellframe_active_node', nodeId);
+        localStorage.setItem('cfminspector_active_node', nodeId);
     }
 
     loadNetworkPreferences() {
-        const stored = localStorage.getItem('cellframe_network_preferences');
+        const stored = localStorage.getItem('cfminspector_network_preferences');
         return stored ? JSON.parse(stored) : {};
     }
 
     saveNetworkPreferences() {
-        localStorage.setItem('cellframe_network_preferences', JSON.stringify(this.networkPreferences));
+        localStorage.setItem('cfminspector_network_preferences', JSON.stringify(this.networkPreferences));
     }
 
     getSelectedNetwork(nodeId) {
@@ -69,12 +72,12 @@ class NodeManager {
     }
 
     loadDaysPreferences() {
-        const stored = localStorage.getItem('cellframe_days_preferences');
+        const stored = localStorage.getItem('cfminspector_days_preferences');
         return stored ? JSON.parse(stored) : {};
     }
 
     saveDaysPreferences() {
-        localStorage.setItem('cellframe_days_preferences', JSON.stringify(this.daysPreferences));
+        localStorage.setItem('cfminspector_days_preferences', JSON.stringify(this.daysPreferences));
     }
 
     getSelectedDays(nodeId, chartType = 'rewards') {
@@ -102,6 +105,31 @@ class NodeManager {
 
         this.daysPreferences[nodeId][chartType] = days;
         this.saveDaysPreferences();
+    }
+
+    loadRefreshSettings() {
+        const stored = localStorage.getItem('cfminspector_refresh_settings');
+        const defaults = {
+            systemInterval: 30,    // 30 seconds
+            networkInterval: 300   // 5 minutes
+        };
+        return stored ? { ...defaults, ...JSON.parse(stored) } : defaults;
+    }
+
+    saveRefreshSettings() {
+        localStorage.setItem('cfminspector_refresh_settings', JSON.stringify(this.refreshSettings));
+    }
+
+    updateRefreshSettings(systemInterval, networkInterval) {
+        this.refreshSettings.systemInterval = systemInterval;
+        this.refreshSettings.networkInterval = networkInterval;
+        this.saveRefreshSettings();
+
+        // Restart auto-refresh with new intervals
+        this.startAutoRefresh();
+
+        // Update footer display
+        this.updateFooterRefreshInfo();
     }
 
     showSetupModal() {
@@ -476,7 +504,7 @@ class NodeManager {
 
             // Update system information
             console.log('System data:', systemData);
-            this.updateSystemInfo(systemData);
+            this.updateSystemInfo(systemData, true); // API is connected if we reach here
 
             // Get selected network or use first available
             let selectedNetwork = this.getSelectedNetwork(nodeId);
@@ -491,6 +519,13 @@ class NodeManager {
             // Load data for selected network only
             await this.loadNetworkData(node, selectedNetwork);
 
+            // Update last updated timestamp on successful load
+            this.updateLastUpdatedTimestamp();
+            this.lastNetworkUpdate[nodeId] = Date.now();
+
+            // Update footer refresh info on first load
+            this.updateFooterRefreshInfo();
+
         } catch (error) {
             console.error('Error loading node data:', error);
 
@@ -498,7 +533,7 @@ class NodeManager {
             const cachedSystemData = this.getStoredSystemData(nodeId);
             if (cachedSystemData) {
                 console.log('Using cached system data due to API error');
-                this.updateSystemInfo(cachedSystemData);
+                this.updateSystemInfo(cachedSystemData, false); // API is not connected, using cache
                 this.showCacheNotification(nodeId, 'system');
 
                 // Try to load cached network data too
@@ -516,7 +551,7 @@ class NodeManager {
             } else {
                 this.showError(nodeId, `Connection failed: ${error.message}`);
                 // Show offline status when there's an error and no cache
-                this.updateSystemInfo({ current_state: 'NET_STATE_OFFLINE' });
+                this.updateSystemInfo({}, false); // No system data, API not connected
             }
         }
     }
@@ -884,9 +919,9 @@ class NodeManager {
                 this.hideDataSections(node.id);
             }
 
-            // Update system info with network status
+            // Update system info (without network status)
             const systemData = await this.fetchNodeData(node, 'all');
-            this.updateSystemInfo(systemData, networkData.network_status);
+            this.updateSystemInfo(systemData, true); // API connected if we get here
 
         } catch (error) {
             console.error(`Error loading data for network ${network}:`, error);
@@ -1242,43 +1277,31 @@ class NodeManager {
         `).join('');
     }
 
-    updateSystemInfo(systemData, networkStatus = null) {
+    updateSystemInfo(systemData, isApiConnected = true, networkStatus = null) {
         const systemSection = document.getElementById('systemInfoSection');
         const systemCards = document.getElementById('systemInfoCards');
 
         if (systemSection && systemCards) {
             systemSection.style.display = 'block';
 
-
-            // Determine node status from network status or fallback
+            // Determine node status based on API connectivity (not network state)
             let nodeStatus = 'Loading...';
             let statusClass = 'status-loading';
             let isOnline = false;
 
-            const currentState = networkStatus?.current_state || systemData.current_state;
-
-            if (currentState === 'NET_STATE_ONLINE') {
+            if (isApiConnected && systemData) {
                 nodeStatus = 'Online';
                 statusClass = 'status-online';
                 isOnline = true;
-            } else if (currentState === 'NET_STATE_SYNC_CHAINS') {
-                nodeStatus = 'Syncing';
-                statusClass = 'status-syncing';
-            } else if (currentState === 'NET_STATE_OFFLINE') {
+            } else if (!isApiConnected) {
                 nodeStatus = 'Offline';
                 statusClass = 'status-offline';
-            } else if (!currentState || currentState === undefined || currentState === null) {
-                // Show loading when no state is available yet
-                nodeStatus = 'Loading...';
-                statusClass = 'status-loading';
             }
 
             // Choose icon based on status
             let statusIcon = 'fa-circle-check'; // Default for online
             if (statusClass === 'status-offline') {
                 statusIcon = 'fa-circle-xmark'; // X for offline
-            } else if (statusClass === 'status-syncing') {
-                statusIcon = 'fa-arrows-rotate'; // Sync icon for syncing
             } else if (statusClass === 'status-loading') {
                 statusIcon = 'fa-circle-question'; // Question mark for loading
             }
@@ -1405,8 +1428,35 @@ class NodeManager {
             networkPerfSection.style.display = 'block';
         }
 
+        // Determine network state status
+        let networkStateStatus = 'Loading...';
+        let networkStateIcon = 'fa-circle-question';
+        let networkStateClass = '';
+
+        const currentState = networkData.network_status?.current_state || networkData.current_state;
+
+        if (currentState === 'NET_STATE_ONLINE') {
+            networkStateStatus = 'Online';
+            networkStateIcon = 'fa-globe';
+            networkStateClass = 'status-online';
+        } else if (currentState === 'NET_STATE_SYNC_CHAINS') {
+            networkStateStatus = 'Syncing';
+            networkStateIcon = 'fa-arrows-rotate';
+            networkStateClass = 'status-syncing';
+        } else if (currentState === 'NET_STATE_OFFLINE') {
+            networkStateStatus = 'Offline';
+            networkStateIcon = 'fa-globe';
+            networkStateClass = 'status-offline';
+        }
+
         // Build network metrics array
         const networkMetrics = [
+            {
+                title: 'NETWORK STATE',
+                icon: networkStateIcon,
+                value: networkStateStatus,
+                statusClass: networkStateClass
+            },
             {
                 title: 'SIGNED BLOCKS TODAY',
                 icon: 'fa-cube',
@@ -1747,15 +1797,115 @@ class NodeManager {
     }
 
     startAutoRefresh() {
-        if (this.refreshInterval) {
-            clearInterval(this.refreshInterval);
+        // Clear any existing intervals
+        if (this.systemRefreshInterval) {
+            clearInterval(this.systemRefreshInterval);
+        }
+        if (this.networkRefreshInterval) {
+            clearInterval(this.networkRefreshInterval);
         }
 
-        this.refreshInterval = setInterval(() => {
+        // System data refresh using stored interval
+        this.systemRefreshInterval = setInterval(() => {
             if (this.activeNodeId) {
-                this.loadNodeData(this.activeNodeId);
+                this.refreshSystemData(this.activeNodeId);
             }
-        }, 60000); // Refresh every minute
+        }, this.refreshSettings.systemInterval * 1000);
+
+        // Network data refresh using stored interval
+        this.networkRefreshInterval = setInterval(() => {
+            if (this.activeNodeId) {
+                this.refreshNetworkData(this.activeNodeId);
+            }
+        }, this.refreshSettings.networkInterval * 1000);
+    }
+
+    async refreshSystemData(nodeId) {
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (!node) return;
+
+        try {
+            // Fetch only system data
+            const systemData = await this.fetchNodeData(node, 'all');
+
+            // Cache the system data
+            this.setStoredSystemData(nodeId, systemData);
+
+            // Update system information
+            this.updateSystemInfo(systemData, true); // API connected if we get here
+
+            // Update system timestamp (not network timestamp)
+            this.updateSystemTimestamp();
+
+        } catch (error) {
+            console.error('Error refreshing system data:', error);
+
+            // Try to use cached system data
+            const cachedSystemData = this.getStoredSystemData(nodeId);
+            if (cachedSystemData) {
+                console.log('Using cached system data due to API error');
+                this.updateSystemInfo(cachedSystemData, false); // Using cache, API not connected
+            }
+        }
+    }
+
+    async refreshNetworkData(nodeId) {
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (!node) return;
+
+        try {
+            const selectedNetwork = this.getSelectedNetwork(nodeId);
+            if (!selectedNetwork) return;
+
+            // Load network data
+            await this.loadNetworkData(node, selectedNetwork);
+
+            // Update full timestamp on network refresh
+            this.updateLastUpdatedTimestamp();
+            this.lastNetworkUpdate[nodeId] = Date.now();
+
+        } catch (error) {
+            console.error('Error refreshing network data:', error);
+        }
+    }
+
+    updateSystemTimestamp() {
+        // Update just the system part without changing the main timestamp
+        // This could be expanded to show separate timestamps if needed
+    }
+
+    updateLastUpdatedTimestamp() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString();
+        const dateString = now.toLocaleDateString();
+
+        const lastUpdatedElement = document.getElementById('lastUpdatedTime');
+        const dashboardFooter = document.getElementById('dashboardFooter');
+
+        if (lastUpdatedElement && dashboardFooter) {
+            lastUpdatedElement.textContent = `${dateString} ${timeString}`;
+            dashboardFooter.style.display = 'block';
+        }
+    }
+
+    updateFooterRefreshInfo() {
+        const systemSeconds = this.refreshSettings.systemInterval;
+        const networkSeconds = this.refreshSettings.networkInterval;
+
+        // Format display text
+        const formatTime = (seconds) => {
+            if (seconds < 60) return `${seconds}s`;
+            if (seconds < 3600) return `${seconds / 60}min`;
+            return `${(seconds / 3600).toFixed(1)}h`;
+        };
+
+        const refreshText = `System: ${formatTime(systemSeconds)} | Network: ${formatTime(networkSeconds)}`;
+
+        // Find the refresh info span and update it
+        const footerElement = document.querySelector('.last-updated-info span:last-child span');
+        if (footerElement) {
+            footerElement.textContent = refreshText;
+        }
     }
 
 
@@ -1912,6 +2062,63 @@ async function testSetupConnection() {
             button.disabled = false;
         }, 2000);
     }
+}
+
+// Settings Modal Functions
+function showSettingsModal() {
+    const modal = new bootstrap.Modal(document.getElementById('settingsModal'));
+
+    // Load current settings into the form
+    const systemSelect = document.getElementById('systemRefreshInterval');
+    const networkSelect = document.getElementById('networkRefreshInterval');
+
+    if (nodeManager && systemSelect && networkSelect) {
+        systemSelect.value = nodeManager.refreshSettings.systemInterval;
+        networkSelect.value = nodeManager.refreshSettings.networkInterval;
+    }
+
+    modal.show();
+}
+
+function saveSettings() {
+    const systemInterval = parseInt(document.getElementById('systemRefreshInterval').value);
+    const networkInterval = parseInt(document.getElementById('networkRefreshInterval').value);
+
+    if (nodeManager) {
+        nodeManager.updateRefreshSettings(systemInterval, networkInterval);
+    }
+
+    // Close modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('settingsModal'));
+    modal.hide();
+
+    // Show success feedback
+    showNotification('Settings saved successfully!', 'success');
+}
+
+function resetToDefaults() {
+    document.getElementById('systemRefreshInterval').value = 30;
+    document.getElementById('networkRefreshInterval').value = 300;
+}
+
+function showNotification(message, type = 'info') {
+    // Create a temporary notification
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type} position-fixed`;
+    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
+        ${message}
+    `;
+
+    document.body.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
 }
 
 // Initialize the application

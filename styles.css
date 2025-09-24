@@ -567,3 +567,25 @@ body {
     opacity: 0.7;
     font-style: italic;
 }
+
+/* Footer and Last Updated Styles */
+.dashboard-footer {
+    background-color: var(--color-secondary);
+    border-top: 1px solid var(--color-tertiary);
+    padding: 1rem 0;
+    margin-top: 2rem;
+}
+
+.last-updated-info {
+    color: var(--color-font-secondary);
+    font-size: 0.875rem;
+    font-family: var(--font-family-main);
+}
+
+.last-updated-info i {
+    color: var(--color-accent-main);
+}
+
+.last-updated-info span:first-of-type {
+    margin-right: 0.25rem;
+}

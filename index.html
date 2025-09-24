@@ -24,6 +24,9 @@
                     </p>
                 </div>
                 <div class="col-auto">
+                    <button class="btn btn-secondary me-2" onclick="showSettingsModal()">
+                        <i class="fas fa-cog me-2"></i> Settings
+                    </button>
                     <button class="btn btn-primary" onclick="showAddNodeModal()">
                         <span class="me-2">+</span> Add Node
                     </button>
@@ -109,6 +112,25 @@
         </div>
     </div>
 
+    <!-- Footer with Last Updated Timestamp -->
+    <footer id="dashboardFooter" class="dashboard-footer" style="display: none;">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div id="lastUpdated" class="last-updated-info">
+                        <i class="fas fa-clock me-2"></i>
+                        <span>Last updated: </span>
+                        <span id="lastUpdatedTime">Never</span>
+                        <span class="ms-3">
+                            <i class="fas fa-sync-alt me-1"></i>
+                            <span>System: 30s | Network: 5min</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Add Node Modal -->
     <div class="modal fade" id="addNodeModal" tabindex="-1">
         <div class="modal-dialog">
@@ -169,6 +191,61 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="testSetupConnection()">Test Connection</button>
                     <button type="button" class="btn btn-primary" onclick="setupFirstNode()">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal fade" id="settingsModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Dashboard Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="settingsForm">
+                        <div class="mb-4">
+                            <h6 class="text-muted">Auto-Refresh Intervals</h6>
+                            <div class="mb-3">
+                                <label for="systemRefreshInterval" class="form-label">
+                                    System Information Refresh
+                                    <small class="text-muted d-block">How often to update system metrics (CPU, memory, uptime)</small>
+                                </label>
+                                <select class="form-select" id="systemRefreshInterval">
+                                    <option value="15">15 seconds</option>
+                                    <option value="30" selected>30 seconds</option>
+                                    <option value="60">1 minute</option>
+                                    <option value="120">2 minutes</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="networkRefreshInterval" class="form-label">
+                                    Network Data Refresh
+                                    <small class="text-muted d-block">How often to update charts, rewards, and network metrics</small>
+                                </label>
+                                <select class="form-select" id="networkRefreshInterval">
+                                    <option value="60">1 minute</option>
+                                    <option value="120">2 minutes</option>
+                                    <option value="300" selected>5 minutes</option>
+                                    <option value="600">10 minutes</option>
+                                    <option value="900">15 minutes</option>
+                                </select>
+                            </div>
+                            <div class="alert alert-info">
+                                <small>
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Lower intervals provide more up-to-date information but may increase API usage.
+                                    Changes take effect immediately.
+                                </small>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" onclick="resetToDefaults()">Reset to Defaults</button>
+                    <button type="button" class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
                 </div>
             </div>
         </div>
