@@ -655,13 +655,21 @@ class NodeManager {
         const standardOptions = [7, 14, 30];
         let smartOptions = [];
 
-        // Only add standard options based on available data:
-        // - 7 days: available if data >= 7
-        // - 14 days: available if data >= 14
-        // - 30 days: only available if data >= 30 (not for 28 days)
+        // Add standard options based on available data
         if (actualDataDays >= 7) smartOptions.push(7);
         if (actualDataDays >= 14) smartOptions.push(14);
         if (actualDataDays >= 30) smartOptions.push(30);
+
+        // For datasets with more than 30 days but less than or equal to 90 days,
+        // add the actual data length as an option (e.g., 45 days, 67 days, 87 days)
+        if (actualDataDays > 30 && actualDataDays <= 90) {
+            smartOptions.push(actualDataDays);
+        }
+
+        // For datasets with more than 90 days, cap at 90
+        if (actualDataDays > 90) {
+            smartOptions.push(90);
+        }
 
         // For datasets with less than 7 days, offer the actual data length
         if (actualDataDays < 7 && actualDataDays > 1) {
@@ -670,7 +678,7 @@ class NodeManager {
 
         // If we have no valid options, just use the actual data length
         if (smartOptions.length === 0) {
-            return [actualDataDays];
+            return [Math.min(actualDataDays, 90)];
         }
 
         return smartOptions.sort((a, b) => a - b);
@@ -1296,6 +1304,19 @@ class NodeManager {
             } else if (!isApiConnected) {
                 nodeStatus = 'Offline';
                 statusClass = 'status-offline';
+
+                // Hide network sections when node is offline
+                const networkNavSection = document.getElementById('networkNavSection');
+                const networkPerfSection = document.getElementById('networkPerfSection');
+                if (networkNavSection) networkNavSection.style.display = 'none';
+                if (networkPerfSection) networkPerfSection.style.display = 'none';
+
+                // Hide charts section for offline node
+                const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
+                if (activeNode) {
+                    const chartsSection = document.getElementById(`${activeNode.id}-charts-section`);
+                    if (chartsSection) chartsSection.style.display = 'none';
+                }
             }
 
             // Choose icon based on status
@@ -1473,12 +1494,12 @@ class NodeManager {
                 value: `${(parseFloat(networkData.reward_wallet_today_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
-                title: 'BLOCKS TODAY (NETWORK)',
+                title: 'BLOCKS TODAY IN NETWORK',
                 icon: 'fa-cubes',
                 value: networkData.block_count_today || 0
             },
             {
-                title: 'TOTAL BLOCKS (NETWORK)',
+                title: 'TOTAL BLOCKS IN NETWORK',
                 icon: 'fa-layer-group',
                 value: (networkData.block_count || 0).toLocaleString()
             },
@@ -1511,7 +1532,7 @@ class NodeManager {
         // Continue with other metrics
         networkMetrics.push(
             {
-                title: 'AUTOCOLLECT',
+                title: 'AUTOCOLLECT STATUS',
                 icon: 'fa-robot',
                 value: networkData.autocollect_status?.active ? 'Active' : 'Inactive'
             },
