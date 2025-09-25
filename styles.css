@@ -589,3 +589,32 @@ body {
 .last-updated-info span:first-of-type {
     margin-right: 0.25rem;
 }
+
+/* SortableJS Styles for Metric Cards */
+.sortable-ghost {
+    opacity: 0.5;
+}
+
+.sortable-chosen {
+    cursor: grabbing;
+}
+
+.sortable-drag {
+    opacity: 0.8;
+}
+
+/* Cursor styles for draggable metric cards */
+#systemInfoCards .col-md-4,
+#networkPerfCards .col-md-4 {
+    cursor: grab;
+}
+
+#systemInfoCards .col-md-4:active,
+#networkPerfCards .col-md-4:active {
+    cursor: grabbing;
+}
+
+/* Wallet info hint should not be draggable - now outside sortable container */
+.wallet-info-hint {
+    cursor: default;
+}

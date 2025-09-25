@@ -1377,8 +1377,13 @@ class NodeManager {
                 }
             ];
 
-            systemCards.innerHTML = systemMetrics.map(metric => `
-                <div class="col-md-4 mb-3">
+            // Get saved metric order or use default alphabetical order
+            const savedSystemOrder = this.getSavedMetricOrder('system');
+            const orderedSystemMetrics = this.reorderMetrics(systemMetrics, savedSystemOrder);
+
+            systemCards.innerHTML = orderedSystemMetrics.map((metric, index) => `
+                <div class="col-md-4 mb-3"
+                     data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
                     <div class="text-center">
                         <div class="metric-icon mb-2">
                             <i class="fas ${metric.icon}"></i>
@@ -1391,6 +1396,9 @@ class NodeManager {
                 </div>
             `).join('');
         }
+
+        // Initialize sortable for system metrics
+        this.initializeSortable();
     }
 
     formatWalletAddress(address) {
@@ -1473,51 +1481,6 @@ class NodeManager {
         // Build network metrics array (alphabetically ordered)
         const networkMetrics = [
             {
-                title: 'BLOCKS TODAY IN NETWORK',
-                icon: 'fa-cubes',
-                value: networkData.block_count_today || 0
-            },
-            {
-                title: 'FIRST SIGNED BLOCKS TODAY',
-                icon: 'fa-trophy',
-                value: networkData.first_signed_blocks_today_amount || 0
-            },
-            {
-                title: 'NETWORK STATE',
-                icon: networkStateIcon,
-                value: networkStateStatus,
-                statusClass: networkStateClass
-            },
-            {
-                title: 'REWARD WALLET',
-                icon: 'fa-wallet',
-                value: this.formatWalletAddress(networkData.reward_wallet_address),
-                isWallet: true,
-                walletType: 'reward',
-                fullAddress: networkData.reward_wallet_address,
-                balances: networkData.reward_wallet_balance,
-                hasInfo: true
-            },
-            {
-                title: 'REWARDS RECEIVED TODAY',
-                icon: 'fa-coins',
-                value: `${(parseFloat(networkData.reward_wallet_today_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                title: 'SIGNED BLOCKS TODAY',
-                icon: 'fa-cube',
-                value: networkData.signed_blocks_today_amount || 0
-            },
-            {
-                title: 'TOTAL BLOCKS IN NETWORK',
-                icon: 'fa-layer-group',
-                value: (networkData.block_count || 0).toLocaleString()
-            }
-        ];
-
-        // Continue with other metrics (alphabetically ordered)
-        networkMetrics.push(
-            {
                 title: 'AUTOCOLLECT STATUS',
                 icon: 'fa-robot',
                 value: networkData.autocollect_status?.active ? 'Active' : 'Inactive'
@@ -1528,9 +1491,19 @@ class NodeManager {
                 value: `${(parseFloat(networkData.reward_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                title: 'BLOCKS TODAY IN NETWORK',
+                icon: 'fa-cubes',
+                value: networkData.block_count_today || 0
+            },
+            {
                 title: 'CURRENT BLOCK REWARD',
                 icon: 'fa-gift',
                 value: `${(parseFloat(networkData.current_block_reward) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+            },
+            {
+                title: 'FIRST SIGNED BLOCKS TODAY',
+                icon: 'fa-trophy',
+                value: networkData.first_signed_blocks_today_amount || 0
             },
             {
                 title: 'LATEST REWARD',
@@ -1538,6 +1511,12 @@ class NodeManager {
                 value: networkData.reward_wallet_latest_reward ?
                     `${(parseFloat(networkData.reward_wallet_latest_reward.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'} (${this.formatSmartDateTime(networkData.reward_wallet_latest_reward.tx_created)})` :
                     'N/A'
+            },
+            {
+                title: 'NETWORK STATE',
+                icon: networkStateIcon,
+                value: networkStateStatus,
+                statusClass: networkStateClass
             },
             {
                 title: 'NETWORK STATUS',
@@ -1558,44 +1537,105 @@ class NodeManager {
                 value: networkData.cache_last_updated ? this.formatLocaleDateTime(networkData.cache_last_updated) : 'N/A'
             },
             {
+                title: 'REWARD WALLET',
+                icon: 'fa-wallet',
+                value: this.formatWalletAddress(networkData.reward_wallet_address),
+                isWallet: true,
+                walletType: 'reward',
+                fullAddress: networkData.reward_wallet_address,
+                balances: networkData.reward_wallet_balance,
+                hasInfo: true
+            },
+            {
+                title: 'REWARDS RECEIVED TODAY',
+                icon: 'fa-coins',
+                value: `${(parseFloat(networkData.reward_wallet_today_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+            },
+            {
+                title: 'REWARDS RECEIVED YESTERDAY',
+                icon: 'fa-coins',
+                value: `${(parseFloat(networkData.reward_wallet_yesterday_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+            },
+            {
+                title: 'SIGNED BLOCKS TODAY',
+                icon: 'fa-cube',
+                value: networkData.signed_blocks_today_amount || 0
+            },
+            {
+                title: 'SIGNED BLOCKS YESTERDAY',
+                icon: 'fa-cube',
+                value: networkData.signed_blocks_yesterday_amount || 0
+            },
+            {
                 title: 'SMALLEST REWARD',
                 icon: 'fa-arrow-down',
                 value: `${(parseFloat(networkData.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             }
-        );
+        ];
 
-        // Add sovereign wallet only if it exists (alphabetically after 'SMALLEST')
+        // Add sovereign wallet metrics only if sovereign wallet exists (alphabetically placed)
         if (networkData.sovereign_reward_wallet_address) {
-            networkMetrics.push({
-                title: 'SOVEREIGN WALLET',
-                icon: 'fa-shield-halved',
-                value: this.formatWalletAddress(networkData.sovereign_reward_wallet_address),
-                isWallet: true,
-                walletType: 'sovereign',
-                fullAddress: networkData.sovereign_reward_wallet_address,
-                balances: networkData.sovereign_wallet_balance,
-                hasInfo: true
-            });
+            networkMetrics.push(
+                {
+                    title: 'SOVEREIGN REWARDS YESTERDAY',
+                    icon: 'fa-shield-halved',
+                    value: `${(parseFloat(networkData.sovereign_wallet_yesterday_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+                },
+                {
+                    title: 'SOVEREIGN WALLET',
+                    icon: 'fa-shield-halved',
+                    value: this.formatWalletAddress(networkData.sovereign_reward_wallet_address),
+                    isWallet: true,
+                    walletType: 'sovereign',
+                    fullAddress: networkData.sovereign_reward_wallet_address,
+                    balances: networkData.sovereign_wallet_balance,
+                    hasInfo: true
+                }
+            );
         }
 
-        // Add TOKEN PRICE at the end (alphabetically last)
+        // Add remaining metrics in alphabetical order
         networkMetrics.push(
             {
                 title: 'TOKEN PRICE',
                 icon: 'fa-chart-line',
                 value: `$${networkData.token_price || 0}`
+            },
+            {
+                title: 'TOTAL BLOCKS IN NETWORK',
+                icon: 'fa-layer-group',
+                value: (networkData.block_count || 0).toLocaleString()
             }
         );
 
-        // Add hint below header if wallets exist
-        const walletHint = networkMetrics.some(m => m.isWallet) ?
-            `<div class="col-12 mb-2">
+        // Get saved metric order or use default alphabetical order
+        const savedNetworkOrder = this.getSavedMetricOrder('network');
+        const orderedNetworkMetrics = this.reorderMetrics(networkMetrics, savedNetworkOrder);
+
+        // Create wallet hint as a separate element before the sortable cards container
+        const hasWallets = networkMetrics.some(m => m.isWallet);
+        const cardBody = networkPerfCards.parentElement;
+
+        // Remove any existing wallet hint
+        const existingHint = cardBody.querySelector('.wallet-info-hint-wrapper');
+        if (existingHint) {
+            existingHint.remove();
+        }
+
+        // Add wallet hint if wallets exist, placed before the sortable cards
+        if (hasWallets) {
+            const walletHintWrapper = document.createElement('div');
+            walletHintWrapper.className = 'wallet-info-hint-wrapper mb-2';
+            walletHintWrapper.innerHTML = `
                 <div class="wallet-info-hint text-center">
                     <i class="fas fa-info-circle"></i> Hover over wallet addresses to view balances and full address
                 </div>
-            </div>` : '';
+            `;
+            cardBody.insertBefore(walletHintWrapper, networkPerfCards);
+        }
 
-        networkPerfCards.innerHTML = walletHint + networkMetrics.map(metric => {
+        // Only put sortable metric cards in networkPerfCards
+        networkPerfCards.innerHTML = orderedNetworkMetrics.map((metric, index) => {
             if (metric.isWallet) {
                 // Special rendering for wallet metrics with popup
                 const popupHtml = this.createWalletPopup(
@@ -1605,7 +1645,8 @@ class NodeManager {
                 );
 
                 return `
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-3"
+                         data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
                         <div class="text-center wallet-metric">
                             ${popupHtml}
                             <div class="metric-icon mb-2">
@@ -1621,7 +1662,8 @@ class NodeManager {
             } else {
                 // Regular metric rendering
                 return `
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-3"
+                         data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
                         <div class="text-center">
                             <div class="metric-icon mb-2">
                                 <i class="fas ${metric.icon}"></i>
@@ -1633,6 +1675,9 @@ class NodeManager {
                 `;
             }
         }).join('');
+
+        // Initialize sortable for network metrics
+        this.initializeSortable();
     }
 
     formatUptime(seconds) {
@@ -1947,6 +1992,92 @@ class NodeManager {
         const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Initialize SortableJS for metric cards
+    initializeSortable() {
+        const systemCards = document.getElementById('systemInfoCards');
+        const networkCards = document.getElementById('networkPerfCards');
+
+        if (systemCards && !systemCards.sortableInstance) {
+            systemCards.sortableInstance = Sortable.create(systemCards, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: () => {
+                    this.saveMetricOrder('system');
+                }
+            });
+        }
+
+        if (networkCards && !networkCards.sortableInstance) {
+            networkCards.sortableInstance = Sortable.create(networkCards, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                chosenClass: 'sortable-chosen',
+                dragClass: 'sortable-drag',
+                onEnd: () => {
+                    this.saveMetricOrder('network');
+                }
+            });
+        }
+    }
+
+    // Save metric order preferences
+    saveMetricOrder(metricType) {
+        const container = metricType === 'system'
+            ? document.getElementById('systemInfoCards')
+            : document.getElementById('networkPerfCards');
+
+        if (!container) return;
+
+        const metricIds = Array.from(container.children)
+            .map(card => card.dataset.metricId);
+
+        const orderKey = `cfminspector_${metricType}_metric_order`;
+        localStorage.setItem(orderKey, JSON.stringify(metricIds));
+    }
+
+    getSavedMetricOrder(metricType) {
+        const orderKey = `cfminspector_${metricType}_metric_order`;
+        const saved = localStorage.getItem(orderKey);
+        return saved ? JSON.parse(saved) : null;
+    }
+
+    reorderMetrics(metrics, savedOrder) {
+        if (!savedOrder || !Array.isArray(savedOrder)) {
+            return metrics; // Return in original order if no saved order
+        }
+
+        // Create a map for quick lookup
+        const metricMap = new Map();
+        metrics.forEach(metric => {
+            const id = metric.title.toLowerCase().replace(/\s+/g, '_');
+            metricMap.set(id, metric);
+        });
+
+        // Reorder based on saved order, append any new metrics at the end
+        const orderedMetrics = [];
+        const processedIds = new Set();
+
+        // First, add metrics in saved order
+        savedOrder.forEach(id => {
+            if (metricMap.has(id)) {
+                orderedMetrics.push(metricMap.get(id));
+                processedIds.add(id);
+            }
+        });
+
+        // Then add any new metrics that weren't in saved order
+        metrics.forEach(metric => {
+            const id = metric.title.toLowerCase().replace(/\s+/g, '_');
+            if (!processedIds.has(id)) {
+                orderedMetrics.push(metric);
+            }
+        });
+
+        return orderedMetrics;
     }
 }
 
