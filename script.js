@@ -1329,41 +1329,15 @@ class NodeManager {
 
             const systemMetrics = [
                 {
-                    title: 'NODE STATUS',
-                    icon: statusIcon,
-                    value: nodeStatus,
-                    statusClass: statusClass
+                    title: 'CPU USAGE',
+                    icon: 'fa-microchip',
+                    value: `${(systemData.node_cpu_usage || 0).toFixed(1)}%`
                 },
                 {
                     title: 'CURRENT VERSION',
                     icon: 'fa-code-branch',
                     value: systemData.current_node_version || 'N/A',
                     isUpToDate: systemData.current_node_version === systemData.latest_node_version
-                },
-                {
-                    title: 'LATEST VERSION',
-                    icon: 'fa-download',
-                    value: systemData.latest_node_version || 'N/A'
-                },
-                {
-                    title: 'CPU USAGE',
-                    icon: 'fa-microchip',
-                    value: `${(systemData.node_cpu_usage || 0).toFixed(1)}%`
-                },
-                {
-                    title: 'MEMORY USAGE',
-                    icon: 'fa-memory',
-                    value: `${(systemData.node_memory_usage || 0).toFixed(2)} MB`
-                },
-                {
-                    title: 'NODE UPTIME',
-                    icon: 'fa-clock',
-                    value: this.formatUptime(systemData.node_uptime || 0)
-                },
-                {
-                    title: 'SYSTEM UPTIME',
-                    icon: 'fa-server',
-                    value: this.formatUptime(systemData.system_uptime || 0)
                 },
                 {
                     title: 'EXTERNAL IP',
@@ -1374,6 +1348,32 @@ class NodeManager {
                     title: 'HOSTNAME',
                     icon: 'fa-desktop',
                     value: systemData.hostname || 'Unknown'
+                },
+                {
+                    title: 'LATEST VERSION',
+                    icon: 'fa-download',
+                    value: systemData.latest_node_version || 'N/A'
+                },
+                {
+                    title: 'MEMORY USAGE',
+                    icon: 'fa-memory',
+                    value: `${(systemData.node_memory_usage || 0).toFixed(2)} MB`
+                },
+                {
+                    title: 'NODE STATUS',
+                    icon: statusIcon,
+                    value: nodeStatus,
+                    statusClass: statusClass
+                },
+                {
+                    title: 'NODE UPTIME',
+                    icon: 'fa-clock',
+                    value: this.formatUptime(systemData.node_uptime || 0)
+                },
+                {
+                    title: 'SYSTEM UPTIME',
+                    icon: 'fa-server',
+                    value: this.formatUptime(systemData.system_uptime || 0)
                 }
             ];
 
@@ -1470,18 +1470,12 @@ class NodeManager {
             networkStateClass = 'status-offline';
         }
 
-        // Build network metrics array
+        // Build network metrics array (alphabetically ordered)
         const networkMetrics = [
             {
-                title: 'NETWORK STATE',
-                icon: networkStateIcon,
-                value: networkStateStatus,
-                statusClass: networkStateClass
-            },
-            {
-                title: 'SIGNED BLOCKS TODAY',
-                icon: 'fa-cube',
-                value: networkData.signed_blocks_today_amount || 0
+                title: 'BLOCKS TODAY IN NETWORK',
+                icon: 'fa-cubes',
+                value: networkData.block_count_today || 0
             },
             {
                 title: 'FIRST SIGNED BLOCKS TODAY',
@@ -1489,19 +1483,10 @@ class NodeManager {
                 value: networkData.first_signed_blocks_today_amount || 0
             },
             {
-                title: 'REWARDS RECEIVED TODAY',
-                icon: 'fa-coins',
-                value: `${(parseFloat(networkData.reward_wallet_today_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                title: 'BLOCKS TODAY IN NETWORK',
-                icon: 'fa-cubes',
-                value: networkData.block_count_today || 0
-            },
-            {
-                title: 'TOTAL BLOCKS IN NETWORK',
-                icon: 'fa-layer-group',
-                value: (networkData.block_count || 0).toLocaleString()
+                title: 'NETWORK STATE',
+                icon: networkStateIcon,
+                value: networkStateStatus,
+                statusClass: networkStateClass
             },
             {
                 title: 'REWARD WALLET',
@@ -1512,24 +1497,25 @@ class NodeManager {
                 fullAddress: networkData.reward_wallet_address,
                 balances: networkData.reward_wallet_balance,
                 hasInfo: true
+            },
+            {
+                title: 'REWARDS RECEIVED TODAY',
+                icon: 'fa-coins',
+                value: `${(parseFloat(networkData.reward_wallet_today_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+            },
+            {
+                title: 'SIGNED BLOCKS TODAY',
+                icon: 'fa-cube',
+                value: networkData.signed_blocks_today_amount || 0
+            },
+            {
+                title: 'TOTAL BLOCKS IN NETWORK',
+                icon: 'fa-layer-group',
+                value: (networkData.block_count || 0).toLocaleString()
             }
         ];
 
-        // Add sovereign wallet only if it exists
-        if (networkData.sovereign_reward_wallet_address) {
-            networkMetrics.push({
-                title: 'SOVEREIGN WALLET',
-                icon: 'fa-shield-halved',
-                value: this.formatWalletAddress(networkData.sovereign_reward_wallet_address),
-                isWallet: true,
-                walletType: 'sovereign',
-                fullAddress: networkData.sovereign_reward_wallet_address,
-                balances: networkData.sovereign_wallet_balance,
-                hasInfo: true
-            });
-        }
-
-        // Continue with other metrics
+        // Continue with other metrics (alphabetically ordered)
         networkMetrics.push(
             {
                 title: 'AUTOCOLLECT STATUS',
@@ -1537,24 +1523,14 @@ class NodeManager {
                 value: networkData.autocollect_status?.active ? 'Active' : 'Inactive'
             },
             {
-                title: 'TOKEN PRICE',
-                icon: 'fa-chart-line',
-                value: `$${networkData.token_price || 0}`
-            },
-            {
-                title: 'CURRENT BLOCK REWARD',
-                icon: 'fa-gift',
-                value: `${(parseFloat(networkData.current_block_reward) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
                 title: 'BIGGEST REWARD',
                 icon: 'fa-crown',
                 value: `${(parseFloat(networkData.reward_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
-                title: 'SMALLEST REWARD',
-                icon: 'fa-arrow-down',
-                value: `${(parseFloat(networkData.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+                title: 'CURRENT BLOCK REWARD',
+                icon: 'fa-gift',
+                value: `${(parseFloat(networkData.current_block_reward) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
                 title: 'LATEST REWARD',
@@ -1580,6 +1556,34 @@ class NodeManager {
                 title: 'REMOTE CACHE UPDATED',
                 icon: 'fa-database',
                 value: networkData.cache_last_updated ? this.formatLocaleDateTime(networkData.cache_last_updated) : 'N/A'
+            },
+            {
+                title: 'SMALLEST REWARD',
+                icon: 'fa-arrow-down',
+                value: `${(parseFloat(networkData.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+            }
+        );
+
+        // Add sovereign wallet only if it exists (alphabetically after 'SMALLEST')
+        if (networkData.sovereign_reward_wallet_address) {
+            networkMetrics.push({
+                title: 'SOVEREIGN WALLET',
+                icon: 'fa-shield-halved',
+                value: this.formatWalletAddress(networkData.sovereign_reward_wallet_address),
+                isWallet: true,
+                walletType: 'sovereign',
+                fullAddress: networkData.sovereign_reward_wallet_address,
+                balances: networkData.sovereign_wallet_balance,
+                hasInfo: true
+            });
+        }
+
+        // Add TOKEN PRICE at the end (alphabetically last)
+        networkMetrics.push(
+            {
+                title: 'TOKEN PRICE',
+                icon: 'fa-chart-line',
+                value: `$${networkData.token_price || 0}`
             }
         );
 
