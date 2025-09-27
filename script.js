@@ -959,22 +959,36 @@ class NodeManager {
 
     async fetchNodeData(node, actions) {
         const url = `${node.url}?access_token=${node.token}&action=${actions}`;
-        const response = await fetch(url, {
-            headers: {
-                'Accept-Encoding': 'gzip'
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Accept-Encoding': 'gzip'
+                },
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-        });
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            const data = await response.json();
+            if (data.status !== 'ok') {
+                throw new Error(data.error || 'API request failed');
+            }
+
+            return data.data;
+        } catch (error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                throw new Error('Request timeout (30 seconds)');
+            }
+            throw error;
         }
-
-        const data = await response.json();
-        if (data.status !== 'ok') {
-            throw new Error(data.error || 'API request failed');
-        }
-
-        return data.data;
     }
 
     async fetchNetworkData(node, network, actions, days = null) {
@@ -983,22 +997,36 @@ class NodeManager {
             url += `&days_cutoff=${days}`;
         }
 
-        const response = await fetch(url, {
-            headers: {
-                'Accept-Encoding': 'gzip'
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'Accept-Encoding': 'gzip'
+                },
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-        });
 
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            const data = await response.json();
+            if (data.status !== 'ok') {
+                throw new Error(data.error || 'API request failed');
+            }
+
+            return data.data[network] || {};
+        } catch (error) {
+            clearTimeout(timeoutId);
+            if (error.name === 'AbortError') {
+                throw new Error('Request timeout (30 seconds)');
+            }
+            throw error;
         }
-
-        const data = await response.json();
-        if (data.status !== 'ok') {
-            throw new Error(data.error || 'API request failed');
-        }
-
-        return data.data[network] || {};
     }
 
     async fetchNetworkDataSeparately(node, network, days = null) {
@@ -1028,6 +1056,9 @@ class NodeManager {
 
             // Token and pricing
             'token_price',
+
+            // Validator fee data
+            'validator_average_fee', 'validator_min_fee', 'validator_max_fee',
 
             // Reward wallet data
             'reward_wallet_balance', 'reward_wallet_biggest_reward', 'reward_wallet_daily_rewards',
@@ -1506,6 +1537,11 @@ class NodeManager {
                 value: networkData.first_signed_blocks_today_amount || 0
             },
             {
+                title: 'FIRST SIGNED BLOCKS YESTERDAY',
+                icon: 'fa-trophy',
+                value: networkData.first_signed_blocks_yesterday_amount || 0
+            },
+            {
                 title: 'LATEST REWARD',
                 icon: 'fa-clock-rotate-left',
                 value: networkData.reward_wallet_latest_reward ?
@@ -1605,6 +1641,21 @@ class NodeManager {
                 title: 'TOTAL BLOCKS IN NETWORK',
                 icon: 'fa-layer-group',
                 value: (networkData.block_count || 0).toLocaleString()
+            },
+            {
+                title: 'VALIDATOR AVERAGE FEE',
+                icon: 'fa-calculator',
+                value: `${(parseFloat(networkData.validator_average_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
+            },
+            {
+                title: 'VALIDATOR MAX FEE',
+                icon: 'fa-arrow-up',
+                value: `${(parseFloat(networkData.validator_max_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
+            },
+            {
+                title: 'VALIDATOR MIN FEE',
+                icon: 'fa-arrow-down',
+                value: `${(parseFloat(networkData.validator_min_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
             }
         );
 
@@ -2108,11 +2159,25 @@ async function testNodeConnection() {
     try {
         // Test basic connection with system data
         const testUrl = `${url}?access_token=${token}&action=active_networks`;
-        const response = await fetch(testUrl, {
-            headers: {
-                'Accept-Encoding': 'gzip'
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        let response;
+        try {
+            response = await fetch(testUrl, {
+                headers: {
+                    'Accept-Encoding': 'gzip'
+                },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+        } catch (fetchError) {
+            clearTimeout(timeoutId);
+            if (fetchError.name === 'AbortError') {
+                throw new Error('Request timeout (30 seconds)');
             }
-        });
+            throw fetchError;
+        }
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -2175,11 +2240,25 @@ async function testSetupConnection() {
     try {
         // Test basic connection with system data
         const testUrl = `${url}?access_token=${token}&action=active_networks`;
-        const response = await fetch(testUrl, {
-            headers: {
-                'Accept-Encoding': 'gzip'
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+        let response;
+        try {
+            response = await fetch(testUrl, {
+                headers: {
+                    'Accept-Encoding': 'gzip'
+                },
+                signal: controller.signal
+            });
+            clearTimeout(timeoutId);
+        } catch (fetchError) {
+            clearTimeout(timeoutId);
+            if (fetchError.name === 'AbortError') {
+                throw new Error('Request timeout (30 seconds)');
             }
-        });
+            throw fetchError;
+        }
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
