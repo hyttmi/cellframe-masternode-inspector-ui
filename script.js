@@ -1537,11 +1537,6 @@ class NodeManager {
                 value: networkData.first_signed_blocks_today_amount || 0
             },
             {
-                title: 'FIRST SIGNED BLOCKS YESTERDAY',
-                icon: 'fa-trophy',
-                value: networkData.first_signed_blocks_yesterday_amount || 0
-            },
-            {
                 title: 'LATEST REWARD',
                 icon: 'fa-clock-rotate-left',
                 value: networkData.reward_wallet_latest_reward ?
@@ -1601,6 +1596,11 @@ class NodeManager {
                 title: 'SIGNED BLOCKS YESTERDAY',
                 icon: 'fa-cube',
                 value: networkData.signed_blocks_yesterday_amount || 0
+            },
+            {
+                title: 'FIRST SIGNED BLOCKS YESTERDAY',
+                icon: 'fa-trophy',
+                value: networkData.first_signed_blocks_yesterday_amount || 0
             },
             {
                 title: 'SMALLEST REWARD',
