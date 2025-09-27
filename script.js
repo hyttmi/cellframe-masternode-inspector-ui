@@ -899,8 +899,8 @@ class NodeManager {
 
     async loadNetworkData(node, network) {
         try {
-            // Fetch all network data by calling individual actions separately to avoid truncation
-            const networkData = await this.fetchNetworkDataSeparately(node, network);
+            // Fetch all network data using 'all' method (data truncation now fixed in server)
+            const networkData = await this.fetchNetworkData(node, network, 'all');
 
             // Cache the network data for later use
             this.setStoredNetworkData(node.id, network, networkData);
@@ -1029,115 +1029,7 @@ class NodeManager {
         }
     }
 
-    async fetchNetworkDataSeparately(node, network, days = null) {
-        console.log(`Fetching network data separately for ${network} to avoid truncation`);
 
-        // Define the network actions to fetch (based on available_network_actions from API)
-        const networkActions = [
-            // Core status and configuration
-            'autocollect_status', 'network_status', 'sovereign_reward_wallet_address',
-            'reward_wallet_address', 'native_ticker', 'days_cutoff',
-
-            // Block and chain data
-            'block_count_today', 'block_count', 'chain_size', 'current_block_reward',
-
-            // First signed blocks
-            'first_signed_blocks_count', 'first_signed_blocks_daily_amount',
-            'first_signed_blocks_daily', 'first_signed_blocks_all_sums_daily',
-            'first_signed_blocks_earliest', 'first_signed_blocks_latest',
-            'first_signed_blocks_today_amount', 'first_signed_blocks_today',
-            'first_signed_blocks_yesterday_amount', 'first_signed_blocks_yesterday',
-
-            // Signed blocks
-            'signed_blocks_count', 'signed_blocks_daily_amount', 'signed_blocks_daily',
-            'signed_blocks_all_sums_daily', 'signed_blocks_earliest', 'signed_blocks_latest',
-            'signed_blocks_today_amount', 'signed_blocks_today', 'signed_blocks_yesterday_amount',
-            'signed_blocks_yesterday',
-
-            // Token and pricing
-            'token_price',
-
-            // Validator fee data
-            'validator_average_fee', 'validator_min_fee', 'validator_max_fee',
-
-            // Reward wallet data
-            'reward_wallet_balance', 'reward_wallet_biggest_reward', 'reward_wallet_daily_rewards',
-            'reward_wallet_all_sums_daily', 'reward_wallet_earliest_reward', 'reward_wallet_latest_reward',
-            'reward_wallet_today_rewards', 'reward_wallet_yesterday_rewards', 'reward_wallet_smallest_reward',
-            'reward_wallet_total_rewards',
-
-            // Sovereign wallet data
-            'sovereign_wallet_balance', 'sovereign_wallet_biggest_reward', 'sovereign_wallet_daily_rewards',
-            'sovereign_wallet_all_sums_daily', 'sovereign_wallet_earliest_reward', 'sovereign_wallet_latest_reward',
-            'sovereign_wallet_today_rewards', 'sovereign_wallet_yesterday_rewards', 'sovereign_wallet_smallest_reward',
-            'sovereign_wallet_total_rewards',
-
-            // Cache info
-            'cache_last_updated'
-        ];
-
-        const combinedData = {};
-        const fetchPromises = [];
-        const batchSize = 10; // Fetch in batches to avoid overwhelming the server
-
-        // Process actions in batches
-        for (let i = 0; i < networkActions.length; i += batchSize) {
-            const batch = networkActions.slice(i, i + batchSize);
-            const batchPromise = this.fetchActionBatch(node, network, batch, days);
-            fetchPromises.push(batchPromise);
-        }
-
-        try {
-            console.log(`Fetching ${networkActions.length} network actions in ${fetchPromises.length} batches of ${batchSize}`);
-
-            // Wait for all batches to complete
-            const batchResults = await Promise.all(fetchPromises);
-
-            // Combine all batch results into one object
-            for (const batchData of batchResults) {
-                Object.assign(combinedData, batchData);
-            }
-
-            console.log(`Successfully fetched ${Object.keys(combinedData).length} network actions for ${network}`);
-            return combinedData;
-
-        } catch (error) {
-            console.error(`Error fetching network data separately for ${network}:`, error);
-            // Fallback to the original method if separate fetching fails
-            console.log('Falling back to single request with all actions');
-            return await this.fetchNetworkData(node, network, 'all', days);
-        }
-    }
-
-    async fetchActionBatch(node, network, actions, days = null) {
-        const batchData = {};
-        const promises = actions.map(async (action) => {
-            try {
-                const actionData = await this.fetchNetworkData(node, network, action, days);
-                return { action, data: actionData };
-            } catch (error) {
-                console.warn(`Failed to fetch action ${action} for ${network}:`, error);
-                return { action, data: null };
-            }
-        });
-
-        const results = await Promise.all(promises);
-
-        // Combine results into batch data
-        for (const { action, data } of results) {
-            if (data && typeof data === 'object') {
-                // If the data has the action as a key, use its value
-                if (data[action] !== undefined) {
-                    batchData[action] = data[action];
-                } else {
-                    // Otherwise, use the entire data object
-                    batchData[action] = data;
-                }
-            }
-        }
-
-        return batchData;
-    }
 
     async loadChartData(node, network, days, chartType = 'all') {
         try {
@@ -1152,9 +1044,9 @@ class NodeManager {
                 // We DON'T pass skipFiltering=true because we want client-side filtering
                 this.updateCharts(node.id, network, cachedData, false, chartType);
             } else {
-                console.log('No cached data, fetching from API using separate calls');
-                // If no cached data, fetch all data using separate calls to avoid truncation
-                const chartData = await this.fetchNetworkDataSeparately(node, network);
+                console.log('No cached data, fetching from API using all method');
+                // If no cached data, fetch all data using 'all' method
+                const chartData = await this.fetchNetworkData(node, network, 'all');
                 this.setStoredNetworkData(node.id, network, chartData);
                 // Use client-side filtering
                 this.updateCharts(node.id, network, chartData, false, chartType);
