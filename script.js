@@ -591,17 +591,19 @@ class NodeManager {
                 }
             }
         } else {
-            showNotification('Share API not supported on this device');
-            this.copyShareLink();
+            showNotification('Share API not supported. Link copied to clipboard!');
+            this.copyShareLink(true);
         }
     }
 
-    copyShareLink() {
+    copyShareLink(silent = false) {
         const shareUrl = this.getShareUrl();
         if (!shareUrl) return;
 
         navigator.clipboard.writeText(shareUrl).then(() => {
-            showNotification('Link copied to clipboard!');
+            if (!silent) {
+                showNotification('Link copied to clipboard!');
+            }
         }).catch(err => {
             console.error('Failed to copy to clipboard:', err);
             prompt('Copy this link:', shareUrl);
