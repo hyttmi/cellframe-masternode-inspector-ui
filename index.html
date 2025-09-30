@@ -152,7 +152,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="addNodeForm">
+                    <form id="addNodeForm" onsubmit="event.preventDefault(); addNode();">
                         <div class="mb-3">
                             <label for="nodeName" class="form-label">Node Name</label>
                             <input type="text" class="form-control" id="nodeName" required>
@@ -185,7 +185,7 @@
                 </div>
                 <div class="modal-body">
                     <p>To get started, please add your first masternode configuration:</p>
-                    <form id="setupForm">
+                    <form id="setupForm" onsubmit="event.preventDefault(); setupFirstNode();">
                         <div class="mb-3">
                             <label for="setupNodeName" class="form-label">Node Name</label>
                             <input type="text" class="form-control" id="setupNodeName" placeholder="My Masternode" required>
