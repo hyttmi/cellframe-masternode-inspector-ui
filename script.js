@@ -551,6 +551,9 @@ class NodeManager {
 
     removeNode(nodeId) {
         if (confirm('Are you sure you want to remove this node?')) {
+            // Clean up node-specific settings
+            this.cleanupNodeSettings(nodeId);
+
             this.nodes = this.nodes.filter(node => node.id !== nodeId);
             this.saveNodes();
 
@@ -574,6 +577,9 @@ class NodeManager {
             const nodeName = activeNode ? activeNode.name : 'this node';
 
             if (confirm(`Are you sure you want to remove "${nodeName}"?`)) {
+                // Clean up node-specific settings
+                this.cleanupNodeSettings(this.activeNodeId);
+
                 // Remove node without additional confirmation
                 this.nodes = this.nodes.filter(node => node.id !== this.activeNodeId);
                 this.saveNodes();
@@ -591,6 +597,36 @@ class NodeManager {
                 }
             }
         }
+    }
+
+    cleanupNodeSettings(nodeId) {
+        // Remove visible metrics for this node
+        if (this.visibleMetrics[nodeId]) {
+            delete this.visibleMetrics[nodeId];
+            this.saveVisibleMetrics();
+        }
+
+        // Remove network preferences for this node
+        if (this.networkPreferences[nodeId]) {
+            delete this.networkPreferences[nodeId];
+            this.saveNetworkPreferences();
+        }
+
+        // Remove days preferences for this node
+        if (this.daysPreferences[nodeId]) {
+            delete this.daysPreferences[nodeId];
+            this.saveDaysPreferences();
+        }
+
+        // Remove metric order for this node (system and network)
+        localStorage.removeItem(`cfminspector_${nodeId}_system_metric_order`);
+        localStorage.removeItem(`cfminspector_${nodeId}_network_metric_order`);
+
+        // Remove any cached data for this node
+        const cacheKeys = Object.keys(localStorage).filter(key =>
+            key.startsWith(`cfminspector_cache_${nodeId}_`)
+        );
+        cacheKeys.forEach(key => localStorage.removeItem(key));
     }
 
     updateRemoveButtonVisibility() {
