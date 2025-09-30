@@ -358,6 +358,14 @@ class NodeManager {
             { id: 'system_uptime', label: 'System Uptime' }
         ];
 
+        // Check if current network has sovereign data
+        const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
+        let hasSovereignData = false;
+        if (activeNode && this.selectedNetwork) {
+            const cachedData = this.getCachedNetworkData(activeNode.id, this.selectedNetwork);
+            hasSovereignData = cachedData?.sovereign_reward_wallet_address && cachedData?.sovereign_wallet_all_sums_daily;
+        }
+
         // Network metrics with friendly names
         const networkMetrics = [
             { id: 'autocollect_status', label: 'Autocollect Status' },
@@ -377,8 +385,6 @@ class NodeManager {
             { id: 'signed_blocks_today', label: 'Signed Blocks Today' },
             { id: 'signed_blocks_yesterday', label: 'Signed Blocks Yesterday' },
             { id: 'smallest_reward', label: 'Smallest Reward' },
-            { id: 'sovereign_rewards_yesterday', label: 'Sovereign Rewards Yesterday' },
-            { id: 'sovereign_wallet', label: 'Sovereign Wallet' },
             { id: 'token_price', label: 'Token Price' },
             { id: 'total_blocks_in_network', label: 'Total Blocks in Network' },
             { id: 'validator_average_fee', label: 'Validator Average Fee' },
@@ -386,12 +392,12 @@ class NodeManager {
             { id: 'validator_min_fee', label: 'Validator Min Fee' }
         ];
 
-        // Check if current network has sovereign data
-        const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
-        let hasSovereignData = false;
-        if (activeNode && this.selectedNetwork) {
-            const cachedData = this.getCachedNetworkData(activeNode.id, this.selectedNetwork);
-            hasSovereignData = cachedData?.sovereign_reward_wallet_address && cachedData?.sovereign_wallet_all_sums_daily;
+        // Only add sovereign metrics if data is available
+        if (hasSovereignData) {
+            networkMetrics.push(
+                { id: 'sovereign_rewards_yesterday', label: 'Sovereign Rewards Yesterday' },
+                { id: 'sovereign_wallet', label: 'Sovereign Wallet' }
+            );
         }
 
         // Chart and section visibility options
