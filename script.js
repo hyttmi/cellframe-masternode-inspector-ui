@@ -205,19 +205,24 @@ class NodeManager {
 
     loadVisibleMetrics() {
         const stored = localStorage.getItem('cfminspector_visible_metrics');
-        if (stored) {
-            return JSON.parse(stored);
-        }
-        // Default: all metrics visible
-        return {
-            system: this.getAllSystemMetricIds(),
-            network: this.getAllNetworkMetricIds(),
-            sections: this.getAllSectionIds()
-        };
+        return stored ? JSON.parse(stored) : {};
     }
 
     saveVisibleMetrics() {
         localStorage.setItem('cfminspector_visible_metrics', JSON.stringify(this.visibleMetrics));
+    }
+
+    getVisibleMetricsForNode(nodeId) {
+        if (!this.visibleMetrics[nodeId]) {
+            // Default: all metrics visible for this node
+            this.visibleMetrics[nodeId] = {
+                system: this.getAllSystemMetricIds(),
+                network: this.getAllNetworkMetricIds(),
+                sections: this.getAllSectionIds()
+            };
+            this.saveVisibleMetrics();
+        }
+        return this.visibleMetrics[nodeId];
     }
 
     getAllSystemMetricIds() {
@@ -274,22 +279,29 @@ class NodeManager {
         ];
     }
 
-    isMetricVisible(metricId, type) {
-        return this.visibleMetrics[type]?.includes(metricId) || false;
+    isMetricVisible(metricId, type, nodeId = null) {
+        const targetNodeId = nodeId || this.activeNodeId;
+        if (!targetNodeId) return true; // Default to visible if no node
+        const nodeMetrics = this.getVisibleMetricsForNode(targetNodeId);
+        return nodeMetrics[type]?.includes(metricId) || false;
     }
 
     toggleMetricVisibility(metricId, type) {
-        if (!this.visibleMetrics[type]) {
-            this.visibleMetrics[type] = [];
+        if (!this.activeNodeId) return;
+
+        const nodeMetrics = this.getVisibleMetricsForNode(this.activeNodeId);
+
+        if (!nodeMetrics[type]) {
+            nodeMetrics[type] = [];
         }
 
-        const index = this.visibleMetrics[type].indexOf(metricId);
+        const index = nodeMetrics[type].indexOf(metricId);
         if (index > -1) {
             // Remove from visible
-            this.visibleMetrics[type].splice(index, 1);
+            nodeMetrics[type].splice(index, 1);
         } else {
             // Add to visible
-            this.visibleMetrics[type].push(metricId);
+            nodeMetrics[type].push(metricId);
         }
 
         this.saveVisibleMetrics();
@@ -305,18 +317,22 @@ class NodeManager {
     }
 
     selectAllMetrics(type, select) {
+        if (!this.activeNodeId) return;
+
+        const nodeMetrics = this.getVisibleMetricsForNode(this.activeNodeId);
+
         if (select) {
             // Select all
             if (type === 'system') {
-                this.visibleMetrics.system = this.getAllSystemMetricIds();
+                nodeMetrics.system = this.getAllSystemMetricIds();
             } else if (type === 'network') {
-                this.visibleMetrics.network = this.getAllNetworkMetricIds();
+                nodeMetrics.network = this.getAllNetworkMetricIds();
             } else if (type === 'sections') {
-                this.visibleMetrics.sections = this.getAllSectionIds();
+                nodeMetrics.sections = this.getAllSectionIds();
             }
         } else {
             // Deselect all
-            this.visibleMetrics[type] = [];
+            nodeMetrics[type] = [];
         }
 
         this.saveVisibleMetrics();
@@ -2489,6 +2505,8 @@ class NodeManager {
 
     // Save metric order preferences
     saveMetricOrder(metricType) {
+        if (!this.activeNodeId) return;
+
         const container = metricType === 'system'
             ? document.getElementById('systemInfoCards')
             : document.getElementById('networkPerfCards');
@@ -2498,12 +2516,15 @@ class NodeManager {
         const metricIds = Array.from(container.children)
             .map(card => card.dataset.metricId);
 
-        const orderKey = `cfminspector_${metricType}_metric_order`;
+        const orderKey = `cfminspector_${this.activeNodeId}_${metricType}_metric_order`;
         localStorage.setItem(orderKey, JSON.stringify(metricIds));
     }
 
-    getSavedMetricOrder(metricType) {
-        const orderKey = `cfminspector_${metricType}_metric_order`;
+    getSavedMetricOrder(metricType, nodeId = null) {
+        const targetNodeId = nodeId || this.activeNodeId;
+        if (!targetNodeId) return null;
+
+        const orderKey = `cfminspector_${targetNodeId}_${metricType}_metric_order`;
         const saved = localStorage.getItem(orderKey);
         return saved ? JSON.parse(saved) : null;
     }
