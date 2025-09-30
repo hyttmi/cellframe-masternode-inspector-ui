@@ -13,6 +13,7 @@ class NodeManager {
         this.lastUpdateTimestamps = {}; // Track when data was last updated
         this.lastNetworkUpdate = {}; // Track when network data was last updated
         this.refreshSettings = this.loadRefreshSettings();
+        this.visibleMetrics = this.loadVisibleMetrics();
         this.init();
     }
 
@@ -200,6 +201,203 @@ class NodeManager {
 
     saveRefreshSettings() {
         localStorage.setItem('cfminspector_refresh_settings', JSON.stringify(this.refreshSettings));
+    }
+
+    loadVisibleMetrics() {
+        const stored = localStorage.getItem('cfminspector_visible_metrics');
+        if (stored) {
+            return JSON.parse(stored);
+        }
+        // Default: all metrics visible
+        return {
+            system: this.getAllSystemMetricIds(),
+            network: this.getAllNetworkMetricIds()
+        };
+    }
+
+    saveVisibleMetrics() {
+        localStorage.setItem('cfminspector_visible_metrics', JSON.stringify(this.visibleMetrics));
+    }
+
+    getAllSystemMetricIds() {
+        return [
+            'cpu_usage',
+            'current_plugin_version',
+            'current_version',
+            'external_ip',
+            'hostname',
+            'latest_plugin_version',
+            'latest_version',
+            'memory_usage',
+            'node_status',
+            'node_uptime',
+            'system_uptime'
+        ];
+    }
+
+    getAllNetworkMetricIds() {
+        return [
+            'autocollect_status',
+            'biggest_reward',
+            'blocks_today_in_network',
+            'current_block_reward',
+            'first_signed_blocks_today',
+            'first_signed_blocks_yesterday',
+            'latest_reward',
+            'network_state',
+            'network_status',
+            'node_address',
+            'remote_cache_updated',
+            'reward_wallet',
+            'rewards_received_today',
+            'rewards_received_yesterday',
+            'signed_blocks_today',
+            'signed_blocks_yesterday',
+            'smallest_reward',
+            'sovereign_rewards_yesterday',
+            'sovereign_wallet',
+            'token_price',
+            'total_blocks_in_network',
+            'validator_average_fee',
+            'validator_max_fee',
+            'validator_min_fee'
+        ];
+    }
+
+    isMetricVisible(metricId, type) {
+        return this.visibleMetrics[type]?.includes(metricId) || false;
+    }
+
+    toggleMetricVisibility(metricId, type) {
+        if (!this.visibleMetrics[type]) {
+            this.visibleMetrics[type] = [];
+        }
+
+        const index = this.visibleMetrics[type].indexOf(metricId);
+        if (index > -1) {
+            // Remove from visible
+            this.visibleMetrics[type].splice(index, 1);
+        } else {
+            // Add to visible
+            this.visibleMetrics[type].push(metricId);
+        }
+
+        this.saveVisibleMetrics();
+
+        // Refresh the appropriate section
+        if (type === 'system') {
+            this.refreshSystemData(this.activeNodeId);
+        } else {
+            this.refreshNetworkData(this.activeNodeId);
+        }
+    }
+
+    selectAllMetrics(type, select) {
+        if (select) {
+            // Select all
+            if (type === 'system') {
+                this.visibleMetrics.system = this.getAllSystemMetricIds();
+            } else {
+                this.visibleMetrics.network = this.getAllNetworkMetricIds();
+            }
+        } else {
+            // Deselect all
+            this.visibleMetrics[type] = [];
+        }
+
+        this.saveVisibleMetrics();
+        this.populateManageMetricsModal();
+
+        // Refresh the appropriate section
+        if (type === 'system') {
+            this.refreshSystemData(this.activeNodeId);
+        } else {
+            this.refreshNetworkData(this.activeNodeId);
+        }
+    }
+
+    showManageMetricsModal() {
+        this.populateManageMetricsModal();
+        const modal = new bootstrap.Modal(document.getElementById('manageMetricsModal'));
+        modal.show();
+    }
+
+    populateManageMetricsModal() {
+        const systemMetricsList = document.getElementById('systemMetricsList');
+        const networkMetricsList = document.getElementById('networkMetricsList');
+
+        // System metrics with friendly names
+        const systemMetrics = [
+            { id: 'cpu_usage', label: 'CPU Usage' },
+            { id: 'current_plugin_version', label: 'Current Plugin Version' },
+            { id: 'current_version', label: 'Current Version' },
+            { id: 'external_ip', label: 'External IP' },
+            { id: 'hostname', label: 'Hostname' },
+            { id: 'latest_plugin_version', label: 'Latest Plugin Version' },
+            { id: 'latest_version', label: 'Latest Version' },
+            { id: 'memory_usage', label: 'Memory Usage' },
+            { id: 'node_status', label: 'Node Status' },
+            { id: 'node_uptime', label: 'Node Uptime' },
+            { id: 'system_uptime', label: 'System Uptime' }
+        ];
+
+        // Network metrics with friendly names
+        const networkMetrics = [
+            { id: 'autocollect_status', label: 'Autocollect Status' },
+            { id: 'biggest_reward', label: 'Biggest Reward' },
+            { id: 'blocks_today_in_network', label: 'Blocks Today in Network' },
+            { id: 'current_block_reward', label: 'Current Block Reward' },
+            { id: 'first_signed_blocks_today', label: 'First Signed Blocks Today' },
+            { id: 'first_signed_blocks_yesterday', label: 'First Signed Blocks Yesterday' },
+            { id: 'latest_reward', label: 'Latest Reward' },
+            { id: 'network_state', label: 'Network State' },
+            { id: 'network_status', label: 'Network Status' },
+            { id: 'node_address', label: 'Node Address' },
+            { id: 'remote_cache_updated', label: 'Remote Cache Updated' },
+            { id: 'reward_wallet', label: 'Reward Wallet' },
+            { id: 'rewards_received_today', label: 'Rewards Received Today' },
+            { id: 'rewards_received_yesterday', label: 'Rewards Received Yesterday' },
+            { id: 'signed_blocks_today', label: 'Signed Blocks Today' },
+            { id: 'signed_blocks_yesterday', label: 'Signed Blocks Yesterday' },
+            { id: 'smallest_reward', label: 'Smallest Reward' },
+            { id: 'sovereign_rewards_yesterday', label: 'Sovereign Rewards Yesterday' },
+            { id: 'sovereign_wallet', label: 'Sovereign Wallet' },
+            { id: 'token_price', label: 'Token Price' },
+            { id: 'total_blocks_in_network', label: 'Total Blocks in Network' },
+            { id: 'validator_average_fee', label: 'Validator Average Fee' },
+            { id: 'validator_max_fee', label: 'Validator Max Fee' },
+            { id: 'validator_min_fee', label: 'Validator Min Fee' }
+        ];
+
+        systemMetricsList.innerHTML = systemMetrics.map(metric => {
+            const isVisible = this.isMetricVisible(metric.id, 'system');
+            return `
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           id="system_${metric.id}"
+                           ${isVisible ? 'checked' : ''}
+                           onchange="nodeManager.toggleMetricVisibility('${metric.id}', 'system')">
+                    <label class="form-check-label" for="system_${metric.id}">
+                        ${metric.label}
+                    </label>
+                </div>
+            `;
+        }).join('');
+
+        networkMetricsList.innerHTML = networkMetrics.map(metric => {
+            const isVisible = this.isMetricVisible(metric.id, 'network');
+            return `
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           id="network_${metric.id}"
+                           ${isVisible ? 'checked' : ''}
+                           onchange="nodeManager.toggleMetricVisibility('${metric.id}', 'network')">
+                    <label class="form-check-label" for="network_${metric.id}">
+                        ${metric.label}
+                    </label>
+                </div>
+            `;
+        }).join('');
     }
 
     updateRefreshSettings(systemInterval, networkInterval) {
@@ -1334,68 +1532,84 @@ class NodeManager {
 
             const systemMetrics = [
                 {
+                    id: 'cpu_usage',
                     title: 'CPU USAGE',
                     icon: 'fa-microchip',
                     value: `${(systemData.node_cpu_usage || 0).toFixed(1)}%`
                 },
                 {
+                    id: 'current_plugin_version',
                     title: 'CURRENT PLUGIN VERSION',
                     icon: 'fa-puzzle-piece',
                     value: systemData.current_plugin_version || 'N/A',
                     isUpToDate: systemData.current_plugin_version === systemData.latest_plugin_version
                 },
                 {
+                    id: 'current_version',
                     title: 'CURRENT VERSION',
                     icon: 'fa-code-branch',
                     value: systemData.current_node_version || 'N/A',
                     isUpToDate: systemData.current_node_version === systemData.latest_node_version
                 },
                 {
+                    id: 'external_ip',
                     title: 'EXTERNAL IP',
                     icon: 'fa-globe',
                     value: systemData.external_ip || 'N/A'
                 },
                 {
+                    id: 'hostname',
                     title: 'HOSTNAME',
                     icon: 'fa-desktop',
                     value: systemData.hostname || 'Unknown'
                 },
                 {
+                    id: 'latest_plugin_version',
                     title: 'LATEST PLUGIN VERSION',
                     icon: 'fa-puzzle-piece',
                     value: systemData.latest_plugin_version || 'N/A'
                 },
                 {
+                    id: 'latest_version',
                     title: 'LATEST VERSION',
                     icon: 'fa-download',
                     value: systemData.latest_node_version || 'N/A'
                 },
                 {
+                    id: 'memory_usage',
                     title: 'MEMORY USAGE',
                     icon: 'fa-memory',
                     value: `${(systemData.node_memory_usage || 0).toFixed(2)} MB`
                 },
                 {
+                    id: 'node_status',
                     title: 'NODE STATUS',
                     icon: statusIcon,
                     value: nodeStatus,
                     statusClass: statusClass
                 },
                 {
+                    id: 'node_uptime',
                     title: 'NODE UPTIME',
                     icon: 'fa-clock',
                     value: this.formatUptime(systemData.node_uptime || 0)
                 },
                 {
+                    id: 'system_uptime',
                     title: 'SYSTEM UPTIME',
                     icon: 'fa-server',
                     value: this.formatUptime(systemData.system_uptime || 0)
                 }
             ];
 
+            // Filter only visible metrics
+            const visibleSystemMetrics = systemMetrics.filter(metric =>
+                this.isMetricVisible(metric.id, 'system')
+            );
+
             // Get saved metric order or use default alphabetical order
             const savedSystemOrder = this.getSavedMetricOrder('system');
-            const orderedSystemMetrics = this.reorderMetrics(systemMetrics, savedSystemOrder);
+            const orderedSystemMetrics = this.reorderMetrics(visibleSystemMetrics, savedSystemOrder);
 
             systemCards.innerHTML = orderedSystemMetrics.map((metric, index) => `
                 <div class="col-md-4 mb-3"
@@ -1497,31 +1711,37 @@ class NodeManager {
         // Build network metrics array (alphabetically ordered)
         const networkMetrics = [
             {
+                id: 'autocollect_status',
                 title: 'AUTOCOLLECT STATUS',
                 icon: 'fa-robot',
                 value: networkData.autocollect_status?.active ? 'Active' : 'Inactive'
             },
             {
+                id: 'biggest_reward',
                 title: 'BIGGEST REWARD',
                 icon: 'fa-crown',
                 value: `${(parseFloat(networkData.reward_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                id: 'blocks_today_in_network',
                 title: 'BLOCKS TODAY IN NETWORK',
                 icon: 'fa-cubes',
                 value: networkData.block_count_today || 0
             },
             {
+                id: 'current_block_reward',
                 title: 'CURRENT BLOCK REWARD',
                 icon: 'fa-gift',
                 value: `${(parseFloat(networkData.current_block_reward) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                id: 'first_signed_blocks_today',
                 title: 'FIRST SIGNED BLOCKS TODAY',
                 icon: 'fa-trophy',
                 value: networkData.first_signed_blocks_today_amount || 0
             },
             {
+                id: 'latest_reward',
                 title: 'LATEST REWARD',
                 icon: 'fa-clock-rotate-left',
                 value: networkData.reward_wallet_latest_reward ?
@@ -1529,17 +1749,20 @@ class NodeManager {
                     'N/A'
             },
             {
+                id: 'network_state',
                 title: 'NETWORK STATE',
                 icon: networkStateIcon,
                 value: networkStateStatus,
                 statusClass: networkStateClass
             },
             {
+                id: 'network_status',
                 title: 'NETWORK STATUS',
                 icon: 'fa-network-wired',
                 value: networkData.network_status?.synced ? 'Synced' : 'Not Synced'
             },
             {
+                id: 'node_address',
                 title: 'NODE ADDRESS',
                 icon: 'fa-fingerprint',
                 value: networkData.network_status?.node_address ?
@@ -1548,11 +1771,13 @@ class NodeManager {
                         networkData.network_status.node_address) : 'N/A'
             },
             {
+                id: 'remote_cache_updated',
                 title: 'REMOTE CACHE UPDATED',
                 icon: 'fa-database',
                 value: networkData.cache_last_updated ? this.formatLocaleDateTime(networkData.cache_last_updated) : 'N/A'
             },
             {
+                id: 'reward_wallet',
                 title: 'REWARD WALLET',
                 icon: 'fa-wallet',
                 value: this.formatWalletAddress(networkData.reward_wallet_address),
@@ -1563,31 +1788,37 @@ class NodeManager {
                 hasInfo: true
             },
             {
+                id: 'rewards_received_today',
                 title: 'REWARDS RECEIVED TODAY',
                 icon: 'fa-coins',
                 value: `${(parseFloat(networkData.reward_wallet_today_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                id: 'rewards_received_yesterday',
                 title: 'REWARDS RECEIVED YESTERDAY',
                 icon: 'fa-coins',
                 value: `${(parseFloat(networkData.reward_wallet_yesterday_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                id: 'signed_blocks_today',
                 title: 'SIGNED BLOCKS TODAY',
                 icon: 'fa-cube',
                 value: networkData.signed_blocks_today_amount || 0
             },
             {
+                id: 'signed_blocks_yesterday',
                 title: 'SIGNED BLOCKS YESTERDAY',
                 icon: 'fa-cube',
                 value: networkData.signed_blocks_yesterday_amount || 0
             },
             {
+                id: 'first_signed_blocks_yesterday',
                 title: 'FIRST SIGNED BLOCKS YESTERDAY',
                 icon: 'fa-trophy',
                 value: networkData.first_signed_blocks_yesterday_amount || 0
             },
             {
+                id: 'smallest_reward',
                 title: 'SMALLEST REWARD',
                 icon: 'fa-arrow-down',
                 value: `${(parseFloat(networkData.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
@@ -1598,11 +1829,13 @@ class NodeManager {
         if (networkData.sovereign_reward_wallet_address) {
             networkMetrics.push(
                 {
+                    id: 'sovereign_rewards_yesterday',
                     title: 'SOVEREIGN REWARDS YESTERDAY',
                     icon: 'fa-shield-halved',
                     value: `${(parseFloat(networkData.sovereign_wallet_yesterday_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
                 },
                 {
+                    id: 'sovereign_wallet',
                     title: 'SOVEREIGN WALLET',
                     icon: 'fa-shield-halved',
                     value: this.formatWalletAddress(networkData.sovereign_reward_wallet_address),
@@ -1618,35 +1851,45 @@ class NodeManager {
         // Add remaining metrics in alphabetical order
         networkMetrics.push(
             {
+                id: 'token_price',
                 title: 'TOKEN PRICE',
                 icon: 'fa-chart-line',
                 value: `$${networkData.token_price || 0}`
             },
             {
+                id: 'total_blocks_in_network',
                 title: 'TOTAL BLOCKS IN NETWORK',
                 icon: 'fa-layer-group',
                 value: (networkData.block_count || 0).toLocaleString()
             },
             {
+                id: 'validator_average_fee',
                 title: 'VALIDATOR AVERAGE FEE',
                 icon: 'fa-calculator',
                 value: `${(parseFloat(networkData.validator_average_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                id: 'validator_max_fee',
                 title: 'VALIDATOR MAX FEE',
                 icon: 'fa-arrow-up',
                 value: `${(parseFloat(networkData.validator_max_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                id: 'validator_min_fee',
                 title: 'VALIDATOR MIN FEE',
                 icon: 'fa-arrow-down',
                 value: `${(parseFloat(networkData.validator_min_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
             }
         );
 
+        // Filter only visible metrics
+        const visibleNetworkMetrics = networkMetrics.filter(metric =>
+            this.isMetricVisible(metric.id, 'network')
+        );
+
         // Get saved metric order or use default alphabetical order
         const savedNetworkOrder = this.getSavedMetricOrder('network');
-        const orderedNetworkMetrics = this.reorderMetrics(networkMetrics, savedNetworkOrder);
+        const orderedNetworkMetrics = this.reorderMetrics(visibleNetworkMetrics, savedNetworkOrder);
 
         // Create wallet hint as a separate element before the sortable cards container
         const hasWallets = networkMetrics.some(m => m.isWallet);

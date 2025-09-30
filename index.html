@@ -25,6 +25,9 @@
                     </p>
                 </div>
                 <div class="col-auto">
+                    <button class="btn btn-secondary me-2" onclick="nodeManager.showManageMetricsModal()">
+                        <i class="fas fa-sliders me-2"></i> Manage Metrics
+                    </button>
                     <button class="btn btn-secondary me-2" onclick="showSettingsModal()">
                         <i class="fas fa-cog me-2"></i> Settings
                     </button>
@@ -247,6 +250,67 @@
             <div class="modal-footer">
                     <button type="button" class="btn btn-outline-primary" onclick="resetToDefaults()">Reset to Defaults</button>
                     <button type="button" class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Metrics Modal -->
+    <div class="modal fade" id="manageMetricsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-sliders me-2"></i>Manage Metrics
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        <small>
+                            <i class="fas fa-info-circle me-1"></i>
+                            Select which metrics to display on your dashboard. Changes apply immediately.
+                        </small>
+                    </div>
+
+                    <!-- System Metrics Section -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-muted mb-0">
+                                <i class="fas fa-server me-2"></i>System Metrics
+                            </h6>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="nodeManager.selectAllMetrics('system', true)">
+                                    Select All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nodeManager.selectAllMetrics('system', false)">
+                                    Deselect All
+                                </button>
+                            </div>
+                        </div>
+                        <div id="systemMetricsList" class="metric-checkbox-list"></div>
+                    </div>
+
+                    <!-- Network Metrics Section -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-muted mb-0">
+                                <i class="fas fa-network-wired me-2"></i>Network Metrics
+                            </h6>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="nodeManager.selectAllMetrics('network', true)">
+                                    Select All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nodeManager.selectAllMetrics('network', false)">
+                                    Deselect All
+                                </button>
+                            </div>
+                        </div>
+                        <div id="networkMetricsList" class="metric-checkbox-list"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>

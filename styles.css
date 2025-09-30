@@ -619,3 +619,36 @@ body {
     cursor: default;
 }
 
+/* Manage Metrics Modal */
+.metric-checkbox-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--color-tertiary);
+    border-radius: 8px;
+    padding: 1rem;
+    background-color: var(--color-main-light);
+}
+
+.metric-checkbox-list .form-check {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--color-tertiary);
+}
+
+.metric-checkbox-list .form-check:last-child {
+    border-bottom: none;
+}
+
+.metric-checkbox-list .form-check-label {
+    cursor: pointer;
+    user-select: none;
+}
+
+.metric-checkbox-list .form-check-input {
+    cursor: pointer;
+}
+
+.metric-checkbox-list .form-check-input:checked {
+    background-color: var(--color-accent-main);
+    border-color: var(--color-accent-main);
+}
+
