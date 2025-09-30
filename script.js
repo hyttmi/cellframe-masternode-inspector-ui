@@ -2368,6 +2368,9 @@ class NodeManager {
         if (systemCards && !systemCards.sortableInstance) {
             systemCards.sortableInstance = Sortable.create(systemCards, {
                 animation: 150,
+                delay: 200,
+                delayOnTouchOnly: true,
+                touchStartThreshold: 3,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 dragClass: 'sortable-drag',
@@ -2380,6 +2383,9 @@ class NodeManager {
         if (networkCards && !networkCards.sortableInstance) {
             networkCards.sortableInstance = Sortable.create(networkCards, {
                 animation: 150,
+                delay: 200,
+                delayOnTouchOnly: true,
+                touchStartThreshold: 3,
                 ghostClass: 'sortable-ghost',
                 chosenClass: 'sortable-chosen',
                 dragClass: 'sortable-drag',
