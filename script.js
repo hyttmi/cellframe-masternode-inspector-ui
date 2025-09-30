@@ -557,11 +557,11 @@ class NodeManager {
         // Generate QR code
         new QRCode(document.getElementById('qrcode'), {
             text: shareUrl,
-            width: 256,
-            height: 256,
+            width: 300,
+            height: 300,
             colorDark: '#000000',
             colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
+            correctLevel: QRCode.CorrectLevel.H
         });
 
         // Show modal
