@@ -316,6 +316,24 @@
                         </div>
                         <div id="networkMetricsList" class="row metric-checkbox-list"></div>
                     </div>
+
+                    <!-- Charts & Sections -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="text-muted mb-0">
+                                <i class="fas fa-chart-line me-2"></i>Charts & Sections
+                            </h6>
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="nodeManager.selectAllMetrics('sections', true)">
+                                    Select All
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="nodeManager.selectAllMetrics('sections', false)">
+                                    Deselect All
+                                </button>
+                            </div>
+                        </div>
+                        <div id="sectionsList" class="row metric-checkbox-list"></div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -336,8 +354,7 @@
                 </div>
                 <div class="modal-body text-center">
                     <p class="text-muted mb-3">Scan QR code or use the share button</p>
-                    <div id="qrCodeContainer" class="mb-3 d-flex justify-content-center"></div>
-                    <div id="shareUrlDisplay" class="mb-4 small text-muted text-break" style="max-width: 100%; word-wrap: break-word;"></div>
+                    <div id="qrCodeContainer" class="mb-4 d-flex justify-content-center"></div>
                     <div class="d-grid gap-2">
                         <button class="btn btn-primary" onclick="nodeManager.shareViaShareAPI()">
                             <i class="fas fa-share me-2"></i>Share via Device

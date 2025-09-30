@@ -211,7 +211,8 @@ class NodeManager {
         // Default: all metrics visible
         return {
             system: this.getAllSystemMetricIds(),
-            network: this.getAllNetworkMetricIds()
+            network: this.getAllNetworkMetricIds(),
+            sections: this.getAllSectionIds()
         };
     }
 
@@ -264,6 +265,15 @@ class NodeManager {
         ];
     }
 
+    getAllSectionIds() {
+        return [
+            'rewards_chart',
+            'sovereign_rewards_chart',
+            'signed_blocks_chart',
+            'first_signed_blocks_chart'
+        ];
+    }
+
     isMetricVisible(metricId, type) {
         return this.visibleMetrics[type]?.includes(metricId) || false;
     }
@@ -287,7 +297,9 @@ class NodeManager {
         // Refresh the appropriate section
         if (type === 'system') {
             this.refreshSystemData(this.activeNodeId);
-        } else {
+        } else if (type === 'network') {
+            this.refreshNetworkData(this.activeNodeId);
+        } else if (type === 'sections') {
             this.refreshNetworkData(this.activeNodeId);
         }
     }
@@ -297,8 +309,10 @@ class NodeManager {
             // Select all
             if (type === 'system') {
                 this.visibleMetrics.system = this.getAllSystemMetricIds();
-            } else {
+            } else if (type === 'network') {
                 this.visibleMetrics.network = this.getAllNetworkMetricIds();
+            } else if (type === 'sections') {
+                this.visibleMetrics.sections = this.getAllSectionIds();
             }
         } else {
             // Deselect all
@@ -311,7 +325,9 @@ class NodeManager {
         // Refresh the appropriate section
         if (type === 'system') {
             this.refreshSystemData(this.activeNodeId);
-        } else {
+        } else if (type === 'network') {
+            this.refreshNetworkData(this.activeNodeId);
+        } else if (type === 'sections') {
             this.refreshNetworkData(this.activeNodeId);
         }
     }
@@ -325,6 +341,7 @@ class NodeManager {
     populateManageMetricsModal() {
         const systemMetricsList = document.getElementById('systemMetricsList');
         const networkMetricsList = document.getElementById('networkMetricsList');
+        const sectionsList = document.getElementById('sectionsList');
 
         // System metrics with friendly names
         const systemMetrics = [
@@ -369,6 +386,14 @@ class NodeManager {
             { id: 'validator_min_fee', label: 'Validator Min Fee' }
         ];
 
+        // Chart and section visibility options
+        const sections = [
+            { id: 'rewards_chart', label: 'Rewards Chart' },
+            { id: 'sovereign_rewards_chart', label: 'Sovereign Rewards Chart' },
+            { id: 'signed_blocks_chart', label: 'Signed Blocks Chart' },
+            { id: 'first_signed_blocks_chart', label: 'First Signed Blocks Chart' }
+        ];
+
         systemMetricsList.innerHTML = systemMetrics.map(metric => {
             const isVisible = this.isMetricVisible(metric.id, 'system');
             return `
@@ -397,6 +422,23 @@ class NodeManager {
                                onchange="nodeManager.toggleMetricVisibility('${metric.id}', 'network')">
                         <label class="form-check-label" for="network_${metric.id}">
                             ${metric.label}
+                        </label>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        sectionsList.innerHTML = sections.map(section => {
+            const isVisible = this.isMetricVisible(section.id, 'sections');
+            return `
+                <div class="col-md-6 mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               id="section_${section.id}"
+                               ${isVisible ? 'checked' : ''}
+                               onchange="nodeManager.toggleMetricVisibility('${section.id}', 'sections')">
+                        <label class="form-check-label" for="section_${section.id}">
+                            ${section.label}
                         </label>
                     </div>
                 </div>
@@ -554,9 +596,6 @@ class NodeManager {
         const container = document.getElementById('qrCodeContainer');
         container.innerHTML = '<canvas id="qrcode"></canvas>';
 
-        // Display the URL as text
-        document.getElementById('shareUrlDisplay').textContent = shareUrl;
-
         // Generate QR code using QRious
         new QRious({
             element: document.getElementById('qrcode'),
@@ -678,7 +717,7 @@ class NodeManager {
             <!-- Charts Section - Hidden initially until data loads -->
             <div id="${node.id}-charts-section" style="display: none;">
                 <div class="row mb-4">
-                    <div class="col-md-6">
+                    <div class="col-md-6" id="${node.id}-rewards-chart-container">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Rewards Daily Chart</h5>
@@ -734,7 +773,7 @@ class NodeManager {
                 </div>
 
                 <div class="row mb-4" id="${node.id}-second-row">
-                    <div class="col-md-6">
+                    <div class="col-md-6" id="${node.id}-first-blocks-chart-container">
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">First Signed Blocks Daily Chart</h5>
@@ -1463,10 +1502,20 @@ class NodeManager {
     updateCharts(nodeId, network, data, skipFiltering = false, chartType = 'all') {
         console.log(`updateCharts called: nodeId=${nodeId}, chartType=${chartType}, skipFiltering=${skipFiltering}`);
 
-        // Show charts section when data is ready
+        // Check if any charts are visible
+        const anyChartVisible = this.isMetricVisible('rewards_chart', 'sections') ||
+                                this.isMetricVisible('sovereign_rewards_chart', 'sections') ||
+                                this.isMetricVisible('signed_blocks_chart', 'sections') ||
+                                this.isMetricVisible('first_signed_blocks_chart', 'sections');
+
+        // Show charts section only if at least one chart is visible
         const chartsSection = document.getElementById(`${nodeId}-charts-section`);
         if (chartsSection) {
-            chartsSection.style.display = 'block';
+            chartsSection.style.display = anyChartVisible ? 'block' : 'none';
+        }
+
+        if (!anyChartVisible) {
+            return; // No need to update charts if none are visible
         }
 
         let rewardsData, blocksData, firstBlocksData;
@@ -1491,29 +1540,40 @@ class NodeManager {
             firstBlocksData = this.filterDataByDays(data.first_signed_blocks_all_sums_daily, firstBlocksDays);
         }
 
-        // Update charts based on type
-        if (chartType === 'all' || chartType === 'rewards') {
+        // Update charts based on type and visibility
+        const rewardsChartContainer = document.getElementById(`${nodeId}-rewards-chart-container`);
+        if (rewardsChartContainer) {
+            rewardsChartContainer.style.display = this.isMetricVisible('rewards_chart', 'sections') ? 'block' : 'none';
+        }
+        if ((chartType === 'all' || chartType === 'rewards') && this.isMetricVisible('rewards_chart', 'sections')) {
             console.log(`Updating rewards chart for ${nodeId}`, rewardsData);
             this.updateChart(`${nodeId}-rewards-chart`, 'Rewards', rewardsData, data.native_ticker);
         }
 
-        if (chartType === 'all' || chartType === 'blocks') {
+        const blocksChartContainer = document.getElementById(`${nodeId}-blocks-chart-container`);
+        if (blocksChartContainer) {
+            blocksChartContainer.style.display = this.isMetricVisible('signed_blocks_chart', 'sections') ? 'block' : 'none';
+        }
+        if ((chartType === 'all' || chartType === 'blocks') && this.isMetricVisible('signed_blocks_chart', 'sections')) {
             console.log(`Updating blocks chart for ${nodeId}`, blocksData);
             this.updateChart(`${nodeId}-blocks-chart`, 'Blocks', blocksData, 'blocks');
         }
 
-        if (chartType === 'all' || chartType === 'first-blocks') {
+        const firstBlocksChartContainer = document.getElementById(`${nodeId}-first-blocks-chart-container`);
+        if (firstBlocksChartContainer) {
+            firstBlocksChartContainer.style.display = this.isMetricVisible('first_signed_blocks_chart', 'sections') ? 'block' : 'none';
+        }
+        if ((chartType === 'all' || chartType === 'first-blocks') && this.isMetricVisible('first_signed_blocks_chart', 'sections')) {
             console.log(`Updating first-blocks chart for ${nodeId}`, firstBlocksData);
             this.updateChart(`${nodeId}-first-blocks-chart`, 'First Signed Blocks', firstBlocksData, 'blocks');
         }
 
         // Handle sovereign chart positioning - show next to rewards when available
         const sovereignChartContainer = document.getElementById(`${nodeId}-sovereign-chart-container`);
-        const blocksChartContainer = document.getElementById(`${nodeId}-blocks-chart-container`);
         const secondRow = document.getElementById(`${nodeId}-second-row`);
 
-        if (data.sovereign_reward_wallet_address && data.sovereign_wallet_all_sums_daily) {
-            // Show sovereign chart next to rewards
+        if (data.sovereign_reward_wallet_address && data.sovereign_wallet_all_sums_daily && this.isMetricVisible('sovereign_rewards_chart', 'sections')) {
+            // Show sovereign chart next to rewards if visible
             if (sovereignChartContainer) {
                 sovereignChartContainer.style.display = 'block';
             }
@@ -1544,7 +1604,7 @@ class NodeManager {
             }
 
             // Ensure blocks chart stays in first row if no sovereign
-            if (blocksChartContainer && blocksChartContainer.parentElement !== document.querySelector(`#${nodeId}-charts-section .row`)) {
+            if (blocksChartContainer && blocksChartContainer.parentElement !== document.querySelector(`${nodeId}-charts-section .row`)) {
                 // Move blocks chart back to first row
                 const firstRow = document.querySelector(`#${nodeId}-charts-section .row`);
                 if (firstRow) {
@@ -1980,6 +2040,7 @@ class NodeManager {
 
         // Create wallet hint as a separate element before the sortable cards container
         const hasWallets = networkMetrics.some(m => m.isWallet);
+        const hasVisibleWallets = orderedNetworkMetrics.some(m => m.isWallet);
         const cardBody = networkPerfCards.parentElement;
 
         // Remove any existing wallet hint
@@ -1988,8 +2049,8 @@ class NodeManager {
             existingHint.remove();
         }
 
-        // Add wallet hint if wallets exist, placed before the sortable cards
-        if (hasWallets) {
+        // Add wallet hint only if wallets exist AND at least one wallet is visible
+        if (hasWallets && hasVisibleWallets) {
             const walletHintWrapper = document.createElement('div');
             walletHintWrapper.className = 'wallet-info-hint-wrapper mb-2';
             walletHintWrapper.innerHTML = `
