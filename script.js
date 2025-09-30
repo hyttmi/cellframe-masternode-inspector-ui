@@ -1257,6 +1257,12 @@ class NodeManager {
                     value: `${(systemData.node_cpu_usage || 0).toFixed(1)}%`
                 },
                 {
+                    title: 'CURRENT PLUGIN VERSION',
+                    icon: 'fa-puzzle-piece',
+                    value: systemData.current_plugin_version || 'N/A',
+                    isUpToDate: systemData.current_plugin_version === systemData.latest_plugin_version
+                },
+                {
                     title: 'CURRENT VERSION',
                     icon: 'fa-code-branch',
                     value: systemData.current_node_version || 'N/A',
@@ -1271,6 +1277,11 @@ class NodeManager {
                     title: 'HOSTNAME',
                     icon: 'fa-desktop',
                     value: systemData.hostname || 'Unknown'
+                },
+                {
+                    title: 'LATEST PLUGIN VERSION',
+                    icon: 'fa-puzzle-piece',
+                    value: systemData.latest_plugin_version || 'N/A'
                 },
                 {
                     title: 'LATEST VERSION',
