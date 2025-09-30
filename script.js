@@ -519,15 +519,41 @@ class NodeManager {
 
     updateRemoveButtonVisibility() {
         const removeBtn = document.getElementById('removeNodeBtn');
+        const shareBtn = document.getElementById('shareNodeBtn');
         const nodeSelector = document.getElementById('nodeSelector');
 
-        if (removeBtn && nodeSelector) {
-            // Show remove button only if a node is selected and we have nodes
+        if (removeBtn && shareBtn && nodeSelector) {
+            // Show buttons only if a node is selected and we have nodes
             const hasSelection = nodeSelector.value && nodeSelector.value !== '';
             const hasNodes = this.nodes.length > 0;
+            const showButtons = hasSelection && hasNodes;
 
-            removeBtn.style.display = (hasSelection && hasNodes) ? 'block' : 'none';
+            removeBtn.style.display = showButtons ? 'block' : 'none';
+            shareBtn.style.display = showButtons ? 'block' : 'none';
         }
+    }
+
+    shareCurrentNode() {
+        const node = this.nodes.find(n => n.id === this.activeNodeId);
+        if (!node) return;
+
+        // Generate share URL
+        const baseUrl = window.location.origin + window.location.pathname;
+        const params = new URLSearchParams({
+            url: node.url,
+            token: node.token,
+            name: node.name
+        });
+        const shareUrl = `${baseUrl}?${params.toString()}`;
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            this.showNotification('Share link copied to clipboard!');
+        }).catch(err => {
+            console.error('Failed to copy to clipboard:', err);
+            // Fallback: show the URL in a prompt
+            prompt('Copy this link to share:', shareUrl);
+        });
     }
 
     renderNodeTabs() {
