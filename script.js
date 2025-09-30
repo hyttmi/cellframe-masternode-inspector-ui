@@ -552,19 +552,19 @@ class NodeManager {
 
         // Clear previous QR code
         const container = document.getElementById('qrCodeContainer');
-        container.innerHTML = '<div id="qrcode"></div>';
+        container.innerHTML = '<canvas id="qrcode"></canvas>';
 
         // Display the URL as text
         document.getElementById('shareUrlDisplay').textContent = shareUrl;
 
-        // Generate QR code
-        new QRCode(document.getElementById('qrcode'), {
-            text: shareUrl,
-            width: 300,
-            height: 300,
-            colorDark: '#000000',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
+        // Generate QR code using QRious
+        new QRious({
+            element: document.getElementById('qrcode'),
+            value: shareUrl,
+            size: 300,
+            level: 'H',
+            background: '#ffffff',
+            foreground: '#000000'
         });
 
         // Show modal
