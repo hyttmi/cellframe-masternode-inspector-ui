@@ -386,13 +386,25 @@ class NodeManager {
             { id: 'validator_min_fee', label: 'Validator Min Fee' }
         ];
 
+        // Check if current network has sovereign data
+        const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
+        let hasSovereignData = false;
+        if (activeNode && this.selectedNetwork) {
+            const cachedData = this.getCachedNetworkData(activeNode.id, this.selectedNetwork);
+            hasSovereignData = cachedData?.sovereign_reward_wallet_address && cachedData?.sovereign_wallet_all_sums_daily;
+        }
+
         // Chart and section visibility options
         const sections = [
             { id: 'rewards_chart', label: 'Rewards Chart' },
-            { id: 'sovereign_rewards_chart', label: 'Sovereign Rewards Chart' },
             { id: 'signed_blocks_chart', label: 'Signed Blocks Chart' },
             { id: 'first_signed_blocks_chart', label: 'First Signed Blocks Chart' }
         ];
+
+        // Only add sovereign chart if data is available
+        if (hasSovereignData) {
+            sections.splice(1, 0, { id: 'sovereign_rewards_chart', label: 'Sovereign Rewards Chart' });
+        }
 
         systemMetricsList.innerHTML = systemMetrics.map(metric => {
             const isVisible = this.isMetricVisible(metric.id, 'system');
