@@ -582,11 +582,12 @@ class NodeManager {
                     text: `Access this Cellframe masternode`,
                     url: shareUrl
                 });
-                showNotification('Shared successfully!');
+                // Don't show notification on success - the share action itself is confirmation enough
             } catch (err) {
+                // AbortError means user cancelled - this is normal, don't show notification
                 if (err.name !== 'AbortError') {
                     console.error('Share failed:', err);
-                    showNotification('Share cancelled');
+                    showNotification('Share failed. Please try copying the link instead.');
                 }
             }
         } else {
