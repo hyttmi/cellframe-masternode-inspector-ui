@@ -582,15 +582,15 @@ class NodeManager {
                     text: `Access this Cellframe masternode`,
                     url: shareUrl
                 });
-                this.showNotification('Shared successfully!');
+                showNotification('Shared successfully!');
             } catch (err) {
                 if (err.name !== 'AbortError') {
                     console.error('Share failed:', err);
-                    this.showNotification('Share cancelled');
+                    showNotification('Share cancelled');
                 }
             }
         } else {
-            this.showNotification('Share API not supported on this device');
+            showNotification('Share API not supported on this device');
             this.copyShareLink();
         }
     }
@@ -600,7 +600,7 @@ class NodeManager {
         if (!shareUrl) return;
 
         navigator.clipboard.writeText(shareUrl).then(() => {
-            this.showNotification('Link copied to clipboard!');
+            showNotification('Link copied to clipboard!');
         }).catch(err => {
             console.error('Failed to copy to clipboard:', err);
             prompt('Copy this link:', shareUrl);
