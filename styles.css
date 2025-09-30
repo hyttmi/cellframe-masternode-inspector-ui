@@ -623,19 +623,32 @@ body {
 .metric-checkbox-list {
     max-height: 400px;
     overflow-y: auto;
+    overflow-x: hidden;
     border: 1px solid var(--color-tertiary);
     border-radius: 8px;
     padding: 1.5rem;
     background-color: var(--color-main-light);
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+}
+
+.metric-checkbox-list .form-check {
+    touch-action: manipulation;
+    padding: 0.5rem 0;
 }
 
 .metric-checkbox-list .form-check-label {
     cursor: pointer;
     user-select: none;
+    padding-left: 0.5rem;
+    display: inline-block;
+    width: calc(100% - 2rem);
 }
 
 .metric-checkbox-list .form-check-input {
     cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 0.3rem;
 }
 
 .metric-checkbox-list .form-check-input:checked {
