@@ -372,14 +372,16 @@ class NodeManager {
         systemMetricsList.innerHTML = systemMetrics.map(metric => {
             const isVisible = this.isMetricVisible(metric.id, 'system');
             return `
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox"
-                           id="system_${metric.id}"
-                           ${isVisible ? 'checked' : ''}
-                           onchange="nodeManager.toggleMetricVisibility('${metric.id}', 'system')">
-                    <label class="form-check-label" for="system_${metric.id}">
-                        ${metric.label}
-                    </label>
+                <div class="col-md-6 mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               id="system_${metric.id}"
+                               ${isVisible ? 'checked' : ''}
+                               onchange="nodeManager.toggleMetricVisibility('${metric.id}', 'system')">
+                        <label class="form-check-label" for="system_${metric.id}">
+                            ${metric.label}
+                        </label>
+                    </div>
                 </div>
             `;
         }).join('');
@@ -387,14 +389,16 @@ class NodeManager {
         networkMetricsList.innerHTML = networkMetrics.map(metric => {
             const isVisible = this.isMetricVisible(metric.id, 'network');
             return `
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox"
-                           id="network_${metric.id}"
-                           ${isVisible ? 'checked' : ''}
-                           onchange="nodeManager.toggleMetricVisibility('${metric.id}', 'network')">
-                    <label class="form-check-label" for="network_${metric.id}">
-                        ${metric.label}
-                    </label>
+                <div class="col-md-6 mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               id="network_${metric.id}"
+                               ${isVisible ? 'checked' : ''}
+                               onchange="nodeManager.toggleMetricVisibility('${metric.id}', 'network')">
+                        <label class="form-check-label" for="network_${metric.id}">
+                            ${metric.label}
+                        </label>
+                    </div>
                 </div>
             `;
         }).join('');
