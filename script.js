@@ -554,6 +554,9 @@ class NodeManager {
         const container = document.getElementById('qrCodeContainer');
         container.innerHTML = '<div id="qrcode"></div>';
 
+        // Display the URL as text
+        document.getElementById('shareUrlDisplay').textContent = shareUrl;
+
         // Generate QR code
         new QRCode(document.getElementById('qrcode'), {
             text: shareUrl,
