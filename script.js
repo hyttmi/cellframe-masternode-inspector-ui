@@ -17,6 +17,13 @@ class NodeManager {
     }
 
     init() {
+        // Check for URL parameters first
+        const urlParams = this.getUrlParameters();
+        if (urlParams.url && urlParams.token) {
+            this.handleUrlParameters(urlParams);
+            return;
+        }
+
         if (this.nodes.length === 0) {
             this.showSetupModal();
         } else {
@@ -24,6 +31,79 @@ class NodeManager {
             this.loadNodeData(this.activeNodeId || this.nodes[0].id);
             this.startAutoRefresh();
         }
+    }
+
+    getUrlParameters() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            url: params.get('url'),
+            token: params.get('token'),
+            name: params.get('name') || 'URL Node'
+        };
+    }
+
+    async handleUrlParameters(params) {
+        // Check if node with same URL already exists
+        const existingNode = this.nodes.find(n => n.url === params.url);
+
+        if (existingNode) {
+            // Update token if different and load existing node
+            if (existingNode.token !== params.token) {
+                existingNode.token = params.token;
+                this.saveNodes();
+            }
+            this.renderNodeTabs();
+            this.loadNodeData(existingNode.id);
+            this.startAutoRefresh();
+            // Clean URL after loading
+            this.cleanUrl();
+            return;
+        }
+
+        // Test connection before adding
+        try {
+            const testNode = { url: params.url, token: params.token };
+            await this.fetchNodeData(testNode, 'all');
+
+            // Connection successful, add the node
+            const newNode = {
+                id: `node_${Date.now()}`,
+                name: params.name,
+                url: params.url,
+                token: params.token
+            };
+
+            this.nodes.push(newNode);
+            this.saveNodes();
+            this.renderNodeTabs();
+            this.loadNodeData(newNode.id);
+            this.startAutoRefresh();
+
+            // Clean URL after loading
+            this.cleanUrl();
+        } catch (error) {
+            console.error('Failed to connect to node from URL:', error);
+            alert(`Failed to connect to node: ${error.message}\n\nPlease check the URL and token parameters.`);
+
+            // Show setup modal if no other nodes exist
+            if (this.nodes.length === 0) {
+                this.showSetupModal();
+            } else {
+                this.renderNodeTabs();
+                this.loadNodeData(this.activeNodeId || this.nodes[0].id);
+                this.startAutoRefresh();
+            }
+
+            // Clean URL even on failure
+            this.cleanUrl();
+        }
+    }
+
+    cleanUrl() {
+        // Remove URL parameters without reloading the page
+        const url = new URL(window.location);
+        url.search = '';
+        window.history.replaceState({}, document.title, url);
     }
 
     loadNodes() {
