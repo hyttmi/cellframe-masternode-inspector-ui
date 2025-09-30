@@ -533,26 +533,76 @@ class NodeManager {
         }
     }
 
-    shareCurrentNode() {
+    getShareUrl() {
         const node = this.nodes.find(n => n.id === this.activeNodeId);
-        if (!node) return;
+        if (!node) return null;
 
-        // Generate share URL
         const baseUrl = window.location.origin + window.location.pathname;
         const params = new URLSearchParams({
             url: node.url,
             token: node.token,
             name: node.name
         });
-        const shareUrl = `${baseUrl}?${params.toString()}`;
+        return `${baseUrl}?${params.toString()}`;
+    }
 
-        // Copy to clipboard
+    shareCurrentNode() {
+        const shareUrl = this.getShareUrl();
+        if (!shareUrl) return;
+
+        // Generate QR code
+        const canvas = document.getElementById('qrCodeCanvas');
+        QRCode.toCanvas(canvas, shareUrl, {
+            width: 256,
+            margin: 2,
+            color: {
+                dark: '#000000',
+                light: '#ffffff'
+            }
+        }, (error) => {
+            if (error) console.error('QR code generation error:', error);
+        });
+
+        // Show modal
+        const modal = new bootstrap.Modal(document.getElementById('shareNodeModal'));
+        modal.show();
+    }
+
+    async shareViaShareAPI() {
+        const shareUrl = this.getShareUrl();
+        if (!shareUrl) return;
+
+        const node = this.nodes.find(n => n.id === this.activeNodeId);
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: `Share Node: ${node.name}`,
+                    text: `Access this Cellframe masternode`,
+                    url: shareUrl
+                });
+                this.showNotification('Shared successfully!');
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    console.error('Share failed:', err);
+                    this.showNotification('Share cancelled');
+                }
+            }
+        } else {
+            this.showNotification('Share API not supported on this device');
+            this.copyShareLink();
+        }
+    }
+
+    copyShareLink() {
+        const shareUrl = this.getShareUrl();
+        if (!shareUrl) return;
+
         navigator.clipboard.writeText(shareUrl).then(() => {
-            this.showNotification('Share link copied to clipboard!');
+            this.showNotification('Link copied to clipboard!');
         }).catch(err => {
             console.error('Failed to copy to clipboard:', err);
-            // Fallback: show the URL in a prompt
-            prompt('Copy this link to share:', shareUrl);
+            prompt('Copy this link:', shareUrl);
         });
     }
 
