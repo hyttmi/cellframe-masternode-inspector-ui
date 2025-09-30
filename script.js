@@ -2134,10 +2134,13 @@ class NodeManager {
         // Add wallet hint only if wallets exist AND at least one wallet is visible
         if (hasWallets && hasVisibleWallets) {
             const walletHintWrapper = document.createElement('div');
-            walletHintWrapper.className = 'wallet-info-hint-wrapper mb-2';
+            walletHintWrapper.className = 'wallet-info-hint-wrapper mb-3';
             walletHintWrapper.innerHTML = `
-                <div class="wallet-info-hint text-center">
-                    <i class="fas fa-info-circle"></i> Hover over wallet addresses to view balances and full address
+                <div class="alert alert-info">
+                    <small>
+                        <i class="fas fa-info-circle me-1"></i>
+                        Hover over wallet addresses to view balances and full address
+                    </small>
                 </div>
             `;
             cardBody.insertBefore(walletHintWrapper, networkPerfCards);

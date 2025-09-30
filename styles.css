@@ -561,12 +561,6 @@ body {
     border-top: 1px solid var(--color-tertiary);
 }
 
-.wallet-info-hint {
-    font-size: 0.7rem;
-    color: var(--color-font-secondary);
-    opacity: 0.7;
-    font-style: italic;
-}
 
 /* Footer and Last Updated Styles */
 .dashboard-footer {
@@ -615,9 +609,6 @@ body {
 }
 
 /* Wallet info hint should not be draggable - now outside sortable container */
-.wallet-info-hint {
-    cursor: default;
-}
 
 /* Manage Metrics Modal */
 .metric-checkbox-list {
