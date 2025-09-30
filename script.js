@@ -550,17 +550,18 @@ class NodeManager {
         const shareUrl = this.getShareUrl();
         if (!shareUrl) return;
 
+        // Clear previous QR code
+        const container = document.getElementById('qrCodeContainer');
+        container.innerHTML = '<div id="qrcode"></div>';
+
         // Generate QR code
-        const canvas = document.getElementById('qrCodeCanvas');
-        QRCode.toCanvas(canvas, shareUrl, {
+        new QRCode(document.getElementById('qrcode'), {
+            text: shareUrl,
             width: 256,
-            margin: 2,
-            color: {
-                dark: '#000000',
-                light: '#ffffff'
-            }
-        }, (error) => {
-            if (error) console.error('QR code generation error:', error);
+            height: 256,
+            colorDark: '#000000',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
         });
 
         // Show modal
