@@ -52,6 +52,7 @@ class NodeManager {
                 existingNode.token = params.token;
                 this.saveNodes();
             }
+            this.saveActiveNode(existingNode.id);
             this.renderNodeTabs();
             this.loadNodeData(existingNode.id);
             this.startAutoRefresh();
@@ -75,6 +76,7 @@ class NodeManager {
 
             this.nodes.push(newNode);
             this.saveNodes();
+            this.saveActiveNode(newNode.id);
             this.renderNodeTabs();
             this.loadNodeData(newNode.id);
             this.startAutoRefresh();
