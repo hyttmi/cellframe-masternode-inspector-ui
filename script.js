@@ -1754,6 +1754,12 @@ class NodeManager {
                 this.isMetricVisible(metric.id, 'system')
             );
 
+            // Hide section if no metrics are visible
+            if (visibleSystemMetrics.length === 0) {
+                systemSection.style.display = 'none';
+                return;
+            }
+
             // Get saved metric order or use default alphabetical order
             const savedSystemOrder = this.getSavedMetricOrder('system');
             const orderedSystemMetrics = this.reorderMetrics(visibleSystemMetrics, savedSystemOrder);
@@ -2033,6 +2039,12 @@ class NodeManager {
         const visibleNetworkMetrics = networkMetrics.filter(metric =>
             this.isMetricVisible(metric.id, 'network')
         );
+
+        // Hide section if no metrics are visible
+        if (visibleNetworkMetrics.length === 0) {
+            networkPerfSection.style.display = 'none';
+            return;
+        }
 
         // Get saved metric order or use default alphabetical order
         const savedNetworkOrder = this.getSavedMetricOrder('network');
