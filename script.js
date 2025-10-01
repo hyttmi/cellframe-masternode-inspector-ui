@@ -2274,7 +2274,7 @@ class NodeManager {
                 <div class="alert alert-info">
                     <small>
                         <i class="fas fa-info-circle me-1"></i>
-                        Hover over wallet addresses to view balances and full address
+                        Hover over wallet addresses to view balances • Click to copy full address
                     </small>
                 </div>
             `;
@@ -2299,8 +2299,11 @@ class NodeManager {
                             <div class="metric-icon mb-2">
                                 <i class="fas ${metric.icon}"></i>
                             </div>
-                            <div class="metric-value" style="cursor: help;">
+                            <div class="metric-value" style="cursor: pointer;"
+                                 onclick="copyToClipboard('${metric.fullAddress}', '${metric.title}')"
+                                 title="Click to copy full address">
                                 ${metric.value}
+                                <i class="fas fa-copy ms-1" style="font-size: 0.8em; opacity: 0.6;"></i>
                             </div>
                             <div class="metric-label">${metric.title}</div>
                         </div>
@@ -2308,20 +2311,40 @@ class NodeManager {
                 `;
             } else {
                 // Regular metric rendering
-                const titleAttr = metric.fullValue ? `title="${metric.fullValue}"` : '';
-                const cursorStyle = metric.hasHover ? 'style="cursor: help;"' : '';
-                return `
-                    <div class="col-md-4 mb-3"
-                         data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
-                        <div class="text-center">
-                            <div class="metric-icon mb-2">
-                                <i class="fas ${metric.icon}"></i>
+                if (metric.hasHover && metric.fullValue) {
+                    // Metrics with copyable values (like tx_hash)
+                    return `
+                        <div class="col-md-4 mb-3"
+                             data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
+                            <div class="text-center">
+                                <div class="metric-icon mb-2">
+                                    <i class="fas ${metric.icon}"></i>
+                                </div>
+                                <div class="metric-value" style="cursor: pointer;"
+                                     onclick="copyToClipboard('${metric.fullValue}', '${metric.title}')"
+                                     title="Click to copy full value">
+                                    ${metric.value}
+                                    <i class="fas fa-copy ms-1" style="font-size: 0.8em; opacity: 0.6;"></i>
+                                </div>
+                                <div class="metric-label">${metric.title}</div>
                             </div>
-                            <div class="metric-value" ${titleAttr} ${cursorStyle}>${metric.value}</div>
-                            <div class="metric-label">${metric.title}</div>
                         </div>
-                    </div>
-                `;
+                    `;
+                } else {
+                    // Regular metrics without copy
+                    return `
+                        <div class="col-md-4 mb-3"
+                             data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
+                            <div class="text-center">
+                                <div class="metric-icon mb-2">
+                                    <i class="fas ${metric.icon}"></i>
+                                </div>
+                                <div class="metric-value">${metric.value}</div>
+                                <div class="metric-label">${metric.title}</div>
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }).join('');
 
@@ -2950,23 +2973,61 @@ function resetToDefaults() {
 }
 
 function showNotification(message, type = 'info') {
-    // Create a temporary notification
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type} position-fixed`;
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'info-circle'} me-2"></i>
-        ${message}
+    // Create toast container if it doesn't exist
+    let toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999';
+        document.body.appendChild(toastContainer);
+    }
+
+    // Create Bootstrap toast
+    const toastId = 'toast-' + Date.now();
+    const iconClass = type === 'success' ? 'check-circle' : 'info-circle';
+    const bgClass = type === 'success' ? 'bg-success' : 'bg-info';
+
+    const toastHtml = `
+        <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-${iconClass} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
     `;
 
-    document.body.appendChild(notification);
+    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
 
-    // Remove after 3 seconds
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.parentNode.removeChild(notification);
-        }
-    }, 3000);
+    // Initialize and show toast
+    const toastElement = document.getElementById(toastId);
+    const toast = new bootstrap.Toast(toastElement, {
+        autohide: true,
+        delay: 3000
+    });
+
+    toast.show();
+
+    // Remove toast element after it's hidden
+    toastElement.addEventListener('hidden.bs.toast', () => {
+        toastElement.remove();
+    });
+}
+
+function copyToClipboard(text, label = 'Value') {
+    if (!text) {
+        showNotification(`No ${label} to copy`, 'info');
+        return;
+    }
+
+    navigator.clipboard.writeText(text).then(() => {
+        showNotification(`${label} copied to clipboard!`, 'success');
+    }).catch(err => {
+        console.error('Failed to copy to clipboard:', err);
+        showNotification('Failed to copy to clipboard', 'info');
+    });
 }
 
 // Initialize the application
