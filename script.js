@@ -2982,13 +2982,13 @@ function showNotification(message, type = 'info') {
         document.body.appendChild(toastContainer);
     }
 
-    // Create Bootstrap toast with theme colors
+    // Create Bootstrap toast with theme colors (card header style)
     const toastId = 'toast-' + Date.now();
     const iconClass = type === 'success' ? 'check-circle' : 'info-circle';
 
     const toastHtml = `
         <div id="${toastId}" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
-             style="background-color: #7C3AED !important; color: #FFFFFF !important;">
+             style="background-color: #1E1E1E !important; color: #CCC2FF !important;">
             <div class="d-flex">
                 <div class="toast-body">
                     <i class="fas fa-${iconClass} me-2"></i>
