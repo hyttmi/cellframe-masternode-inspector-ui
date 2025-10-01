@@ -189,6 +189,81 @@ const NETWORK_METRICS_CONFIG = {
     }
 };
 
+// System metrics configuration - single source of truth for all system metrics
+const SYSTEM_METRICS_CONFIG = {
+    cpu_usage: {
+        label: 'CPU Usage',
+        title: 'CPU USAGE',
+        icon: 'fa-microchip',
+        formatter: (data) => `${(data.node_cpu_usage || 0).toFixed(1)}%`
+    },
+    current_plugin_version: {
+        label: 'Current Plugin Version',
+        title: 'CURRENT PLUGIN VERSION',
+        icon: 'fa-puzzle-piece',
+        formatter: (data) => data.current_plugin_version || 'N/A',
+        hasVersionCheck: true,
+        compareWith: 'latest_plugin_version'
+    },
+    current_version: {
+        label: 'Current Node Version',
+        title: 'CURRENT NODE VERSION',
+        icon: 'fa-code-branch',
+        formatter: (data) => data.current_node_version || 'N/A',
+        hasVersionCheck: true,
+        compareWith: 'latest_node_version'
+    },
+    external_ip: {
+        label: 'External IP',
+        title: 'EXTERNAL IP',
+        icon: 'fa-globe',
+        formatter: (data) => data.external_ip || 'N/A'
+    },
+    hostname: {
+        label: 'Hostname',
+        title: 'HOSTNAME',
+        icon: 'fa-desktop',
+        formatter: (data) => data.hostname || 'Unknown'
+    },
+    latest_plugin_version: {
+        label: 'Latest Plugin Version',
+        title: 'LATEST PLUGIN VERSION',
+        icon: 'fa-puzzle-piece',
+        formatter: (data) => data.latest_plugin_version || 'N/A'
+    },
+    latest_version: {
+        label: 'Latest Node Version',
+        title: 'LATEST NODE VERSION',
+        icon: 'fa-download',
+        formatter: (data) => data.latest_node_version || 'N/A'
+    },
+    memory_usage: {
+        label: 'Memory Usage',
+        title: 'MEMORY USAGE',
+        icon: 'fa-memory',
+        formatter: (data) => `${(data.node_memory_usage || 0).toFixed(2)} MB`
+    },
+    node_status: {
+        label: 'Node Status',
+        title: 'NODE STATUS',
+        icon: null, // Dynamic
+        formatter: (data) => null, // Handled specially
+        special: 'node_status'
+    },
+    node_uptime: {
+        label: 'Node Uptime',
+        title: 'NODE UPTIME',
+        icon: 'fa-clock',
+        formatter: (data, manager) => manager.formatUptime(data.node_uptime || 0)
+    },
+    system_uptime: {
+        label: 'System Uptime',
+        title: 'SYSTEM UPTIME',
+        icon: 'fa-server',
+        formatter: (data, manager) => manager.formatUptime(data.system_uptime || 0)
+    }
+};
+
 class NodeManager {
     constructor() {
         this.nodes = this.loadNodes();
@@ -550,20 +625,12 @@ class NodeManager {
         const networkMetricsList = document.getElementById('networkMetricsList');
         const sectionsList = document.getElementById('sectionsList');
 
-        // System metrics with friendly names
-        const systemMetrics = [
-            { id: 'cpu_usage', label: 'CPU Usage' },
-            { id: 'current_plugin_version', label: 'Current Plugin Version' },
-            { id: 'current_version', label: 'Current Node Version' },
-            { id: 'external_ip', label: 'External IP' },
-            { id: 'hostname', label: 'Hostname' },
-            { id: 'latest_plugin_version', label: 'Latest Plugin Version' },
-            { id: 'latest_version', label: 'Latest Node Version' },
-            { id: 'memory_usage', label: 'Memory Usage' },
-            { id: 'node_status', label: 'Node Status' },
-            { id: 'node_uptime', label: 'Node Uptime' },
-            { id: 'system_uptime', label: 'System Uptime' }
-        ];
+        // Build system metrics from config
+        const systemMetrics = Object.entries(SYSTEM_METRICS_CONFIG)
+            .map(([id, config]) => ({
+                id: id,
+                label: config.label
+            }));
 
         // Check if current network has sovereign data
         const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
@@ -1980,77 +2047,42 @@ class NodeManager {
                 statusIcon = 'fa-circle-question'; // Question mark for loading
             }
 
-            const systemMetrics = [
-                {
-                    id: 'cpu_usage',
-                    title: 'CPU USAGE',
-                    icon: 'fa-microchip',
-                    value: `${(systemData.node_cpu_usage || 0).toFixed(1)}%`
-                },
-                {
-                    id: 'current_plugin_version',
-                    title: 'CURRENT PLUGIN VERSION',
-                    icon: 'fa-puzzle-piece',
-                    value: systemData.current_plugin_version || 'N/A',
-                    isUpToDate: systemData.current_plugin_version === systemData.latest_plugin_version
-                },
-                {
-                    id: 'current_version',
-                    title: 'CURRENT NODE VERSION',
-                    icon: 'fa-code-branch',
-                    value: systemData.current_node_version || 'N/A',
-                    isUpToDate: systemData.current_node_version === systemData.latest_node_version
-                },
-                {
-                    id: 'external_ip',
-                    title: 'EXTERNAL IP',
-                    icon: 'fa-globe',
-                    value: systemData.external_ip || 'N/A'
-                },
-                {
-                    id: 'hostname',
-                    title: 'HOSTNAME',
-                    icon: 'fa-desktop',
-                    value: systemData.hostname || 'Unknown'
-                },
-                {
-                    id: 'latest_plugin_version',
-                    title: 'LATEST PLUGIN VERSION',
-                    icon: 'fa-puzzle-piece',
-                    value: systemData.latest_plugin_version || 'N/A'
-                },
-                {
-                    id: 'latest_version',
-                    title: 'LATEST NODE VERSION',
-                    icon: 'fa-download',
-                    value: systemData.latest_node_version || 'N/A'
-                },
-                {
-                    id: 'memory_usage',
-                    title: 'MEMORY USAGE',
-                    icon: 'fa-memory',
-                    value: `${(systemData.node_memory_usage || 0).toFixed(2)} MB`
-                },
-                {
-                    id: 'node_status',
-                    title: 'NODE STATUS',
-                    icon: statusIcon,
-                    value: nodeStatus,
-                    statusClass: statusClass
-                },
-                {
-                    id: 'node_uptime',
-                    title: 'NODE UPTIME',
-                    icon: 'fa-clock',
-                    value: this.formatUptime(systemData.node_uptime || 0)
-                },
-                {
-                    id: 'system_uptime',
-                    title: 'SYSTEM UPTIME',
-                    icon: 'fa-server',
-                    value: this.formatUptime(systemData.system_uptime || 0)
-                }
-            ];
+            // Build system metrics array from config
+            const systemMetrics = Object.entries(SYSTEM_METRICS_CONFIG)
+                .map(([id, config]) => {
+                    const metric = {
+                        id: id,
+                        title: config.title,
+                        icon: config.icon
+                    };
+
+                    // Handle special case for node_status
+                    if (config.special === 'node_status') {
+                        metric.icon = statusIcon;
+                        metric.value = nodeStatus;
+                        metric.statusClass = statusClass;
+                        return metric;
+                    }
+
+                    // Format the value using the formatter
+                    metric.value = config.formatter(systemData, this);
+
+                    // Add version check if needed
+                    if (config.hasVersionCheck) {
+                        // Map metric id to systemData key
+                        const dataKeyMap = {
+                            'current_version': 'current_node_version',
+                            'current_plugin_version': 'current_plugin_version',
+                            'latest_version': 'latest_node_version',
+                            'latest_plugin_version': 'latest_plugin_version'
+                        };
+                        const currentKey = dataKeyMap[id] || id;
+                        const latestKey = dataKeyMap[config.compareWith] || config.compareWith;
+                        metric.isUpToDate = systemData[currentKey] === systemData[latestKey];
+                    }
+
+                    return metric;
+                });
 
             // Filter only visible metrics
             const visibleSystemMetrics = systemMetrics.filter(metric =>
