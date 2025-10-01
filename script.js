@@ -1,3 +1,206 @@
+// Network metrics configuration - single source of truth for all metrics
+const NETWORK_METRICS_CONFIG = {
+    autocollect_status: {
+        label: 'Autocollect Status',
+        title: 'AUTOCOLLECT STATUS',
+        icon: 'fa-robot',
+        formatter: (data) => data.autocollect_status?.active ? 'Active' : 'Inactive'
+    },
+    biggest_reward: {
+        label: 'Biggest Reward',
+        title: 'BIGGEST REWARD',
+        icon: 'fa-crown',
+        formatter: (data) => `${(parseFloat(data.reward_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
+    },
+    blocks_today_in_network: {
+        label: 'Blocks Today in Network',
+        title: 'BLOCKS TODAY IN NETWORK',
+        icon: 'fa-cubes',
+        formatter: (data) => data.block_count_today || 0
+    },
+    current_block_reward: {
+        label: 'Current Block Reward',
+        title: 'CURRENT BLOCK REWARD',
+        icon: 'fa-gift',
+        formatter: (data) => `${(parseFloat(data.current_block_reward) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
+    },
+    effective_value: {
+        label: 'Effective Stake Value',
+        title: 'EFFECTIVE STAKE VALUE',
+        icon: 'fa-scale-balanced',
+        formatter: (data) => data.effective_value ?
+            `${(parseFloat(data.effective_value) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}` :
+            'N/A'
+    },
+    first_signed_blocks_today: {
+        label: 'First Signed Blocks Today',
+        title: 'FIRST SIGNED BLOCKS TODAY',
+        icon: 'fa-trophy',
+        formatter: (data) => data.first_signed_blocks_today_amount || 0
+    },
+    first_signed_blocks_yesterday: {
+        label: 'First Signed Blocks Yesterday',
+        title: 'FIRST SIGNED BLOCKS YESTERDAY',
+        icon: 'fa-trophy',
+        formatter: (data) => data.first_signed_blocks_yesterday_amount || 0
+    },
+    latest_reward: {
+        label: 'Latest Reward',
+        title: 'LATEST REWARD',
+        icon: 'fa-clock-rotate-left',
+        formatter: (data, manager) => data.reward_wallet_latest_reward ?
+            `${(parseFloat(data.reward_wallet_latest_reward.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'} (${manager.formatSmartDateTime(data.reward_wallet_latest_reward.tx_created)})` :
+            'N/A'
+    },
+    network_state: {
+        label: 'Network State',
+        title: 'NETWORK STATE',
+        icon: null, // Dynamic
+        formatter: (data) => {
+            // This needs special handling for status class and icon
+            return null; // Handled specially in display
+        },
+        special: 'network_state'
+    },
+    network_status: {
+        label: 'Network Status',
+        title: 'NETWORK STATUS',
+        icon: 'fa-network-wired',
+        formatter: (data) => data.network_status?.synced ? 'Synced' : 'Not Synced'
+    },
+    node_address: {
+        label: 'Node Address',
+        title: 'NODE ADDRESS',
+        icon: 'fa-fingerprint',
+        formatter: (data) => data.network_status?.node_address ?
+            (data.network_status.node_address.length > 30 ?
+                data.network_status.node_address.substring(0, 30) + '...' :
+                data.network_status.node_address) : 'N/A'
+    },
+    relative_weight: {
+        label: 'Relative Weight',
+        title: 'RELATIVE WEIGHT',
+        icon: 'fa-percent',
+        formatter: (data) => data.relative_weight ?
+            `${(parseFloat(data.relative_weight) || 0).toFixed(6)}%` :
+            'N/A'
+    },
+    remote_cache_updated: {
+        label: 'Remote Cache Updated',
+        title: 'REMOTE CACHE UPDATED',
+        icon: 'fa-database',
+        formatter: (data, manager) => data.cache_last_updated ? manager.formatLocaleDateTime(data.cache_last_updated) : 'N/A'
+    },
+    reward_wallet: {
+        label: 'Reward Wallet',
+        title: 'REWARD WALLET',
+        icon: 'fa-wallet',
+        formatter: (data, manager) => manager.formatWalletAddress(data.reward_wallet_address),
+        isWallet: true,
+        walletType: 'reward',
+        getFullAddress: (data) => data.reward_wallet_address,
+        getBalances: (data) => data.reward_wallet_balance
+    },
+    rewards_received_today: {
+        label: 'Rewards Received Today',
+        title: 'REWARDS RECEIVED TODAY',
+        icon: 'fa-coins',
+        formatter: (data) => `${(parseFloat(data.reward_wallet_today_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
+    },
+    rewards_received_yesterday: {
+        label: 'Rewards Received Yesterday',
+        title: 'REWARDS RECEIVED YESTERDAY',
+        icon: 'fa-coins',
+        formatter: (data) => `${(parseFloat(data.reward_wallet_yesterday_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
+    },
+    signed_blocks_today: {
+        label: 'Signed Blocks Today',
+        title: 'SIGNED BLOCKS TODAY',
+        icon: 'fa-cube',
+        formatter: (data) => data.signed_blocks_today_amount || 0
+    },
+    signed_blocks_yesterday: {
+        label: 'Signed Blocks Yesterday',
+        title: 'SIGNED BLOCKS YESTERDAY',
+        icon: 'fa-cube',
+        formatter: (data) => data.signed_blocks_yesterday_amount || 0
+    },
+    smallest_reward: {
+        label: 'Smallest Reward',
+        title: 'SMALLEST REWARD',
+        icon: 'fa-arrow-down',
+        formatter: (data) => `${(parseFloat(data.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
+    },
+    stake_value: {
+        label: 'Stake Value',
+        title: 'STAKE VALUE',
+        icon: 'fa-coins',
+        formatter: (data) => data.stake_value ?
+            `${(parseFloat(data.stake_value) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}` :
+            'N/A'
+    },
+    token_price: {
+        label: 'Token Price',
+        title: 'TOKEN PRICE',
+        icon: 'fa-chart-line',
+        formatter: (data) => `$${data.token_price || 0}`
+    },
+    total_blocks_in_network: {
+        label: 'Total Blocks in Network',
+        title: 'TOTAL BLOCKS IN NETWORK',
+        icon: 'fa-layer-group',
+        formatter: (data) => (data.block_count || 0).toLocaleString()
+    },
+    tx_hash: {
+        label: 'Stake Transaction Hash',
+        title: 'STAKE TRANSACTION HASH',
+        icon: 'fa-hashtag',
+        formatter: (data) => data.tx_hash ?
+            (data.tx_hash.length > 16 ?
+                data.tx_hash.substring(0, 8) + '...' + data.tx_hash.substring(data.tx_hash.length - 8) :
+                data.tx_hash) : 'N/A',
+        hasHover: true,
+        getFullValue: (data) => data.tx_hash || null
+    },
+    validator_average_fee: {
+        label: 'Validator Average Fee',
+        title: 'VALIDATOR AVERAGE FEE',
+        icon: 'fa-calculator',
+        formatter: (data) => `${(parseFloat(data.validator_average_fee) || 0).toFixed(6)} ${data.native_ticker || 'TOKEN'}`
+    },
+    validator_max_fee: {
+        label: 'Validator Max Fee',
+        title: 'VALIDATOR MAX FEE',
+        icon: 'fa-arrow-up',
+        formatter: (data) => `${(parseFloat(data.validator_max_fee) || 0).toFixed(6)} ${data.native_ticker || 'TOKEN'}`
+    },
+    validator_min_fee: {
+        label: 'Validator Min Fee',
+        title: 'VALIDATOR MIN FEE',
+        icon: 'fa-arrow-down',
+        formatter: (data) => `${(parseFloat(data.validator_min_fee) || 0).toFixed(6)} ${data.native_ticker || 'TOKEN'}`
+    },
+    // Sovereign metrics (conditionally added)
+    sovereign_rewards_yesterday: {
+        label: 'Sovereign Rewards Yesterday',
+        title: 'SOVEREIGN REWARDS YESTERDAY',
+        icon: 'fa-shield-halved',
+        formatter: (data) => `${(parseFloat(data.sovereign_wallet_yesterday_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
+        conditional: (data) => data.sovereign_reward_wallet_address
+    },
+    sovereign_wallet: {
+        label: 'Sovereign Wallet',
+        title: 'SOVEREIGN WALLET',
+        icon: 'fa-shield-halved',
+        formatter: (data, manager) => manager.formatWalletAddress(data.sovereign_reward_wallet_address),
+        isWallet: true,
+        walletType: 'sovereign',
+        getFullAddress: (data) => data.sovereign_reward_wallet_address,
+        getBalances: (data) => data.sovereign_wallet_balance,
+        conditional: (data) => data.sovereign_reward_wallet_address
+    }
+};
+
 class NodeManager {
     constructor() {
         this.nodes = this.loadNodes();
@@ -382,43 +585,21 @@ class NodeManager {
             hasSovereignData = cachedData?.sovereign_reward_wallet_address && cachedData?.sovereign_wallet_all_sums_daily;
         }
 
-        // Network metrics with friendly names
-        const networkMetrics = [
-            { id: 'autocollect_status', label: 'Autocollect Status' },
-            { id: 'biggest_reward', label: 'Biggest Reward' },
-            { id: 'blocks_today_in_network', label: 'Blocks Today in Network' },
-            { id: 'current_block_reward', label: 'Current Block Reward' },
-            { id: 'effective_value', label: 'Effective Stake Value' },
-            { id: 'first_signed_blocks_today', label: 'First Signed Blocks Today' },
-            { id: 'first_signed_blocks_yesterday', label: 'First Signed Blocks Yesterday' },
-            { id: 'latest_reward', label: 'Latest Reward' },
-            { id: 'network_state', label: 'Network State' },
-            { id: 'network_status', label: 'Network Status' },
-            { id: 'node_address', label: 'Node Address' },
-            { id: 'relative_weight', label: 'Relative Weight' },
-            { id: 'remote_cache_updated', label: 'Remote Cache Updated' },
-            { id: 'reward_wallet', label: 'Reward Wallet' },
-            { id: 'rewards_received_today', label: 'Rewards Received Today' },
-            { id: 'rewards_received_yesterday', label: 'Rewards Received Yesterday' },
-            { id: 'signed_blocks_today', label: 'Signed Blocks Today' },
-            { id: 'signed_blocks_yesterday', label: 'Signed Blocks Yesterday' },
-            { id: 'smallest_reward', label: 'Smallest Reward' },
-            { id: 'stake_value', label: 'Stake Value' },
-            { id: 'token_price', label: 'Token Price' },
-            { id: 'total_blocks_in_network', label: 'Total Blocks in Network' },
-            { id: 'tx_hash', label: 'Stake Transaction Hash' },
-            { id: 'validator_average_fee', label: 'Validator Average Fee' },
-            { id: 'validator_max_fee', label: 'Validator Max Fee' },
-            { id: 'validator_min_fee', label: 'Validator Min Fee' }
-        ];
-
-        // Only add sovereign metrics if data is available
-        if (hasSovereignData) {
-            networkMetrics.push(
-                { id: 'sovereign_rewards_yesterday', label: 'Sovereign Rewards Yesterday' },
-                { id: 'sovereign_wallet', label: 'Sovereign Wallet' }
-            );
-        }
+        // Build network metrics from config, filtering conditionals
+        const networkMetrics = Object.entries(NETWORK_METRICS_CONFIG)
+            .filter(([id, config]) => {
+                // Filter out conditional metrics if condition not met
+                if (config.conditional) {
+                    const cachedData = activeNode && this.selectedNetwork ?
+                        this.getCachedNetworkData(activeNode.id, this.selectedNetwork) : null;
+                    return cachedData && config.conditional(cachedData);
+                }
+                return true;
+            })
+            .map(([id, config]) => ({
+                id: id,
+                label: config.label
+            }));
 
         // Chart and section visibility options
         const sections = [
@@ -1995,216 +2176,51 @@ class NodeManager {
             networkStateClass = 'status-offline';
         }
 
-        // Build network metrics array (alphabetically ordered)
-        const networkMetrics = [
-            {
-                id: 'autocollect_status',
-                title: 'AUTOCOLLECT STATUS',
-                icon: 'fa-robot',
-                value: networkData.autocollect_status?.active ? 'Active' : 'Inactive'
-            },
-            {
-                id: 'biggest_reward',
-                title: 'BIGGEST REWARD',
-                icon: 'fa-crown',
-                value: `${(parseFloat(networkData.reward_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                id: 'blocks_today_in_network',
-                title: 'BLOCKS TODAY IN NETWORK',
-                icon: 'fa-cubes',
-                value: networkData.block_count_today || 0
-            },
-            {
-                id: 'current_block_reward',
-                title: 'CURRENT BLOCK REWARD',
-                icon: 'fa-gift',
-                value: `${(parseFloat(networkData.current_block_reward) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                id: 'effective_value',
-                title: 'EFFECTIVE STAKE VALUE',
-                icon: 'fa-scale-balanced',
-                value: networkData.effective_value ?
-                    `${(parseFloat(networkData.effective_value) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}` :
-                    'N/A'
-            },
-            {
-                id: 'first_signed_blocks_today',
-                title: 'FIRST SIGNED BLOCKS TODAY',
-                icon: 'fa-trophy',
-                value: networkData.first_signed_blocks_today_amount || 0
-            },
-            {
-                id: 'latest_reward',
-                title: 'LATEST REWARD',
-                icon: 'fa-clock-rotate-left',
-                value: networkData.reward_wallet_latest_reward ?
-                    `${(parseFloat(networkData.reward_wallet_latest_reward.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'} (${this.formatSmartDateTime(networkData.reward_wallet_latest_reward.tx_created)})` :
-                    'N/A'
-            },
-            {
-                id: 'network_state',
-                title: 'NETWORK STATE',
-                icon: networkStateIcon,
-                value: networkStateStatus,
-                statusClass: networkStateClass
-            },
-            {
-                id: 'network_status',
-                title: 'NETWORK STATUS',
-                icon: 'fa-network-wired',
-                value: networkData.network_status?.synced ? 'Synced' : 'Not Synced'
-            },
-            {
-                id: 'node_address',
-                title: 'NODE ADDRESS',
-                icon: 'fa-fingerprint',
-                value: networkData.network_status?.node_address ?
-                    (networkData.network_status.node_address.length > 30 ?
-                        networkData.network_status.node_address.substring(0, 30) + '...' :
-                        networkData.network_status.node_address) : 'N/A'
-            },
-            {
-                id: 'relative_weight',
-                title: 'RELATIVE WEIGHT',
-                icon: 'fa-percent',
-                value: networkData.relative_weight ?
-                    `${(parseFloat(networkData.relative_weight) || 0).toFixed(6)}%` :
-                    'N/A'
-            },
-            {
-                id: 'remote_cache_updated',
-                title: 'REMOTE CACHE UPDATED',
-                icon: 'fa-database',
-                value: networkData.cache_last_updated ? this.formatLocaleDateTime(networkData.cache_last_updated) : 'N/A'
-            },
-            {
-                id: 'reward_wallet',
-                title: 'REWARD WALLET',
-                icon: 'fa-wallet',
-                value: this.formatWalletAddress(networkData.reward_wallet_address),
-                isWallet: true,
-                walletType: 'reward',
-                fullAddress: networkData.reward_wallet_address,
-                balances: networkData.reward_wallet_balance,
-                hasInfo: true
-            },
-            {
-                id: 'rewards_received_today',
-                title: 'REWARDS RECEIVED TODAY',
-                icon: 'fa-coins',
-                value: `${(parseFloat(networkData.reward_wallet_today_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                id: 'rewards_received_yesterday',
-                title: 'REWARDS RECEIVED YESTERDAY',
-                icon: 'fa-coins',
-                value: `${(parseFloat(networkData.reward_wallet_yesterday_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                id: 'signed_blocks_today',
-                title: 'SIGNED BLOCKS TODAY',
-                icon: 'fa-cube',
-                value: networkData.signed_blocks_today_amount || 0
-            },
-            {
-                id: 'signed_blocks_yesterday',
-                title: 'SIGNED BLOCKS YESTERDAY',
-                icon: 'fa-cube',
-                value: networkData.signed_blocks_yesterday_amount || 0
-            },
-            {
-                id: 'first_signed_blocks_yesterday',
-                title: 'FIRST SIGNED BLOCKS YESTERDAY',
-                icon: 'fa-trophy',
-                value: networkData.first_signed_blocks_yesterday_amount || 0
-            },
-            {
-                id: 'smallest_reward',
-                title: 'SMALLEST REWARD',
-                icon: 'fa-arrow-down',
-                value: `${(parseFloat(networkData.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                id: 'stake_value',
-                title: 'STAKE VALUE',
-                icon: 'fa-coins',
-                value: networkData.stake_value ?
-                    `${(parseFloat(networkData.stake_value) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}` :
-                    'N/A'
-            }
-        ];
-
-        // Add sovereign wallet metrics only if sovereign wallet exists (alphabetically placed)
-        if (networkData.sovereign_reward_wallet_address) {
-            networkMetrics.push(
-                {
-                    id: 'sovereign_rewards_yesterday',
-                    title: 'SOVEREIGN REWARDS YESTERDAY',
-                    icon: 'fa-shield-halved',
-                    value: `${(parseFloat(networkData.sovereign_wallet_yesterday_rewards) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
-                },
-                {
-                    id: 'sovereign_wallet',
-                    title: 'SOVEREIGN WALLET',
-                    icon: 'fa-shield-halved',
-                    value: this.formatWalletAddress(networkData.sovereign_reward_wallet_address),
-                    isWallet: true,
-                    walletType: 'sovereign',
-                    fullAddress: networkData.sovereign_reward_wallet_address,
-                    balances: networkData.sovereign_wallet_balance,
-                    hasInfo: true
+        // Build network metrics array from config
+        const networkMetrics = Object.entries(NETWORK_METRICS_CONFIG)
+            .filter(([id, config]) => {
+                // Filter out conditional metrics if condition not met
+                if (config.conditional) {
+                    return config.conditional(networkData);
                 }
-            );
-        }
+                return true;
+            })
+            .map(([id, config]) => {
+                const metric = {
+                    id: id,
+                    title: config.title,
+                    icon: config.icon
+                };
 
-        // Add remaining metrics in alphabetical order
-        networkMetrics.push(
-            {
-                id: 'token_price',
-                title: 'TOKEN PRICE',
-                icon: 'fa-chart-line',
-                value: `$${networkData.token_price || 0}`
-            },
-            {
-                id: 'total_blocks_in_network',
-                title: 'TOTAL BLOCKS IN NETWORK',
-                icon: 'fa-layer-group',
-                value: (networkData.block_count || 0).toLocaleString()
-            },
-            {
-                id: 'tx_hash',
-                title: 'STAKE TRANSACTION HASH',
-                icon: 'fa-hashtag',
-                value: networkData.tx_hash ?
-                    (networkData.tx_hash.length > 16 ?
-                        networkData.tx_hash.substring(0, 8) + '...' + networkData.tx_hash.substring(networkData.tx_hash.length - 8) :
-                        networkData.tx_hash) : 'N/A',
-                fullValue: networkData.tx_hash || null,
-                hasHover: true
-            },
-            {
-                id: 'validator_average_fee',
-                title: 'VALIDATOR AVERAGE FEE',
-                icon: 'fa-calculator',
-                value: `${(parseFloat(networkData.validator_average_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                id: 'validator_max_fee',
-                title: 'VALIDATOR MAX FEE',
-                icon: 'fa-arrow-up',
-                value: `${(parseFloat(networkData.validator_max_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
-            },
-            {
-                id: 'validator_min_fee',
-                title: 'VALIDATOR MIN FEE',
-                icon: 'fa-arrow-down',
-                value: `${(parseFloat(networkData.validator_min_fee) || 0).toFixed(6)} ${networkData.native_ticker || 'TOKEN'}`
-            }
-        );
+                // Handle special case for network_state
+                if (config.special === 'network_state') {
+                    metric.icon = networkStateIcon;
+                    metric.value = networkStateStatus;
+                    metric.statusClass = networkStateClass;
+                    return metric;
+                }
 
-        // Filter only visible metrics
+                // Format the value using the formatter
+                metric.value = config.formatter(networkData, this);
+
+                // Add wallet-specific properties
+                if (config.isWallet) {
+                    metric.isWallet = true;
+                    metric.walletType = config.walletType;
+                    metric.fullAddress = config.getFullAddress(networkData);
+                    metric.balances = config.getBalances(networkData);
+                    metric.hasInfo = true;
+                }
+
+                // Add hover properties
+                if (config.hasHover) {
+                    metric.hasHover = true;
+                    metric.fullValue = config.getFullValue(networkData);
+                }
+
+                return metric;
+            });
+
         const visibleNetworkMetrics = networkMetrics.filter(metric =>
             this.isMetricVisible(metric.id, 'network')
         );
