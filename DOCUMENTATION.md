@@ -36,6 +36,8 @@ Cellframe Masternode Inspector is a web-based dashboard for monitoring Cellframe
 - Sovereign wallet support (when available)
 - Hover-to-view detailed wallet information
 - Truncated address display for better UX
+- Click-to-copy wallet addresses and transaction hashes
+- Toast notification on successful copy
 
 ### Charts and Analytics
 - **Rewards Chart**: Daily rewards visualization
@@ -44,6 +46,7 @@ Cellframe Masternode Inspector is a web-based dashboard for monitoring Cellframe
 - **First Signed Blocks Chart**: First block signing tracking
 - Configurable time ranges (7, 14, 30, 60, 90 days)
 - Individual chart day selection
+- Simplified tooltips showing only date and value on hover
 
 ### Customization
 - **Manage Metrics**: Show/hide individual metrics
@@ -56,8 +59,10 @@ Cellframe Masternode Inspector is a web-based dashboard for monitoring Cellframe
 - Dark theme with purple accents
 - Responsive design for mobile and desktop
 - Touch-optimized with 200ms delay on drag operations
-- Bootstrap-based alert styling for consistency
+- Bootstrap Toast notifications with theme colors (card header style)
+- Auto-dismissing notifications (3 second delay)
 - Sortable metric cards with visual feedback
+- Copy icons on clickable values
 
 ## Technical Implementation
 
@@ -133,6 +138,7 @@ Charts use Chart.js library with the following features:
 - Color-coded data visualization
 - Day range filtering with API support
 - Per-chart day selection persistence
+- Custom tooltips showing only date and value (simplified display)
 
 ### Conditional Rendering
 
@@ -152,6 +158,27 @@ Implemented using SortableJS:
 - Touch support with delay
 - Visual feedback (ghost, chosen, drag classes)
 
+### Copy-to-Clipboard
+
+Click-to-copy functionality for sensitive data:
+- Wallet addresses (reward and sovereign)
+- Transaction hashes (stake transaction)
+- Uses Clipboard API (`navigator.clipboard.writeText`)
+- Visual feedback with copy icon on hover
+- Toast notification on successful copy
+- Graceful fallback if Clipboard API unavailable
+
+### Notification System
+
+Bootstrap Toast notifications with theme integration:
+- Background color: `#1E1E1E` (card header style)
+- Text color: `#CCC2FF` (accent purple)
+- Auto-dismiss after 3 seconds
+- Positioned top-right corner
+- No close button (auto-dismiss only)
+- Success and info notification types
+- Used for copy confirmations and user feedback
+
 ## Configuration Files
 
 ### index.html
@@ -168,10 +195,12 @@ Core application logic:
 - `NodeManager` class handling all functionality
 - Node CRUD operations
 - API communication with error handling
-- Chart management and updates
+- Chart management and updates with custom tooltips
 - Metric visibility and ordering
 - Settings persistence
 - Auto-refresh scheduling
+- `copyToClipboard()` function for copy functionality
+- `showNotification()` function for toast notifications
 
 ### styles.css
 Custom styling:
@@ -240,6 +269,16 @@ Custom styling:
    - Days preferences removed
    - Metric order removed
    - Cached data removed
+
+### Copying Wallet Addresses and Hashes
+1. Locate wallet address or transaction hash metric
+2. Click on the displayed value (copy icon visible on hover)
+3. Data copied to clipboard automatically
+4. Toast notification confirms successful copy
+5. Works for:
+   - Reward wallet addresses
+   - Sovereign wallet addresses (when available)
+   - Stake transaction hashes
 
 ## Browser Compatibility
 
@@ -361,5 +400,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: September 30, 2025
-**Version**: 2.0
+**Last Updated**: October 1, 2025
+**Version**: 2.1
