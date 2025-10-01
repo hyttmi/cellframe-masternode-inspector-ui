@@ -1996,7 +1996,7 @@ class NodeManager {
                 },
                 {
                     id: 'current_version',
-                    title: 'CURRENT VERSION',
+                    title: 'CURRENT NODE VERSION',
                     icon: 'fa-code-branch',
                     value: systemData.current_node_version || 'N/A',
                     isUpToDate: systemData.current_node_version === systemData.latest_node_version
@@ -2021,7 +2021,7 @@ class NodeManager {
                 },
                 {
                     id: 'latest_version',
-                    title: 'LATEST VERSION',
+                    title: 'LATEST NODE VERSION',
                     icon: 'fa-download',
                     value: systemData.latest_node_version || 'N/A'
                 },
