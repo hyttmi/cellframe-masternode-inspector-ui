@@ -388,12 +388,14 @@ class NodeManager {
             { id: 'biggest_reward', label: 'Biggest Reward' },
             { id: 'blocks_today_in_network', label: 'Blocks Today in Network' },
             { id: 'current_block_reward', label: 'Current Block Reward' },
+            { id: 'effective_value', label: 'Effective Stake Value' },
             { id: 'first_signed_blocks_today', label: 'First Signed Blocks Today' },
             { id: 'first_signed_blocks_yesterday', label: 'First Signed Blocks Yesterday' },
             { id: 'latest_reward', label: 'Latest Reward' },
             { id: 'network_state', label: 'Network State' },
             { id: 'network_status', label: 'Network Status' },
             { id: 'node_address', label: 'Node Address' },
+            { id: 'relative_weight', label: 'Relative Weight' },
             { id: 'remote_cache_updated', label: 'Remote Cache Updated' },
             { id: 'reward_wallet', label: 'Reward Wallet' },
             { id: 'rewards_received_today', label: 'Rewards Received Today' },
@@ -401,8 +403,10 @@ class NodeManager {
             { id: 'signed_blocks_today', label: 'Signed Blocks Today' },
             { id: 'signed_blocks_yesterday', label: 'Signed Blocks Yesterday' },
             { id: 'smallest_reward', label: 'Smallest Reward' },
+            { id: 'stake_value', label: 'Stake Value' },
             { id: 'token_price', label: 'Token Price' },
             { id: 'total_blocks_in_network', label: 'Total Blocks in Network' },
+            { id: 'tx_hash', label: 'Stake Transaction Hash' },
             { id: 'validator_average_fee', label: 'Validator Average Fee' },
             { id: 'validator_max_fee', label: 'Validator Max Fee' },
             { id: 'validator_min_fee', label: 'Validator Min Fee' }
@@ -549,6 +553,64 @@ class NodeManager {
         this.switchToNode(nodeId);
     }
 
+    showEditNodeModal() {
+        const node = this.nodes.find(n => n.id === this.activeNodeId);
+        if (!node) return;
+
+        // Populate the form with current node data
+        document.getElementById('editNodeName').value = node.name;
+        document.getElementById('editNodeUrl').value = node.url;
+        document.getElementById('editApiToken').value = node.token;
+
+        const modal = new bootstrap.Modal(document.getElementById('editNodeModal'));
+        modal.show();
+    }
+
+    editNode() {
+        const name = document.getElementById('editNodeName').value;
+        const url = document.getElementById('editNodeUrl').value;
+        const token = document.getElementById('editApiToken').value;
+
+        if (!name || !url || !token) {
+            alert('Please fill in all fields');
+            return;
+        }
+
+        const node = this.nodes.find(n => n.id === this.activeNodeId);
+        if (!node) return;
+
+        // Check if URL or token changed (need to clear cache)
+        const urlChanged = node.url !== url.replace(/\/$/, '');
+        const tokenChanged = node.token !== token;
+
+        // Update node data
+        node.name = name;
+        node.url = url.replace(/\/$/, ''); // Remove trailing slash
+        node.token = token;
+
+        this.saveNodes();
+        this.renderNodeTabs();
+
+        // Clear cache if URL or token changed
+        if (urlChanged || tokenChanged) {
+            this.clearNodeCache(this.activeNodeId);
+            // Reload data with new credentials
+            this.loadData();
+        }
+
+        const modal = bootstrap.Modal.getInstance(document.getElementById('editNodeModal'));
+        modal.hide();
+        document.getElementById('editNodeForm').reset();
+    }
+
+    clearNodeCache(nodeId) {
+        // Remove all cached data for this node
+        const cacheKeys = Object.keys(localStorage).filter(key =>
+            key.startsWith(`cfminspector_cache_${nodeId}_`)
+        );
+        cacheKeys.forEach(key => localStorage.removeItem(key));
+    }
+
     removeNode(nodeId) {
         if (confirm('Are you sure you want to remove this node?')) {
             // Clean up node-specific settings
@@ -631,15 +693,17 @@ class NodeManager {
 
     updateRemoveButtonVisibility() {
         const removeBtn = document.getElementById('removeNodeBtn');
+        const editBtn = document.getElementById('editNodeBtn');
         const shareBtn = document.getElementById('shareNodeBtn');
         const nodeSelector = document.getElementById('nodeSelector');
 
-        if (removeBtn && shareBtn && nodeSelector) {
+        if (removeBtn && editBtn && shareBtn && nodeSelector) {
             // Show buttons only if a node is selected and we have nodes
             const hasSelection = nodeSelector.value && nodeSelector.value !== '';
             const hasNodes = this.nodes.length > 0;
             const showButtons = hasSelection && hasNodes;
 
+            editBtn.style.display = showButtons ? 'block' : 'none';
             removeBtn.style.display = showButtons ? 'block' : 'none';
             shareBtn.style.display = showButtons ? 'block' : 'none';
         }
@@ -1958,6 +2022,14 @@ class NodeManager {
                 value: `${(parseFloat(networkData.current_block_reward) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
             },
             {
+                id: 'effective_value',
+                title: 'EFFECTIVE STAKE VALUE',
+                icon: 'fa-scale-balanced',
+                value: networkData.effective_value ?
+                    `${(parseFloat(networkData.effective_value) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}` :
+                    'N/A'
+            },
+            {
                 id: 'first_signed_blocks_today',
                 title: 'FIRST SIGNED BLOCKS TODAY',
                 icon: 'fa-trophy',
@@ -1992,6 +2064,14 @@ class NodeManager {
                     (networkData.network_status.node_address.length > 30 ?
                         networkData.network_status.node_address.substring(0, 30) + '...' :
                         networkData.network_status.node_address) : 'N/A'
+            },
+            {
+                id: 'relative_weight',
+                title: 'RELATIVE WEIGHT',
+                icon: 'fa-percent',
+                value: networkData.relative_weight ?
+                    `${(parseFloat(networkData.relative_weight) || 0).toFixed(6)}%` :
+                    'N/A'
             },
             {
                 id: 'remote_cache_updated',
@@ -2045,6 +2125,14 @@ class NodeManager {
                 title: 'SMALLEST REWARD',
                 icon: 'fa-arrow-down',
                 value: `${(parseFloat(networkData.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}`
+            },
+            {
+                id: 'stake_value',
+                title: 'STAKE VALUE',
+                icon: 'fa-coins',
+                value: networkData.stake_value ?
+                    `${(parseFloat(networkData.stake_value) || 0).toFixed(2)} ${networkData.native_ticker || 'TOKEN'}` :
+                    'N/A'
             }
         ];
 
@@ -2084,6 +2172,17 @@ class NodeManager {
                 title: 'TOTAL BLOCKS IN NETWORK',
                 icon: 'fa-layer-group',
                 value: (networkData.block_count || 0).toLocaleString()
+            },
+            {
+                id: 'tx_hash',
+                title: 'STAKE TRANSACTION HASH',
+                icon: 'fa-hashtag',
+                value: networkData.tx_hash ?
+                    (networkData.tx_hash.length > 16 ?
+                        networkData.tx_hash.substring(0, 8) + '...' + networkData.tx_hash.substring(networkData.tx_hash.length - 8) :
+                        networkData.tx_hash) : 'N/A',
+                fullValue: networkData.tx_hash || null,
+                hasHover: true
             },
             {
                 id: 'validator_average_fee',
@@ -2173,6 +2272,8 @@ class NodeManager {
                 `;
             } else {
                 // Regular metric rendering
+                const titleAttr = metric.fullValue ? `title="${metric.fullValue}"` : '';
+                const cursorStyle = metric.hasHover ? 'style="cursor: help;"' : '';
                 return `
                     <div class="col-md-4 mb-3"
                          data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
@@ -2180,7 +2281,7 @@ class NodeManager {
                             <div class="metric-icon mb-2">
                                 <i class="fas ${metric.icon}"></i>
                             </div>
-                            <div class="metric-value">${metric.value}</div>
+                            <div class="metric-value" ${titleAttr} ${cursorStyle}>${metric.value}</div>
                             <div class="metric-label">${metric.title}</div>
                         </div>
                     </div>
@@ -2611,6 +2712,10 @@ function showAddNodeModal() {
 
 function addNode() {
     nodeManager.addNode();
+}
+
+function editNode() {
+    nodeManager.editNode();
 }
 
 async function testNodeConnection() {

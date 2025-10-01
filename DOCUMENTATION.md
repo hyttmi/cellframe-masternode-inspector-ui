@@ -8,9 +8,11 @@ Cellframe Masternode Inspector is a web-based dashboard for monitoring Cellframe
 
 ### Multi-Node Support
 - Add and manage multiple masternodes
+- Edit node name, URL, and API token per node
 - Each node maintains independent settings
 - Switch between nodes easily via dropdown selector
 - Share nodes via QR code or native device sharing
+- Automatic cache clearing when credentials change
 
 ### System Monitoring
 - CPU usage tracking
@@ -210,6 +212,14 @@ Custom styling:
 3. Drag to desired position
 4. Release to drop
 5. Order saved automatically per node
+
+### Editing a Node
+1. Select node to edit
+2. Click edit button (pencil icon) next to node selector
+3. Edit Node modal appears with current settings
+4. Modify node name, API URL, or token as needed
+5. Click "Save Changes"
+6. If URL or token changed, cache is automatically cleared and data reloaded
 
 ### Sharing a Node
 1. Select node to share
