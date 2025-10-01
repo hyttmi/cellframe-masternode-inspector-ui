@@ -18,7 +18,8 @@ Cellframe Masternode Inspector is a web-based dashboard for monitoring Cellframe
 - CPU usage tracking
 - Memory usage monitoring
 - System and node uptime
-- Version information (current and latest)
+- Node version information (current and latest)
+- Plugin version information (current and latest)
 - External IP address
 - Hostname display
 

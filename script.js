@@ -566,11 +566,11 @@ class NodeManager {
         const systemMetrics = [
             { id: 'cpu_usage', label: 'CPU Usage' },
             { id: 'current_plugin_version', label: 'Current Plugin Version' },
-            { id: 'current_version', label: 'Current Version' },
+            { id: 'current_version', label: 'Current Node Version' },
             { id: 'external_ip', label: 'External IP' },
             { id: 'hostname', label: 'Hostname' },
             { id: 'latest_plugin_version', label: 'Latest Plugin Version' },
-            { id: 'latest_version', label: 'Latest Version' },
+            { id: 'latest_version', label: 'Latest Node Version' },
             { id: 'memory_usage', label: 'Memory Usage' },
             { id: 'node_status', label: 'Node Status' },
             { id: 'node_uptime', label: 'Node Uptime' },
