@@ -2463,6 +2463,16 @@ class NodeManager {
                 plugins: {
                     legend: {
                         display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                return context[0].label;
+                            },
+                            label: function(context) {
+                                return `${context.parsed.y} ${unit || ''}`;
+                            }
+                        }
                     }
                 },
                 scales: {
