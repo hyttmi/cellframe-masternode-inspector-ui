@@ -168,18 +168,6 @@ const NETWORK_METRICS_CONFIG = {
         icon: 'fa-calculator',
         formatter: (data) => `${(parseFloat(data.validator_average_fee) || 0).toFixed(6)} ${data.native_ticker || 'TOKEN'}`
     },
-    validator_max_fee: {
-        label: 'Validator Max Fee',
-        title: 'VALIDATOR MAX FEE',
-        icon: 'fa-arrow-up',
-        formatter: (data) => `${(parseFloat(data.validator_max_fee) || 0).toFixed(6)} ${data.native_ticker || 'TOKEN'}`
-    },
-    validator_min_fee: {
-        label: 'Validator Min Fee',
-        title: 'VALIDATOR MIN FEE',
-        icon: 'fa-arrow-down',
-        formatter: (data) => `${(parseFloat(data.validator_min_fee) || 0).toFixed(6)} ${data.native_ticker || 'TOKEN'}`
-    },
     // Sovereign metrics (conditionally added)
     sovereign_rewards_yesterday: {
         label: 'Sovereign Rewards Yesterday',
