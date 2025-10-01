@@ -2989,12 +2989,9 @@ function showNotification(message, type = 'info') {
     const toastHtml = `
         <div id="${toastId}" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
              style="background-color: #1E1E1E !important; color: #CCC2FF !important;">
-            <div class="d-flex">
-                <div class="toast-body">
-                    <i class="fas fa-${iconClass} me-2"></i>
-                    ${message}
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div class="toast-body">
+                <i class="fas fa-${iconClass} me-2"></i>
+                ${message}
             </div>
         </div>
     `;
