@@ -2982,19 +2982,21 @@ function showNotification(message, type = 'info') {
         document.body.appendChild(toastContainer);
     }
 
-    // Create Bootstrap toast
+    // Create Bootstrap toast with theme colors
     const toastId = 'toast-' + Date.now();
     const iconClass = type === 'success' ? 'check-circle' : 'info-circle';
-    const bgClass = type === 'success' ? 'bg-success' : 'bg-info';
+    const bgColor = type === 'success' ? '#22c55e' : '#B3A3FF';
+    const textColor = type === 'success' ? '#FFFFFF' : '#000000';
 
     const toastHtml = `
-        <div id="${toastId}" class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div id="${toastId}" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
+             style="background-color: ${bgColor}; color: ${textColor};">
             <div class="d-flex">
                 <div class="toast-body">
                     <i class="fas fa-${iconClass} me-2"></i>
                     ${message}
                 </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close ${type === 'success' ? 'btn-close-white' : ''} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
         </div>
     `;
