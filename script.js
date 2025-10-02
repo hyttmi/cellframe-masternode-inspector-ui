@@ -530,9 +530,7 @@ class NodeManager {
             'sovereign_wallet',
             'token_price',
             'total_blocks_in_network',
-            'validator_average_fee',
-            'validator_max_fee',
-            'validator_min_fee'
+            'validator_average_fee'
         ];
     }
 
