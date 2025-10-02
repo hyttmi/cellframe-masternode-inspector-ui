@@ -400,6 +400,17 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 2, 2025 - Version 2.1.2
+
+#### Removed Features
+- **Removed Validator Average Fee Metric**: Removed `validator_average_fee` metric from the frontend as it was removed from the backend API. This metric is no longer available in the Manage Metrics modal or network performance section.
+  - Removed from `NETWORK_METRICS_CONFIG` (script.js lines 165-170)
+  - Removed from `getAllNetworkMetricIds()` array (script.js line 531)
+
+#### Files Modified
+- `script.js`: Lines 165-170 (removed), 531 (removed from array)
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 2, 2025 - Version 2.1.1
 
 #### Bug Fixes
@@ -422,4 +433,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 2, 2025
-**Version**: 2.1.1
+**Version**: 2.1.2

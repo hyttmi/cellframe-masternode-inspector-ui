@@ -162,12 +162,6 @@ const NETWORK_METRICS_CONFIG = {
         hasHover: true,
         getFullValue: (data) => data.tx_hash || null
     },
-    validator_average_fee: {
-        label: 'Validator Average Fee',
-        title: 'VALIDATOR AVERAGE FEE',
-        icon: 'fa-calculator',
-        formatter: (data) => `${(parseFloat(data.validator_average_fee) || 0).toFixed(6)} ${data.native_ticker || 'TOKEN'}`
-    },
     // Sovereign metrics (conditionally added)
     sovereign_rewards_yesterday: {
         label: 'Sovereign Rewards Yesterday',
@@ -533,8 +527,7 @@ class NodeManager {
             'stake_value',
             'token_price',
             'total_blocks_in_network',
-            'tx_hash',
-            'validator_average_fee'
+            'tx_hash'
         ];
     }
 
