@@ -1,0 +1,14 @@
+# Sensitive files - DO NOT COMMIT
+claude.md
+
+# Data files
+system_data.json
+network_data.json
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db

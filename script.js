@@ -513,12 +513,14 @@ class NodeManager {
             'biggest_reward',
             'blocks_today_in_network',
             'current_block_reward',
+            'effective_value',
             'first_signed_blocks_today',
             'first_signed_blocks_yesterday',
             'latest_reward',
             'network_state',
             'network_status',
             'node_address',
+            'relative_weight',
             'remote_cache_updated',
             'reward_wallet',
             'rewards_received_today',
@@ -528,8 +530,10 @@ class NodeManager {
             'smallest_reward',
             'sovereign_rewards_yesterday',
             'sovereign_wallet',
+            'stake_value',
             'token_price',
             'total_blocks_in_network',
+            'tx_hash',
             'validator_average_fee'
         ];
     }
@@ -829,7 +833,7 @@ class NodeManager {
         if (urlChanged || tokenChanged) {
             this.clearNodeCache(this.activeNodeId);
             // Reload data with new credentials
-            this.loadData();
+            this.loadNodeData(this.activeNodeId);
         }
 
         const modal = bootstrap.Modal.getInstance(document.getElementById('editNodeModal'));

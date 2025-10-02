@@ -398,7 +398,28 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 For issues, feature requests, or contributions, please use the GitHub repository issue tracker.
 
+## Change Log
+
+### October 2, 2025 - Version 2.1.1
+
+#### Bug Fixes
+- **Fixed Edit Node Save Button**: Corrected the `editNode()` method in script.js (line 836) - changed `this.loadData()` to `this.loadNodeData(this.activeNodeId)`. This fixes the issue where users had to click "Save Changes" twice for the changes to take effect.
+
+#### Enhancements
+- **All Metrics Enabled by Default**: Added missing staking metrics to the default enabled list in `getAllNetworkMetricIds()` method (script.js lines 510-539):
+  - `effective_value` - Effective Stake Value
+  - `relative_weight` - Relative Weight percentage
+  - `stake_value` - Stake Value
+  - `tx_hash` - Stake Transaction Hash
+
+  Previously these metrics were available but disabled by default for new nodes. Now all metrics are enabled by default.
+
+#### Files Modified
+- `script.js`: Lines 516, 523, 533, 536, 836
+- `claude.md`: Added development guidelines section
+- `DOCUMENTATION.md`: Added this Change Log section
+
 ---
 
-**Last Updated**: October 1, 2025
-**Version**: 2.1
+**Last Updated**: October 2, 2025
+**Version**: 2.1.1
