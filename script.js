@@ -1854,13 +1854,20 @@ class NodeManager {
             return dataArray;
         }
 
+        // Get today's date in YYYY-MM-DD format to exclude from charts
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
+        // Calculate cutoff date: go back 'days' from yesterday (not today)
+        // This ensures we get the requested number of days excluding today
         const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - days);
+        cutoffDate.setDate(cutoffDate.getDate() - days - 1);
 
         return dataArray.filter(item => {
             if (!item.date) return false;
             const itemDate = new Date(item.date);
-            return itemDate >= cutoffDate;
+            // Exclude today's data from charts but include the requested number of previous days
+            return itemDate > cutoffDate && item.date !== todayStr;
         }).sort((a, b) => new Date(a.date) - new Date(b.date));
     }
 
@@ -2420,6 +2427,10 @@ class NodeManager {
 
         let dates, values;
 
+        // Get today's date in YYYY-MM-DD format to exclude from charts
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
         // Handle both array format (from API) and object format
         if (Array.isArray(dailyData)) {
             dates = dailyData.map(item => item.date);
@@ -2428,7 +2439,8 @@ class NodeManager {
                 return item.total_rewards || item.block_count || item.value || 0;
             });
         } else {
-            dates = Object.keys(dailyData).sort();
+            // Filter out today's date from object format data
+            dates = Object.keys(dailyData).filter(date => date !== todayStr).sort();
             values = dates.map(date => dailyData[date] || 0);
         }
 
