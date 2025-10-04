@@ -29,7 +29,7 @@ const NETWORK_METRICS_CONFIG = {
         title: 'EFFECTIVE STAKE VALUE',
         icon: 'fa-scale-balanced',
         formatter: (data) => data.effective_value ?
-            `${(parseFloat(data.effective_value) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}` :
+            `${(parseFloat(data.effective_value) || 0).toFixed(2)} m${data.native_ticker || 'TOKEN'}` :
             'N/A'
     },
     first_signed_blocks_today: {
@@ -136,7 +136,7 @@ const NETWORK_METRICS_CONFIG = {
         title: 'STAKE VALUE',
         icon: 'fa-coins',
         formatter: (data) => data.stake_value ?
-            `${(parseFloat(data.stake_value) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}` :
+            `${(parseFloat(data.stake_value) || 0).toFixed(2)} m${data.native_ticker || 'TOKEN'}` :
             'N/A'
     },
     token_price: {

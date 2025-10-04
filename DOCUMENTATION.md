@@ -400,6 +400,19 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 4, 2025 - Version 2.1.5
+
+#### Stake Value Unit Display Fix
+- **Fixed Stake Value Units**: Updated effective_value and stake_value metrics to display in milli-token units (e.g., mCELL)
+  - Updated `effective_value` formatter (script.js line 32) to prefix "m" before native_ticker
+  - Updated `stake_value` formatter (script.js line 139) to prefix "m" before native_ticker
+  - Now displays "101.20 mCELL" instead of "101.20 CELL"
+  - Applies to all networks consistently
+
+#### Files Modified
+- `script.js`: Lines 32, 139 (stake value unit formatters)
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 4, 2025 - Version 2.1.4
 
 #### Sovereign Node Support Fix
@@ -474,4 +487,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 4, 2025
-**Version**: 2.1.4
+**Version**: 2.1.5
