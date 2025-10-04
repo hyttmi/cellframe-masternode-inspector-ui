@@ -400,6 +400,24 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 4, 2025 - Version 2.1.6
+
+#### Node Selector Sorting
+- **Added Alphabetical Sorting**: Nodes in the dropdown selector are now sorted alphabetically by name
+  - Updated node selector population (script.js lines 1059-1069) to sort nodes before rendering
+  - Uses `localeCompare` for proper alphabetical sorting
+  - Improves usability when managing multiple nodes
+
+#### Sovereign Metrics Auto-Update
+- **Fixed Sovereign Metrics Visibility**: New sovereign metrics now automatically appear for existing users
+  - Updated `getVisibleMetricsForNode()` (script.js lines 491-523) to merge new default metrics with saved preferences
+  - Sovereign metrics added in recent updates now automatically become visible for existing users
+  - Prevents users from missing new metrics when they're added to the app
+
+#### Files Modified
+- `script.js`: Lines 1059-1069 (node sorting), 491-523 (metrics auto-update)
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 4, 2025 - Version 2.1.5
 
 #### Stake Value Unit Display Fix
@@ -495,4 +513,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 4, 2025
-**Version**: 2.1.5
+**Version**: 2.1.6

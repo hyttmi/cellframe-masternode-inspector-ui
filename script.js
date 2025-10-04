@@ -497,6 +497,27 @@ class NodeManager {
                 sections: this.getAllSectionIds()
             };
             this.saveVisibleMetrics();
+        } else {
+            // Merge any new default metrics with existing saved metrics
+            const defaults = {
+                system: this.getAllSystemMetricIds(),
+                network: this.getAllNetworkMetricIds(),
+                sections: this.getAllSectionIds()
+            };
+
+            let updated = false;
+            ['system', 'network', 'sections'].forEach(type => {
+                defaults[type].forEach(metricId => {
+                    if (!this.visibleMetrics[nodeId][type].includes(metricId)) {
+                        this.visibleMetrics[nodeId][type].push(metricId);
+                        updated = true;
+                    }
+                });
+            });
+
+            if (updated) {
+                this.saveVisibleMetrics();
+            }
         }
         return this.visibleMetrics[nodeId];
     }
@@ -1056,9 +1077,11 @@ class NodeManager {
         // Clear existing content
         nodeContent.innerHTML = '';
 
-        // Populate node selector
+        // Populate node selector with sorted nodes
         nodeSelector.innerHTML = '<option value="">Select Node...</option>';
-        this.nodes.forEach(node => {
+        // Sort nodes alphabetically by name
+        const sortedNodes = [...this.nodes].sort((a, b) => a.name.localeCompare(b.name));
+        sortedNodes.forEach(node => {
             const option = document.createElement('option');
             option.value = node.id;
             option.textContent = node.name;
