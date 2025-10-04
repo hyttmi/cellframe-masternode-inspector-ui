@@ -405,12 +405,14 @@ For issues, feature requests, or contributions, please use the GitHub repository
 #### Chart Data Filtering
 - **Exclude Current Date from Charts**: Charts now exclude data from the current date and only show historical data from previous days. This prevents incomplete or in-progress data from being displayed in the charts.
   - Updated `filterDataByDays()` method (script.js lines 1852-1872) to filter out today's date while maintaining the requested number of days. For example, selecting "7 days" now shows the last 7 complete days (excluding today).
-  - Updated `updateChart()` method (script.js lines 2426-2443) to exclude today's date from object format data
+  - Updated `updateChart()` method (script.js lines 2428-2445) to exclude today's date from object format data
+  - Updated `updateCharts()` method (script.js lines 1895-1904, 1967-1968) to always exclude today's date, even when using API-filtered data (skipFiltering=true)
   - Both array and object format data are now filtered to exclude the current date
   - Fixed day count calculation to ensure the selected number of days is displayed (e.g., 7 days shows 7 historical days, not 6)
+  - Fixed bug where API-filtered data (skipFiltering=true) was not excluding today's date
 
 #### Files Modified
-- `script.js`: Lines 1852-1872 (filterDataByDays method), 2426-2443 (updateChart method)
+- `script.js`: Lines 1852-1872 (filterDataByDays), 1895-1917 (updateCharts), 1967-1968 (sovereign chart), 2428-2445 (updateChart)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 2, 2025 - Version 2.1.2

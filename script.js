@@ -1892,12 +1892,16 @@ class NodeManager {
 
         let rewardsData, blocksData, firstBlocksData;
 
+        // Get today's date to exclude from charts
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+
         if (skipFiltering) {
-            // Use data as-is (already filtered by API)
+            // Use data as-is (already filtered by API) but still exclude today
             console.log('Using API-filtered data');
-            rewardsData = data.reward_wallet_all_sums_daily;
-            blocksData = data.signed_blocks_all_sums_daily;
-            firstBlocksData = data.first_signed_blocks_all_sums_daily;
+            rewardsData = data.reward_wallet_all_sums_daily?.filter(item => item.date !== todayStr) || [];
+            blocksData = data.signed_blocks_all_sums_daily?.filter(item => item.date !== todayStr) || [];
+            firstBlocksData = data.first_signed_blocks_all_sums_daily?.filter(item => item.date !== todayStr) || [];
         } else {
             // Apply client-side filtering with chart-specific days
             console.log('Using client-side filtering');
@@ -1961,7 +1965,7 @@ class NodeManager {
             if (chartType === 'all' || chartType === 'sovereign') {
                 let sovereignData;
                 if (skipFiltering) {
-                    sovereignData = data.sovereign_wallet_all_sums_daily;
+                    sovereignData = data.sovereign_wallet_all_sums_daily?.filter(item => item.date !== todayStr) || [];
                 } else {
                     const sovereignDays = this.getSelectedDays(nodeId, 'sovereign');
                     sovereignData = this.filterDataByDays(data.sovereign_wallet_all_sums_daily, sovereignDays);
