@@ -414,8 +414,15 @@ For issues, feature requests, or contributions, please use the GitHub repository
   - Sovereign metrics added in recent updates now automatically become visible for existing users
   - Prevents users from missing new metrics when they're added to the app
 
+#### Manage Metrics Modal Fix
+- **Show All Metrics in Modal**: Manage Metrics modal now displays all available metrics, including conditional ones
+  - Removed conditional filtering from modal (script.js lines 677-683)
+  - Sovereign metrics now always appear in the Manage Metrics modal
+  - Users can toggle any metric on/off, even if it's not currently applicable
+  - The actual page display still respects conditional logic (metrics only show when data is available)
+
 #### Files Modified
-- `script.js`: Lines 1059-1069 (node sorting), 491-523 (metrics auto-update)
+- `script.js`: Lines 1059-1069 (node sorting), 491-523 (metrics auto-update), 677-683 (modal fix)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 4, 2025 - Version 2.1.5

@@ -674,17 +674,9 @@ class NodeManager {
             hasSovereignData = (cachedData?.sovereign_addr || cachedData?.sovereign_reward_wallet_address) && cachedData?.sovereign_wallet_all_sums_daily;
         }
 
-        // Build network metrics from config, filtering conditionals
+        // Build network metrics from config - show ALL metrics in modal
+        // The actual display is still controlled by conditionals, but users should see all options
         const networkMetrics = Object.entries(NETWORK_METRICS_CONFIG)
-            .filter(([id, config]) => {
-                // Filter out conditional metrics if condition not met
-                if (config.conditional) {
-                    const cachedData = activeNode && this.selectedNetwork ?
-                        this.getStoredNetworkData(activeNode.id, this.selectedNetwork) : null;
-                    return cachedData && config.conditional(cachedData);
-                }
-                return true;
-            })
             .map(([id, config]) => ({
                 id: id,
                 label: config.label
