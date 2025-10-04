@@ -1849,23 +1849,30 @@ class NodeManager {
         }
     }
 
+    // Helper function to get date in YYYY-MM-DD format using local timezone
+    getLocalDateString(date) {
+        return date.getFullYear() + '-' +
+            String(date.getMonth() + 1).padStart(2, '0') + '-' +
+            String(date.getDate()).padStart(2, '0');
+    }
+
     filterDataByDays(dataArray, days) {
         if (!dataArray || !Array.isArray(dataArray)) {
             return dataArray;
         }
 
-        // Get today's date in YYYY-MM-DD format to exclude from charts
+        // Get today's date in local timezone YYYY-MM-DD format
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = this.getLocalDateString(today);
 
         // Calculate cutoff date: go back 'days' from today
         const cutoffDate = new Date();
         cutoffDate.setDate(cutoffDate.getDate() - days);
-        const cutoffStr = cutoffDate.toISOString().split('T')[0];
+        const cutoffStr = this.getLocalDateString(cutoffDate);
 
         return dataArray.filter(item => {
             if (!item.date) return false;
-            // Compare date strings directly (avoids timezone issues)
+            // Compare date strings directly
             // Include dates >= cutoffStr but exclude today
             return item.date >= cutoffStr && item.date !== todayStr;
         }).sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -1892,9 +1899,9 @@ class NodeManager {
 
         let rewardsData, blocksData, firstBlocksData;
 
-        // Get today's date to exclude from charts
+        // Get today's date in local timezone to exclude from charts
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = this.getLocalDateString(today);
 
         if (skipFiltering) {
             // Use data as-is (already filtered by API) but still exclude today
@@ -2431,9 +2438,9 @@ class NodeManager {
 
         let dates, values;
 
-        // Get today's date in YYYY-MM-DD format to exclude from charts
+        // Get today's date in local timezone to exclude from charts
         const today = new Date();
-        const todayStr = today.toISOString().split('T')[0];
+        const todayStr = this.getLocalDateString(today);
 
         // Handle both array format (from API) and object format
         if (Array.isArray(dailyData)) {

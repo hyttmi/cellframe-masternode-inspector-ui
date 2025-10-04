@@ -404,16 +404,17 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 #### Chart Data Filtering
 - **Exclude Current Date from Charts**: Charts now exclude data from the current date and only show historical data from previous days. This prevents incomplete or in-progress data from being displayed in the charts.
-  - Updated `filterDataByDays()` method (script.js lines 1852-1872) to filter out today's date while maintaining the requested number of days. Now uses string comparison instead of Date objects to avoid timezone issues. For example, selecting "7 days" now shows the last 7 complete days (excluding today).
-  - Updated `updateChart()` method (script.js lines 2428-2445) to exclude today's date from object format data
-  - Updated `updateCharts()` method (script.js lines 1895-1904, 1967-1968) to always exclude today's date, even when using API-filtered data (skipFiltering=true)
+  - Added `getLocalDateString()` helper method (script.js lines 1852-1857) to get date strings in local timezone instead of UTC
+  - Updated `filterDataByDays()` method (script.js lines 1859-1879) to filter out today's date while maintaining the requested number of days. Now uses local timezone dates instead of UTC. For example, selecting "7 days" now shows the last 7 complete days (excluding today).
+  - Updated `updateChart()` method (script.js lines 2439-2456) to exclude today's date using local timezone
+  - Updated `updateCharts()` method (script.js lines 1902-1911, 1975) to always exclude today's date using local timezone, even when using API-filtered data (skipFiltering=true)
   - Both array and object format data are now filtered to exclude the current date
   - Fixed day count calculation to ensure the selected number of days is displayed (e.g., 7 days shows 7 historical days, not 6)
   - Fixed bug where API-filtered data (skipFiltering=true) was not excluding today's date
-  - Fixed timezone issue by using string comparison (>=) instead of Date object comparison
+  - **Fixed critical timezone bug**: Now uses local timezone instead of UTC for determining "today", preventing incorrect date filtering for users in different timezones
 
 #### Files Modified
-- `script.js`: Lines 1852-1872 (filterDataByDays), 1895-1917 (updateCharts), 1967-1968 (sovereign chart), 2428-2445 (updateChart)
+- `script.js`: Lines 1852-1879 (helper + filterDataByDays), 1902-1911 (updateCharts), 1975 (sovereign), 2439-2456 (updateChart)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 2, 2025 - Version 2.1.2
