@@ -402,19 +402,19 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ### October 4, 2025 - Version 2.1.3
 
-#### Chart Data Filtering
+#### Chart Data Filtering - Server-Side Date Synchronization
 - **Exclude Current Date from Charts**: Charts now exclude data from the current date and only show historical data from previous days. This prevents incomplete or in-progress data from being displayed in the charts.
-  - Added `getLocalDateString()` helper method (script.js lines 1852-1857) to get date strings in local timezone instead of UTC
-  - Updated `filterDataByDays()` method (script.js lines 1859-1879) to filter out today's date while maintaining the requested number of days. Now uses local timezone dates instead of UTC. For example, selecting "7 days" now shows the last 7 complete days (excluding today).
-  - Updated `updateChart()` method (script.js lines 2439-2456) to exclude today's date using local timezone
-  - Updated `updateCharts()` method (script.js lines 1902-1911, 1975) to always exclude today's date using local timezone, even when using API-filtered data (skipFiltering=true)
-  - Both array and object format data are now filtered to exclude the current date
-  - Fixed day count calculation to ensure the selected number of days is displayed (e.g., 7 days shows 7 historical days, not 6)
-  - Fixed bug where API-filtered data (skipFiltering=true) was not excluding today's date
-  - **Fixed critical timezone bug**: Now uses local timezone instead of UTC for determining "today", preventing incorrect date filtering for users in different timezones
+  - Added `getServerDateFromTimestamp()` helper method (script.js lines 1859-1863) to extract server date from API `request_timestamp`
+  - Updated `fetchNetworkData()` (script.js lines 1793-1798) to include `request_timestamp` in returned network data
+  - Updated `filterDataByDays()` method (script.js lines 1865-1884) to accept optional `serverDate` parameter and use server's date for filtering instead of browser's timezone
+  - Updated `updateChart()` method (script.js lines 2430-2465) to accept and use server date
+  - Updated `updateCharts()` method (script.js lines 1912-1933, 1987-1988, 1943, 1952, 1961, 1991) to extract server date from `request_timestamp` and pass it to all filtering functions
+  - **Fixed critical timezone synchronization**: Frontend now uses server's date from `request_timestamp` instead of browser's local timezone, ensuring perfect synchronization between backend and frontend regardless of user's timezone
+  - Both array and object format data are now filtered to exclude the current date based on server time
+  - Fallback to browser local timezone if `request_timestamp` is not available (backward compatibility)
 
 #### Files Modified
-- `script.js`: Lines 1852-1879 (helper + filterDataByDays), 1902-1911 (updateCharts), 1975 (sovereign), 2439-2456 (updateChart)
+- `script.js`: Lines 1859-1863 (getServerDateFromTimestamp), 1793-1798 (fetchNetworkData), 1865-1884 (filterDataByDays), 1912-1933 (updateCharts), 1943, 1952, 1961, 1991 (updateChart calls), 2430-2465 (updateChart)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 2, 2025 - Version 2.1.2

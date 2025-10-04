@@ -1790,7 +1790,12 @@ class NodeManager {
                 throw new Error(data.error || 'API request failed');
             }
 
-            return data.data[network] || {};
+            // Include request_timestamp in the network data for server date filtering
+            const networkData = data.data[network] || {};
+            if (data.request_timestamp) {
+                networkData.request_timestamp = data.request_timestamp;
+            }
+            return networkData;
         } catch (error) {
             clearTimeout(timeoutId);
             if (error.name === 'AbortError') {
@@ -1856,17 +1861,22 @@ class NodeManager {
             String(date.getDate()).padStart(2, '0');
     }
 
-    filterDataByDays(dataArray, days) {
+    // Extract server date from request_timestamp (format: "2025-10-04T11:51:24.360028+00:00")
+    getServerDateFromTimestamp(timestamp) {
+        if (!timestamp) return null;
+        return timestamp.split('T')[0];
+    }
+
+    filterDataByDays(dataArray, days, serverDate = null) {
         if (!dataArray || !Array.isArray(dataArray)) {
             return dataArray;
         }
 
-        // Get today's date in local timezone YYYY-MM-DD format
-        const today = new Date();
-        const todayStr = this.getLocalDateString(today);
+        // Use server date if provided, otherwise fall back to browser local timezone
+        const todayStr = serverDate || this.getLocalDateString(new Date());
 
         // Calculate cutoff date: go back 'days' from today
-        const cutoffDate = new Date();
+        const cutoffDate = new Date(todayStr);
         cutoffDate.setDate(cutoffDate.getDate() - days);
         const cutoffStr = this.getLocalDateString(cutoffDate);
 
@@ -1899,9 +1909,9 @@ class NodeManager {
 
         let rewardsData, blocksData, firstBlocksData;
 
-        // Get today's date in local timezone to exclude from charts
-        const today = new Date();
-        const todayStr = this.getLocalDateString(today);
+        // Get server date from request_timestamp, fallback to browser local timezone
+        const serverDate = this.getServerDateFromTimestamp(data.request_timestamp);
+        const todayStr = serverDate || this.getLocalDateString(new Date());
 
         if (skipFiltering) {
             // Use data as-is (already filtered by API) but still exclude today
@@ -1918,9 +1928,9 @@ class NodeManager {
 
             console.log(`Selected days: rewards=${rewardsDays}, blocks=${blocksDays}, first-blocks=${firstBlocksDays}`);
 
-            rewardsData = this.filterDataByDays(data.reward_wallet_all_sums_daily, rewardsDays);
-            blocksData = this.filterDataByDays(data.signed_blocks_all_sums_daily, blocksDays);
-            firstBlocksData = this.filterDataByDays(data.first_signed_blocks_all_sums_daily, firstBlocksDays);
+            rewardsData = this.filterDataByDays(data.reward_wallet_all_sums_daily, rewardsDays, serverDate);
+            blocksData = this.filterDataByDays(data.signed_blocks_all_sums_daily, blocksDays, serverDate);
+            firstBlocksData = this.filterDataByDays(data.first_signed_blocks_all_sums_daily, firstBlocksDays, serverDate);
         }
 
         // Update charts based on type and visibility
@@ -1930,7 +1940,7 @@ class NodeManager {
         }
         if ((chartType === 'all' || chartType === 'rewards') && this.isMetricVisible('rewards_chart', 'sections')) {
             console.log(`Updating rewards chart for ${nodeId}`, rewardsData);
-            this.updateChart(`${nodeId}-rewards-chart`, 'Rewards', rewardsData, data.native_ticker);
+            this.updateChart(`${nodeId}-rewards-chart`, 'Rewards', rewardsData, data.native_ticker, serverDate);
         }
 
         const blocksChartContainer = document.getElementById(`${nodeId}-blocks-chart-container`);
@@ -1939,7 +1949,7 @@ class NodeManager {
         }
         if ((chartType === 'all' || chartType === 'blocks') && this.isMetricVisible('signed_blocks_chart', 'sections')) {
             console.log(`Updating blocks chart for ${nodeId}`, blocksData);
-            this.updateChart(`${nodeId}-blocks-chart`, 'Blocks', blocksData, 'blocks');
+            this.updateChart(`${nodeId}-blocks-chart`, 'Blocks', blocksData, 'blocks', serverDate);
         }
 
         const firstBlocksChartContainer = document.getElementById(`${nodeId}-first-blocks-chart-container`);
@@ -1948,7 +1958,7 @@ class NodeManager {
         }
         if ((chartType === 'all' || chartType === 'first-blocks') && this.isMetricVisible('first_signed_blocks_chart', 'sections')) {
             console.log(`Updating first-blocks chart for ${nodeId}`, firstBlocksData);
-            this.updateChart(`${nodeId}-first-blocks-chart`, 'First Signed Blocks', firstBlocksData, 'blocks');
+            this.updateChart(`${nodeId}-first-blocks-chart`, 'First Signed Blocks', firstBlocksData, 'blocks', serverDate);
         }
 
         // Handle sovereign chart positioning - show next to rewards when available
@@ -1975,10 +1985,10 @@ class NodeManager {
                     sovereignData = data.sovereign_wallet_all_sums_daily?.filter(item => item.date !== todayStr) || [];
                 } else {
                     const sovereignDays = this.getSelectedDays(nodeId, 'sovereign');
-                    sovereignData = this.filterDataByDays(data.sovereign_wallet_all_sums_daily, sovereignDays);
+                    sovereignData = this.filterDataByDays(data.sovereign_wallet_all_sums_daily, sovereignDays, serverDate);
                 }
 
-                this.updateChart(`${nodeId}-sovereign-chart`, 'Sovereign Rewards', sovereignData, data.native_ticker);
+                this.updateChart(`${nodeId}-sovereign-chart`, 'Sovereign Rewards', sovereignData, data.native_ticker, serverDate);
             }
         } else {
             // Hide sovereign chart and keep blocks chart in first row
@@ -2417,7 +2427,7 @@ class NodeManager {
         }
     }
 
-    updateChart(canvasId, label, dailyData, unit) {
+    updateChart(canvasId, label, dailyData, unit, serverDate = null) {
         console.log(`updateChart called: canvasId=${canvasId}, label=${label}, data:`, dailyData);
         const canvas = document.getElementById(canvasId);
         if (!canvas) {
@@ -2438,9 +2448,8 @@ class NodeManager {
 
         let dates, values;
 
-        // Get today's date in local timezone to exclude from charts
-        const today = new Date();
-        const todayStr = this.getLocalDateString(today);
+        // Get server date from parameter, fallback to browser local timezone
+        const todayStr = serverDate || this.getLocalDateString(new Date());
 
         // Handle both array format (from API) and object format
         if (Array.isArray(dailyData)) {
