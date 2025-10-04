@@ -400,6 +400,19 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 4, 2025 - Version 2.1.4
+
+#### Sovereign Node Support Fix
+- **Fixed Sovereign Metrics Display**: Updated conditional checks to support both `sovereign_addr` and `sovereign_reward_wallet_address` fields
+  - Some nodes return `sovereign_addr` instead of `sovereign_reward_wallet_address`
+  - Updated NETWORK_METRICS_CONFIG sovereign metrics (script.js lines 166-183) to check for both fields
+  - Updated sovereign chart conditional check (script.js lines 635, 1968) to check for both fields
+  - Sovereign metrics and charts now display correctly for all sovereign node types
+
+#### Files Modified
+- `script.js`: Lines 171, 177, 180, 182 (sovereign metrics), 635 (sovereign data check), 1968 (sovereign chart check)
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 4, 2025 - Version 2.1.3
 
 #### Chart Data Filtering - Server-Side Date Synchronization
@@ -450,4 +463,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 4, 2025
-**Version**: 2.1.3
+**Version**: 2.1.4

@@ -168,18 +168,18 @@ const NETWORK_METRICS_CONFIG = {
         title: 'SOVEREIGN REWARDS YESTERDAY',
         icon: 'fa-shield-halved',
         formatter: (data) => `${(parseFloat(data.sovereign_wallet_yesterday_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
-        conditional: (data) => data.sovereign_reward_wallet_address
+        conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
     },
     sovereign_wallet: {
         label: 'Sovereign Wallet',
         title: 'SOVEREIGN WALLET',
         icon: 'fa-shield-halved',
-        formatter: (data, manager) => manager.formatWalletAddress(data.sovereign_reward_wallet_address),
+        formatter: (data, manager) => manager.formatWalletAddress(data.sovereign_addr || data.sovereign_reward_wallet_address),
         isWallet: true,
         walletType: 'sovereign',
-        getFullAddress: (data) => data.sovereign_reward_wallet_address,
+        getFullAddress: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address,
         getBalances: (data) => data.sovereign_wallet_balance,
-        conditional: (data) => data.sovereign_reward_wallet_address
+        conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
     }
 };
 
@@ -632,7 +632,7 @@ class NodeManager {
         let hasSovereignData = false;
         if (activeNode && this.selectedNetwork) {
             const cachedData = this.getCachedNetworkData(activeNode.id, this.selectedNetwork);
-            hasSovereignData = cachedData?.sovereign_reward_wallet_address && cachedData?.sovereign_wallet_all_sums_daily;
+            hasSovereignData = (cachedData?.sovereign_addr || cachedData?.sovereign_reward_wallet_address) && cachedData?.sovereign_wallet_all_sums_daily;
         }
 
         // Build network metrics from config, filtering conditionals
@@ -1965,7 +1965,7 @@ class NodeManager {
         const sovereignChartContainer = document.getElementById(`${nodeId}-sovereign-chart-container`);
         const secondRow = document.getElementById(`${nodeId}-second-row`);
 
-        if (data.sovereign_reward_wallet_address && data.sovereign_wallet_all_sums_daily && this.isMetricVisible('sovereign_rewards_chart', 'sections')) {
+        if ((data.sovereign_addr || data.sovereign_reward_wallet_address) && data.sovereign_wallet_all_sums_daily && this.isMetricVisible('sovereign_rewards_chart', 'sections')) {
             // Show sovereign chart next to rewards if visible
             if (sovereignChartContainer) {
                 sovereignChartContainer.style.display = 'block';
