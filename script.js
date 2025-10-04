@@ -641,7 +641,7 @@ class NodeManager {
         const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
         let hasSovereignData = false;
         if (activeNode && this.selectedNetwork) {
-            const cachedData = this.getCachedNetworkData(activeNode.id, this.selectedNetwork);
+            const cachedData = this.getStoredNetworkData(activeNode.id, this.selectedNetwork);
             hasSovereignData = (cachedData?.sovereign_addr || cachedData?.sovereign_reward_wallet_address) && cachedData?.sovereign_wallet_all_sums_daily;
         }
 
@@ -651,7 +651,7 @@ class NodeManager {
                 // Filter out conditional metrics if condition not met
                 if (config.conditional) {
                     const cachedData = activeNode && this.selectedNetwork ?
-                        this.getCachedNetworkData(activeNode.id, this.selectedNetwork) : null;
+                        this.getStoredNetworkData(activeNode.id, this.selectedNetwork) : null;
                     return cachedData && config.conditional(cachedData);
                 }
                 return true;
