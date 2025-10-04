@@ -1858,16 +1858,16 @@ class NodeManager {
         const today = new Date();
         const todayStr = today.toISOString().split('T')[0];
 
-        // Calculate cutoff date: go back 'days' from yesterday (not today)
-        // This ensures we get the requested number of days excluding today
+        // Calculate cutoff date: go back 'days' from today
         const cutoffDate = new Date();
-        cutoffDate.setDate(cutoffDate.getDate() - days - 1);
+        cutoffDate.setDate(cutoffDate.getDate() - days);
+        const cutoffStr = cutoffDate.toISOString().split('T')[0];
 
         return dataArray.filter(item => {
             if (!item.date) return false;
-            const itemDate = new Date(item.date);
-            // Exclude today's data from charts but include the requested number of previous days
-            return itemDate > cutoffDate && item.date !== todayStr;
+            // Compare date strings directly (avoids timezone issues)
+            // Include dates >= cutoffStr but exclude today
+            return item.date >= cutoffStr && item.date !== todayStr;
         }).sort((a, b) => new Date(a.date) - new Date(b.date));
     }
 
