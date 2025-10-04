@@ -490,35 +490,16 @@ class NodeManager {
 
     getVisibleMetricsForNode(nodeId) {
         if (!this.visibleMetrics[nodeId]) {
-            // Default: all metrics visible for this node
+            // Default: all metrics visible for this node (first time only)
             this.visibleMetrics[nodeId] = {
                 system: this.getAllSystemMetricIds(),
                 network: this.getAllNetworkMetricIds(),
                 sections: this.getAllSectionIds()
             };
             this.saveVisibleMetrics();
-        } else {
-            // Merge any new default metrics with existing saved metrics
-            const defaults = {
-                system: this.getAllSystemMetricIds(),
-                network: this.getAllNetworkMetricIds(),
-                sections: this.getAllSectionIds()
-            };
-
-            let updated = false;
-            ['system', 'network', 'sections'].forEach(type => {
-                defaults[type].forEach(metricId => {
-                    if (!this.visibleMetrics[nodeId][type].includes(metricId)) {
-                        this.visibleMetrics[nodeId][type].push(metricId);
-                        updated = true;
-                    }
-                });
-            });
-
-            if (updated) {
-                this.saveVisibleMetrics();
-            }
         }
+        // Return saved preferences without auto-merging new defaults
+        // This respects user choices (unchecked metrics stay unchecked)
         return this.visibleMetrics[nodeId];
     }
 

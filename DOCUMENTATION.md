@@ -408,11 +408,12 @@ For issues, feature requests, or contributions, please use the GitHub repository
   - Uses `localeCompare` for proper alphabetical sorting
   - Improves usability when managing multiple nodes
 
-#### Sovereign Metrics Auto-Update
-- **Fixed Sovereign Metrics Visibility**: New sovereign metrics now automatically appear for existing users
-  - Updated `getVisibleMetricsForNode()` (script.js lines 491-523) to merge new default metrics with saved preferences
-  - Sovereign metrics added in recent updates now automatically become visible for existing users
-  - Prevents users from missing new metrics when they're added to the app
+#### Fixed Metrics Toggle Persistence
+- **Fixed Unchecked Metrics Re-appearing**: Removed auto-merge logic that was re-enabling unchecked metrics
+  - Updated `getVisibleMetricsForNode()` (script.js lines 491-504) to respect user preferences
+  - Removed automatic merging of new default metrics with saved preferences
+  - When users uncheck metrics, they now stay unchecked when reopening the modal
+  - New metrics added to the app will be off by default for existing users (can be manually enabled)
 
 #### Manage Metrics Modal Fix
 - **Show All Metrics in Modal**: Manage Metrics modal now displays all available metrics, including conditional ones
@@ -422,7 +423,7 @@ For issues, feature requests, or contributions, please use the GitHub repository
   - The actual page display still respects conditional logic (metrics only show when data is available)
 
 #### Files Modified
-- `script.js`: Lines 1059-1069 (node sorting), 491-523 (metrics auto-update), 677-683 (modal fix)
+- `script.js`: Lines 1059-1069 (node sorting), 491-504 (metrics toggle fix), 677-683 (modal fix)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 4, 2025 - Version 2.1.5
