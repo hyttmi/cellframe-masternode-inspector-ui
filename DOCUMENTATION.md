@@ -409,8 +409,16 @@ For issues, feature requests, or contributions, please use the GitHub repository
   - Now displays "101.20 mCELL" instead of "101.20 CELL"
   - Applies to all networks consistently
 
+#### Added Sovereign Rewards Metrics
+- **Added Sovereign Rewards Today and Yesterday**: New metrics showing sovereign rewards received
+  - Added `sovereign_rewards_received_today` metric (script.js lines 166-172)
+  - Added `sovereign_rewards_received_yesterday` metric (script.js lines 173-179) - renamed from `sovereign_rewards_yesterday`
+  - Both metrics use consistent naming with regular rewards ("Received Today/Yesterday")
+  - Displays amount and native ticker (e.g., "126.63 CELL")
+  - Enabled by default for nodes with sovereign data
+
 #### Files Modified
-- `script.js`: Lines 32, 139 (stake value unit formatters)
+- `script.js`: Lines 32, 139 (stake value unit formatters), 166-179 (sovereign rewards metrics), 541-542 (default metrics)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 4, 2025 - Version 2.1.4

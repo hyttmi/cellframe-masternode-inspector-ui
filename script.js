@@ -163,9 +163,16 @@ const NETWORK_METRICS_CONFIG = {
         getFullValue: (data) => data.tx_hash || null
     },
     // Sovereign metrics (conditionally added)
-    sovereign_rewards_yesterday: {
-        label: 'Sovereign Rewards Yesterday',
-        title: 'SOVEREIGN REWARDS YESTERDAY',
+    sovereign_rewards_received_today: {
+        label: 'Sovereign Rewards Received Today',
+        title: 'SOVEREIGN REWARDS RECEIVED TODAY',
+        icon: 'fa-shield-halved',
+        formatter: (data) => `${(parseFloat(data.sovereign_wallet_today_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
+        conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
+    },
+    sovereign_rewards_received_yesterday: {
+        label: 'Sovereign Rewards Received Yesterday',
+        title: 'SOVEREIGN REWARDS RECEIVED YESTERDAY',
         icon: 'fa-shield-halved',
         formatter: (data) => `${(parseFloat(data.sovereign_wallet_yesterday_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
         conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
@@ -531,7 +538,8 @@ class NodeManager {
             'signed_blocks_today',
             'signed_blocks_yesterday',
             'smallest_reward',
-            'sovereign_rewards_yesterday',
+            'sovereign_rewards_received_today',
+            'sovereign_rewards_received_yesterday',
             'sovereign_wallet_latest_reward',
             'sovereign_wallet',
             'stake_value',
