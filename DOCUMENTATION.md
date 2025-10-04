@@ -405,12 +405,18 @@ For issues, feature requests, or contributions, please use the GitHub repository
 #### Sovereign Node Support Fix
 - **Fixed Sovereign Metrics Display**: Updated conditional checks to support both `sovereign_addr` and `sovereign_reward_wallet_address` fields
   - Some nodes return `sovereign_addr` instead of `sovereign_reward_wallet_address`
-  - Updated NETWORK_METRICS_CONFIG sovereign metrics (script.js lines 166-183) to check for both fields
+  - Updated NETWORK_METRICS_CONFIG sovereign metrics (script.js lines 166-192) to check for both fields
   - Updated sovereign chart conditional check (script.js lines 635, 1968) to check for both fields
   - Sovereign metrics and charts now display correctly for all sovereign node types
 
+- **Added Latest Sovereign Reward Metric**: New metric showing the most recent sovereign reward received
+  - Added `sovereign_wallet_latest_reward` metric (script.js lines 173-181)
+  - Displays amount and token from latest sovereign reward transaction
+  - Shows "N/A" if no reward data available
+  - Enabled by default for nodes with sovereign data
+
 #### Files Modified
-- `script.js`: Lines 171, 177, 180, 182 (sovereign metrics), 635 (sovereign data check), 1968 (sovereign chart check)
+- `script.js`: Lines 171, 177, 180, 182 (sovereign metrics), 173-181 (latest sovereign reward), 535 (default metrics), 635 (sovereign data check), 1968 (sovereign chart check)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 4, 2025 - Version 2.1.3

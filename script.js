@@ -170,6 +170,15 @@ const NETWORK_METRICS_CONFIG = {
         formatter: (data) => `${(parseFloat(data.sovereign_wallet_yesterday_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
         conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
     },
+    sovereign_wallet_latest_reward: {
+        label: 'Latest Sovereign Reward',
+        title: 'LATEST SOVEREIGN REWARD',
+        icon: 'fa-shield-halved',
+        formatter: (data) => data.sovereign_wallet_latest_reward?.recv_coins ?
+            `${parseFloat(data.sovereign_wallet_latest_reward.recv_coins).toFixed(2)} ${data.sovereign_wallet_latest_reward.token || data.native_ticker || 'TOKEN'}` :
+            'N/A',
+        conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
+    },
     sovereign_wallet: {
         label: 'Sovereign Wallet',
         title: 'SOVEREIGN WALLET',
@@ -523,6 +532,7 @@ class NodeManager {
             'signed_blocks_yesterday',
             'smallest_reward',
             'sovereign_rewards_yesterday',
+            'sovereign_wallet_latest_reward',
             'sovereign_wallet',
             'stake_value',
             'token_price',
