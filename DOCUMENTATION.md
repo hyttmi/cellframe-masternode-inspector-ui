@@ -400,6 +400,22 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 5, 2025 - Version 2.1.9
+
+#### Added README.md
+- **Created Comprehensive README**: Added professional README.md with complete project information
+  - Project overview and feature highlights
+  - Quick start guide and installation instructions
+  - Usage examples and configuration details
+  - Technology stack and file structure
+  - Contributing guidelines and support information
+  - License and acknowledgments
+  - Includes badges for license and version
+
+#### Files Modified
+- `README.md`: New file created
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 5, 2025 - Version 2.1.8
 
 #### Added Sovereign Biggest and Smallest Reward Metrics
@@ -551,4 +567,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 5, 2025
-**Version**: 2.1.8
+**Version**: 2.1.9
