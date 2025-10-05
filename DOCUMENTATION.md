@@ -400,6 +400,19 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 5, 2025 - Version 2.1.7
+
+#### Favicon Added
+- **Added Favicon**: Added a purple-themed SVG favicon matching the application's color scheme
+  - Created SVG favicon with gradient using project colors (#7C3AED and #A78BFA)
+  - Features a node network icon (main node connected to two sub-nodes)
+  - Implemented as data URI for simplified deployment (no additional files)
+  - Vector-based design ensures crisp display at all sizes
+
+#### Files Modified
+- `index.html`: Line 7 (added favicon link)
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 4, 2025 - Version 2.1.6
 
 #### Node Selector Sorting
@@ -520,5 +533,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: October 4, 2025
-**Version**: 2.1.6
+**Last Updated**: October 5, 2025
+**Version**: 2.1.7
