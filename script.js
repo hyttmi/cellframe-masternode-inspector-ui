@@ -186,6 +186,20 @@ const NETWORK_METRICS_CONFIG = {
             'N/A',
         conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
     },
+    sovereign_wallet_biggest_reward: {
+        label: 'Biggest Sovereign Reward',
+        title: 'BIGGEST SOVEREIGN REWARD',
+        icon: 'fa-crown',
+        formatter: (data) => `${(parseFloat(data.sovereign_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
+        conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
+    },
+    sovereign_wallet_smallest_reward: {
+        label: 'Smallest Sovereign Reward',
+        title: 'SMALLEST SOVEREIGN REWARD',
+        icon: 'fa-arrow-down',
+        formatter: (data) => `${(parseFloat(data.sovereign_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
+        conditional: (data) => data.sovereign_addr || data.sovereign_reward_wallet_address
+    },
     sovereign_wallet: {
         label: 'Sovereign Wallet',
         title: 'SOVEREIGN WALLET',
@@ -543,6 +557,8 @@ class NodeManager {
             'sovereign_rewards_received_today',
             'sovereign_rewards_received_yesterday',
             'sovereign_wallet_latest_reward',
+            'sovereign_wallet_biggest_reward',
+            'sovereign_wallet_smallest_reward',
             'sovereign_wallet',
             'stake_value',
             'token_price',

@@ -400,6 +400,23 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 5, 2025 - Version 2.1.8
+
+#### Added Sovereign Biggest and Smallest Reward Metrics
+- **Added Missing Sovereign Metrics**: Added sovereign wallet biggest and smallest reward metrics
+  - Added `sovereign_wallet_biggest_reward` metric (script.js lines 189-195)
+  - Added `sovereign_wallet_smallest_reward` metric (script.js lines 196-202)
+  - Both metrics display amount and token ticker (e.g., "185.07 CELL")
+  - Show crown icon for biggest reward and arrow-down icon for smallest reward
+  - Conditional display based on sovereign wallet presence
+  - Added to default enabled metrics list (script.js lines 560-561)
+  - Available in Manage Metrics modal for all sovereign nodes
+
+#### Files Modified
+- `script.js`: Lines 189-202 (new metrics), 560-561 (default enabled list)
+- `claude.md`: Added sovereign node test credentials, added note about adding metrics to Manage Metrics modal
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 5, 2025 - Version 2.1.7
 
 #### Favicon Added
@@ -534,4 +551,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 5, 2025
-**Version**: 2.1.7
+**Version**: 2.1.8
