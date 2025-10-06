@@ -2062,6 +2062,16 @@ class NodeManager {
         const systemSection = document.getElementById('systemInfoSection');
         const systemCards = document.getElementById('systemInfoCards');
 
+        // Check for plugin update availability and show/hide notification
+        const pluginUpdateNotification = document.getElementById('pluginUpdateNotification');
+        if (pluginUpdateNotification) {
+            if (systemData && systemData.plugin_update_available === true) {
+                pluginUpdateNotification.style.display = 'block';
+            } else {
+                pluginUpdateNotification.style.display = 'none';
+            }
+        }
+
         if (systemSection && systemCards) {
             systemSection.style.display = 'block';
 

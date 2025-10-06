@@ -400,6 +400,23 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 6, 2025 - Version 2.2.0
+
+#### Added Plugin Update Notification
+- **Plugin Update Alert**: Added persistent notification banner to inform users when a plugin update is available
+  - Added notification banner in HTML (index.html lines 94-101) - displays below navigation bar
+  - Banner shows when `plugin_update_available` field is true in API response
+  - Uses Bootstrap alert-warning styling with yellow background
+  - Includes dismissible close button
+  - Auto-hides when no update is available
+  - Updated `updateSystemInfo()` method (script.js lines 2065-2073) to check and show/hide notification
+  - Notification is checked every time system data is refreshed
+
+#### Files Modified
+- `index.html`: Lines 94-101 (added notification banner)
+- `script.js`: Lines 2065-2073 (added notification logic)
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 5, 2025 - Version 2.1.9
 
 #### Added README.md
@@ -566,5 +583,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: October 5, 2025
-**Version**: 2.1.9
+**Last Updated**: October 6, 2025
+**Version**: 2.2.0
