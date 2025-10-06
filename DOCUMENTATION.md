@@ -412,9 +412,17 @@ For issues, feature requests, or contributions, please use the GitHub repository
   - Updated `updateSystemInfo()` method (script.js lines 2065-2073) to check and show/hide notification
   - Notification is checked every time system data is refreshed
 
+#### Added GitHub Link in Footer
+- **GitHub Link**: Added GitHub repository link and version number to footer
+  - Added second row in footer (index.html lines 157-164) below last updated info
+  - Includes GitHub icon and "View on GitHub" link
+  - Shows current version number (v2.2.0)
+  - Opens in new tab with proper security attributes (noopener noreferrer)
+  - Styled with purple accent color (#A78BFA) to match theme
+
 #### Files Modified
-- `index.html`: Lines 94-101 (added notification banner)
-- `script.js`: Lines 2065-2073 (added notification logic)
+- `index.html`: Lines 94-101 (notification banner), 157-164 (GitHub footer link)
+- `script.js`: Lines 2065-2073 (notification logic)
 - `DOCUMENTATION.md`: Updated Change Log
 
 ### October 5, 2025 - Version 2.1.9
