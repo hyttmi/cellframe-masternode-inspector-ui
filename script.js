@@ -1835,6 +1835,79 @@ class NodeManager {
         }
     }
 
+    async updatePlugin() {
+        const activeNode = this.getActiveNode();
+        if (!activeNode) {
+            this.showNotification('No active node selected', 'error');
+            return;
+        }
+
+        const updateBtn = document.getElementById('updatePluginBtn');
+        const originalBtnContent = updateBtn.innerHTML;
+
+        try {
+            // Disable button and show loading state
+            updateBtn.disabled = true;
+            updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
+
+            // Make API call to trigger update
+            const url = `${activeNode.url}?access_token=${activeNode.token}&action=update_plugin`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+            const response = await fetch(url, {
+                headers: {
+                    'Accept-Encoding': 'gzip'
+                },
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            if (data.status !== 'ok') {
+                throw new Error(data.error || 'API request failed');
+            }
+
+            // Get the update message from response
+            const updateMessage = data.data.update_plugin;
+
+            // Check if update was successful
+            if (updateMessage.includes('Update initiated')) {
+                this.showNotification(updateMessage, 'success');
+                // Hide the update notification banner after successful update
+                const notificationBanner = document.getElementById('pluginUpdateNotification');
+                if (notificationBanner) {
+                    notificationBanner.style.display = 'none';
+                }
+                // Note: Node will restart, so connection will be lost temporarily
+                setTimeout(() => {
+                    this.showNotification('Node is restarting. Please refresh in a moment.', 'info');
+                }, 3000);
+            } else {
+                // No update available or other message
+                this.showNotification(updateMessage, 'info');
+            }
+
+        } catch (error) {
+            console.error('Error updating plugin:', error);
+            let errorMessage = 'Failed to update plugin';
+            if (error.name === 'AbortError') {
+                errorMessage = 'Update request timeout (30 seconds)';
+            } else if (error.message) {
+                errorMessage = `Update failed: ${error.message}`;
+            }
+            this.showNotification(errorMessage, 'error');
+        } finally {
+            // Re-enable button and restore original content
+            updateBtn.disabled = false;
+            updateBtn.innerHTML = originalBtnContent;
+        }
+    }
 
 
     async loadChartData(node, network, days, chartType = 'all') {
@@ -3061,11 +3134,26 @@ function showNotification(message, type = 'info') {
 
     // Create Bootstrap toast with theme colors (card header style)
     const toastId = 'toast-' + Date.now();
-    const iconClass = type === 'success' ? 'check-circle' : 'info-circle';
+
+    // Set icon and color based on type
+    let iconClass, backgroundColor, textColor;
+    if (type === 'success') {
+        iconClass = 'check-circle';
+        backgroundColor = '#1E1E1E';
+        textColor = '#CCC2FF';
+    } else if (type === 'error') {
+        iconClass = 'exclamation-circle';
+        backgroundColor = '#DC3545'; // Bootstrap danger red
+        textColor = '#FFFFFF';
+    } else {
+        iconClass = 'info-circle';
+        backgroundColor = '#1E1E1E';
+        textColor = '#CCC2FF';
+    }
 
     const toastHtml = `
         <div id="${toastId}" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true"
-             style="background-color: #1E1E1E !important; color: #CCC2FF !important;">
+             style="background-color: ${backgroundColor} !important; color: ${textColor} !important;">
             <div class="toast-body">
                 <i class="fas fa-${iconClass} me-2"></i>
                 ${message}

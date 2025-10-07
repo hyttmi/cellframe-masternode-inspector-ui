@@ -400,6 +400,32 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 7, 2025 - Version 2.3.0
+
+#### Plugin Update Feature
+- **One-Click Plugin Update**: Added ability to update the Cellframe Inspector plugin directly from the UI
+  - Added "Update Now" button to plugin update notification banner (index.html line 99-101)
+  - Button triggers `updatePlugin()` method when clicked
+  - Implemented `updatePlugin()` method in NodeManager class (script.js lines 1838-1910)
+  - Makes API call to `?action=update_plugin` endpoint
+  - Shows loading state with spinner while update is in progress
+  - Displays success/error messages via toast notifications
+  - Automatically hides update banner on successful update initiation
+  - Informs user that node will restart after update
+  - 30-second timeout with proper error handling
+
+#### Enhanced Notification System
+- **Error Notifications**: Extended `showNotification()` function to support error notifications (script.js lines 3125-3179)
+  - Added 'error' type with red background (#DC3545) and white text
+  - Uses exclamation-circle icon for error notifications
+  - Maintains existing 'success' and 'info' notification styling
+  - Provides clear visual distinction between notification types
+
+#### Files Modified
+- `index.html`: Lines 99-101 (added Update Now button)
+- `script.js`: Lines 1838-1910 (updatePlugin method), 3125-3179 (enhanced showNotification)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
 ### October 6, 2025 - Version 2.2.0
 
 #### Added Plugin Update Notification
@@ -591,5 +617,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: October 6, 2025
-**Version**: 2.2.0
+**Last Updated**: October 7, 2025
+**Version**: 2.3.0
