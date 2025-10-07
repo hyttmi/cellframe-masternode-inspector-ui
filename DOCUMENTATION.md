@@ -400,6 +400,20 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 7, 2025 - Version 2.3.1
+
+#### Code Cleanup
+- **Removed Deprecated sovereign_addr Reference**: Removed all references to the old `sovereign_addr` field
+  - Backend now exclusively uses `sovereign_reward_wallet_address`
+  - Updated all conditional checks in NETWORK_METRICS_CONFIG (script.js lines 171, 178, 187, 194, 201, 207, 210, 212)
+  - Updated sovereign data detection in Manage Metrics modal (script.js line 671)
+  - Updated sovereign chart display conditional (script.js line 2071)
+  - Cleaner, more consistent codebase with single field name
+
+#### Files Modified
+- `script.js`: Lines 171, 178, 187, 194, 201, 207, 210, 212, 671, 2071 (removed sovereign_addr references)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
 ### October 7, 2025 - Version 2.3.0
 
 #### Plugin Update Feature
@@ -618,4 +632,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 7, 2025
-**Version**: 2.3.0
+**Version**: 2.3.1
