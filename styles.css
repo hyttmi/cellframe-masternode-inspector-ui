@@ -649,7 +649,8 @@ body {
 
 /* Mobile spacing for navigation sections */
 @media (max-width: 768px) {
-    #networkNavSection {
+    #networkNavSection,
+    #refreshSection {
         padding-top: 0.75rem;
     }
 }
