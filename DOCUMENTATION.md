@@ -400,6 +400,19 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 8, 2025 - Version 2.3.2
+
+#### Mobile UI Improvements
+- **Added Navigation Spacing**: Fixed spacing between node selector and network pills on mobile platforms
+  - Added responsive CSS for mobile screens (max-width: 768px)
+  - Network pills section now has 0.75rem top padding when dropdown wraps to new line
+  - Prevents network pills from appearing too close to node selector buttons on mobile
+  - Improves touch usability and visual clarity on smaller screens
+
+#### Files Modified
+- `styles.css`: Lines 650-655 (added mobile media query for network navigation spacing)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
 ### October 7, 2025 - Version 2.3.1
 
 #### Code Cleanup
@@ -631,5 +644,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: October 7, 2025
-**Version**: 2.3.1
+**Last Updated**: October 8, 2025
+**Version**: 2.3.2

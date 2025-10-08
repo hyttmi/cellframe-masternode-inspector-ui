@@ -647,3 +647,10 @@ body {
     border-color: var(--color-accent-main);
 }
 
+/* Mobile spacing for navigation sections */
+@media (max-width: 768px) {
+    #networkNavSection {
+        padding-top: 0.75rem;
+    }
+}
+
