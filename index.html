@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -100,17 +99,7 @@
             <button type="button" class="btn btn-sm btn-success ms-3" id="updatePluginBtn" onclick="nodeManager.updatePlugin()">
                 <i class="fas fa-download me-1"></i>Update Now
             </button>
-            <button type="button" class="btn btn-sm btn-outline-secondary ms-2" id="toggleChangelogBtn" onclick="nodeManager.toggleChangelog()">
-                <i class="fas fa-chevron-down me-1" id="changelogIcon"></i><span id="changelogBtnText">Show Changelog</span>
-            </button>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-
-            <!-- Changelog Section (Collapsible) -->
-            <div id="changelogSection" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(0,0,0,0.1);">
-                <div id="changelogContent" style="background-color: rgba(0,0,0,0.05); padding: 15px; border-radius: 4px; max-height: 400px; overflow-y: auto;">
-                    <div class="text-center"><i class="fas fa-spinner fa-spin"></i> Loading changelog...</div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -161,14 +150,11 @@
                 <div class="col-12 text-center">
                     <div id="lastUpdated" class="last-updated-info">
                         <i class="fas fa-clock me-2"></i>
-                        <span>System: </span>
-                        <span id="systemUpdatedTime">Never</span>
-                        <span class="mx-3">|</span>
-                        <span>Network: </span>
-                        <span id="networkUpdatedTime">Never</span>
-                        <span class="ms-3" style="opacity: 0.7;">
+                        <span>Last updated: </span>
+                        <span id="lastUpdatedTime">Never</span>
+                        <span class="ms-3">
                             <i class="fas fa-sync-alt me-1"></i>
-                            <span id="refreshIntervals">System: 30s | Network: 5min</span>
+                            <span>System: 30s | Network: 5min</span>
                         </span>
                     </div>
                     <div class="mt-2">
@@ -177,7 +163,7 @@
                             View on GitHub
                         </a>
                         <span class="mx-2" style="color: #666;">|</span>
-                        <span style="color: #999; font-size: 0.875rem;">v2.6.0</span>
+                        <span style="color: #999; font-size: 0.875rem;">v2.3.1</span>
                     </div>
                 </div>
             </div>

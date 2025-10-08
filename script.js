@@ -36,10 +36,7 @@ const NETWORK_METRICS_CONFIG = {
         label: 'First Signed Blocks Today',
         title: 'FIRST SIGNED BLOCKS TODAY',
         icon: 'fa-trophy',
-        formatter: (data) => data.first_signed_blocks_today_amount || 0,
-        hasTooltip: true,
-        tooltipType: 'blocks',
-        getTooltipData: (data) => data.first_signed_blocks_today || []
+        formatter: (data) => data.first_signed_blocks_today_amount || 0
     },
     first_signed_blocks_yesterday: {
         label: 'First Signed Blocks Yesterday',
@@ -108,10 +105,7 @@ const NETWORK_METRICS_CONFIG = {
         label: 'Rewards Received Today',
         title: 'REWARDS RECEIVED TODAY',
         icon: 'fa-coins',
-        formatter: (data) => `${(parseFloat(data.reward_wallet_today_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
-        hasTooltip: true,
-        tooltipType: 'rewards',
-        getTooltipData: (data) => data.reward_wallet_daily_rewards || []
+        formatter: (data) => `${(parseFloat(data.reward_wallet_today_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
     },
     rewards_received_yesterday: {
         label: 'Rewards Received Yesterday',
@@ -123,10 +117,7 @@ const NETWORK_METRICS_CONFIG = {
         label: 'Signed Blocks Today',
         title: 'SIGNED BLOCKS TODAY',
         icon: 'fa-cube',
-        formatter: (data) => data.signed_blocks_today_amount || 0,
-        hasTooltip: true,
-        tooltipType: 'blocks',
-        getTooltipData: (data) => data.signed_blocks_today || []
+        formatter: (data) => data.signed_blocks_today_amount || 0
     },
     signed_blocks_yesterday: {
         label: 'Signed Blocks Yesterday',
@@ -177,10 +168,7 @@ const NETWORK_METRICS_CONFIG = {
         title: 'SOVEREIGN REWARDS RECEIVED TODAY',
         icon: 'fa-shield-halved',
         formatter: (data) => `${(parseFloat(data.sovereign_wallet_today_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
-        conditional: (data) => data.sovereign_reward_wallet_address,
-        hasTooltip: true,
-        tooltipType: 'rewards',
-        getTooltipData: (data) => data.sovereign_wallet_daily_rewards || []
+        conditional: (data) => data.sovereign_reward_wallet_address
     },
     sovereign_rewards_received_yesterday: {
         label: 'Sovereign Rewards Received Yesterday',
@@ -1332,9 +1320,8 @@ class NodeManager {
             // Load data for selected network only
             await this.loadNetworkData(node, selectedNetwork);
 
-            // Update both timestamps on successful initial load
-            this.updateSystemTimestamp();
-            this.updateNetworkTimestamp();
+            // Update last updated timestamp on successful load
+            this.updateLastUpdatedTimestamp();
             this.lastNetworkUpdate[nodeId] = Date.now();
 
             // Update footer refresh info on first load
@@ -1922,85 +1909,6 @@ class NodeManager {
         }
     }
 
-    async fetchReleaseNotes() {
-        const activeNode = this.getActiveNode();
-        if (!activeNode) {
-            return null;
-        }
-
-        try {
-            const url = `${activeNode.url}?access_token=${activeNode.token}&action=plugin_release_notes`;
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
-
-            const response = await fetch(url, {
-                headers: {
-                    'Accept-Encoding': 'gzip'
-                },
-                signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            if (data.status === 'ok' && data.data.plugin_release_notes) {
-                return data.data.plugin_release_notes;
-            }
-            return null;
-        } catch (error) {
-            console.error('Error fetching release notes:', error);
-            return null;
-        }
-    }
-
-    toggleChangelog() {
-        const changelogSection = document.getElementById('changelogSection');
-        const changelogIcon = document.getElementById('changelogIcon');
-        const changelogBtnText = document.getElementById('changelogBtnText');
-
-        if (changelogSection.style.display === 'none') {
-            // Show changelog
-            changelogSection.style.display = 'block';
-            changelogIcon.className = 'fas fa-chevron-up me-1';
-            changelogBtnText.textContent = 'Hide Changelog';
-
-            // Fetch and display release notes if not already loaded
-            const changelogContent = document.getElementById('changelogContent');
-            if (changelogContent.innerHTML.includes('Loading changelog')) {
-                this.loadChangelog();
-            }
-        } else {
-            // Hide changelog
-            changelogSection.style.display = 'none';
-            changelogIcon.className = 'fas fa-chevron-down me-1';
-            changelogBtnText.textContent = 'Show Changelog';
-        }
-    }
-
-    async loadChangelog() {
-        const changelogContent = document.getElementById('changelogContent');
-
-        try {
-            const releaseNotes = await this.fetchReleaseNotes();
-
-            if (releaseNotes) {
-                // Convert \r\n to proper line breaks and render markdown
-                const cleanedNotes = releaseNotes.replace(/\\r\\n/g, '\n').replace(/\r\n/g, '\n');
-                const htmlContent = marked.parse(cleanedNotes);
-                changelogContent.innerHTML = htmlContent;
-            } else {
-                changelogContent.innerHTML = '<p class="text-muted mb-0">Changelog not available.</p>';
-            }
-        } catch (error) {
-            console.error('Error loading changelog:', error);
-            changelogContent.innerHTML = '<p class="text-danger mb-0">Failed to load changelog.</p>';
-        }
-    }
-
 
     async loadChartData(node, network, days, chartType = 'all') {
         try {
@@ -2393,103 +2301,6 @@ class NodeManager {
         `;
     }
 
-    createBlocksTooltip(blocks, network, title) {
-        if (!blocks || blocks.length === 0) return '';
-
-        // Get the 5 latest blocks
-        const latestBlocks = blocks.slice(0, 5);
-
-        const blockRows = latestBlocks.map(block => {
-            const hash = block.hash || 'N/A';
-            const blockNum = block['block number'] || 'N/A';
-            const scanUrl = `https://scan.cellframe.net/block-details/${network}/${hash}`;
-            const truncatedHash = hash.length > 20 ? hash.substring(0, 8) + '...' + hash.substring(hash.length - 8) : hash;
-
-            return `<tr>
-                <td style="text-align: center;">#${blockNum}</td>
-                <td><a href="${scanUrl}" target="_blank" rel="noopener noreferrer" style="color: #A78BFA; text-decoration: none;">${truncatedHash}</a></td>
-            </tr>`;
-        }).join('');
-
-        return `
-            <div class="wallet-popup">
-                <div class="wallet-popup-title">${title}</div>
-                <table class="wallet-balance-table">
-                    <thead>
-                        <tr style="opacity: 0.7; font-size: 0.85em;">
-                            <th style="text-align: center;">Block</th>
-                            <th>Hash</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${blockRows}
-                    </tbody>
-                </table>
-                <div style="margin-top: 8px; font-size: 0.85em; opacity: 0.7; text-align: center;">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Showing ${latestBlocks.length} latest block${latestBlocks.length > 1 ? 's' : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    createRewardsTooltip(rewards, network, title) {
-        if (!rewards || rewards.length === 0) return '';
-
-        // Filter for today's rewards and get the 5 latest
-        const today = new Date().toISOString().split('T')[0];
-        const todayRewards = rewards.filter(reward => {
-            if (!reward.tx_created) return false;
-            const rewardDate = reward.tx_created.split('T')[0];
-            return rewardDate === today;
-        }).slice(0, 5);
-
-        if (todayRewards.length === 0) {
-            return `
-                <div class="wallet-popup">
-                    <div class="wallet-popup-title">${title}</div>
-                    <div style="text-align: center; opacity: 0.7; padding: 10px;">
-                        No rewards received today
-                    </div>
-                </div>
-            `;
-        }
-
-        const rewardRows = todayRewards.map(reward => {
-            const txHash = reward.tx_hash || 'N/A';
-            const amount = parseFloat(reward.recv_coins || 0).toFixed(2);
-            const token = reward.token || 'TOKEN';
-            const scanUrl = `https://scan.cellframe.net/datum-details/${txHash}?net=${network}`;
-            const truncatedHash = txHash.length > 20 ? txHash.substring(0, 8) + '...' + txHash.substring(txHash.length - 8) : txHash;
-
-            return `<tr>
-                <td style="text-align: right;">${amount} ${token}</td>
-                <td><a href="${scanUrl}" target="_blank" rel="noopener noreferrer" style="color: #A78BFA; text-decoration: none;">${truncatedHash}</a></td>
-            </tr>`;
-        }).join('');
-
-        return `
-            <div class="wallet-popup">
-                <div class="wallet-popup-title">${title}</div>
-                <table class="wallet-balance-table">
-                    <thead>
-                        <tr style="opacity: 0.7; font-size: 0.85em;">
-                            <th style="text-align: right;">Amount</th>
-                            <th>Transaction</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rewardRows}
-                    </tbody>
-                </table>
-                <div style="margin-top: 8px; font-size: 0.85em; opacity: 0.7; text-align: center;">
-                    <i class="fas fa-info-circle me-1"></i>
-                    Showing ${todayRewards.length} latest reward${todayRewards.length > 1 ? 's' : ''}
-                </div>
-            </div>
-        `;
-    }
-
     updateNetworkPerformance(networkData) {
         const networkPerfSection = document.getElementById('networkPerfSection');
         const networkPerfCards = document.getElementById('networkPerfCards');
@@ -2563,14 +2374,6 @@ class NodeManager {
                     metric.fullValue = config.getFullValue(networkData);
                 }
 
-                // Add tooltip properties for blocks and rewards
-                if (config.hasTooltip) {
-                    metric.hasTooltip = true;
-                    metric.tooltipType = config.tooltipType;
-                    metric.tooltipData = config.getTooltipData(networkData);
-                    metric.network = this.getSelectedNetwork(this.activeNodeId);
-                }
-
                 return metric;
             });
 
@@ -2588,35 +2391,26 @@ class NodeManager {
         const savedNetworkOrder = this.getSavedMetricOrder('network');
         const orderedNetworkMetrics = this.reorderMetrics(visibleNetworkMetrics, savedNetworkOrder);
 
-        // Create hint for interactive metrics
+        // Create wallet hint as a separate element before the sortable cards container
         const hasWallets = networkMetrics.some(m => m.isWallet);
         const hasVisibleWallets = orderedNetworkMetrics.some(m => m.isWallet);
-        const hasTooltips = orderedNetworkMetrics.some(m => m.hasTooltip);
         const cardBody = networkPerfCards.parentElement;
 
-        // Remove any existing hint
+        // Remove any existing wallet hint
         const existingHint = cardBody.querySelector('.wallet-info-hint-wrapper');
         if (existingHint) {
             existingHint.remove();
         }
 
-        // Add hint if there are interactive metrics visible
-        if ((hasWallets && hasVisibleWallets) || hasTooltips) {
-            const hintParts = [];
-            if (hasWallets && hasVisibleWallets) {
-                hintParts.push('Hover over wallet addresses to view balances • Click to copy');
-            }
-            if (hasTooltips) {
-                hintParts.push('Hover over blocks/rewards to view details with links to explorer');
-            }
-
+        // Add wallet hint only if wallets exist AND at least one wallet is visible
+        if (hasWallets && hasVisibleWallets) {
             const walletHintWrapper = document.createElement('div');
             walletHintWrapper.className = 'wallet-info-hint-wrapper mb-3';
             walletHintWrapper.innerHTML = `
                 <div class="alert alert-info">
                     <small>
                         <i class="fas fa-info-circle me-1"></i>
-                        ${hintParts.join(' • ')}
+                        Hover over wallet addresses to view balances • Click to copy full address
                     </small>
                 </div>
             `;
@@ -2646,38 +2440,6 @@ class NodeManager {
                                  title="Click to copy full address">
                                 ${metric.value}
                                 <i class="fas fa-copy ms-1" style="font-size: 0.8em; opacity: 0.6;"></i>
-                            </div>
-                            <div class="metric-label">${metric.title}</div>
-                        </div>
-                    </div>
-                `;
-            } else if (metric.hasTooltip) {
-                // Metrics with tooltips (blocks and rewards)
-                let tooltipHtml = '';
-                if (metric.tooltipType === 'blocks') {
-                    tooltipHtml = this.createBlocksTooltip(
-                        metric.tooltipData,
-                        metric.network,
-                        `${metric.title} Details`
-                    );
-                } else if (metric.tooltipType === 'rewards') {
-                    tooltipHtml = this.createRewardsTooltip(
-                        metric.tooltipData,
-                        metric.network,
-                        `${metric.title} Details`
-                    );
-                }
-
-                return `
-                    <div class="col-md-4 mb-3"
-                         data-metric-id="${metric.title.toLowerCase().replace(/\s+/g, '_')}">
-                        <div class="text-center wallet-metric">
-                            ${tooltipHtml}
-                            <div class="metric-icon mb-2">
-                                <i class="fas ${metric.icon}"></i>
-                            </div>
-                            <div class="metric-value">
-                                ${metric.value}
                             </div>
                             <div class="metric-label">${metric.title}</div>
                         </div>
@@ -2990,8 +2752,8 @@ class NodeManager {
             // Load network data
             await this.loadNetworkData(node, selectedNetwork);
 
-            // Update network timestamp on network refresh
-            this.updateNetworkTimestamp();
+            // Update full timestamp on network refresh
+            this.updateLastUpdatedTimestamp();
             this.lastNetworkUpdate[nodeId] = Date.now();
 
         } catch (error) {
@@ -3000,29 +2762,20 @@ class NodeManager {
     }
 
     updateSystemTimestamp() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString();
-        const dateString = now.toLocaleDateString();
-
-        const systemUpdatedElement = document.getElementById('systemUpdatedTime');
-        const dashboardFooter = document.getElementById('dashboardFooter');
-
-        if (systemUpdatedElement && dashboardFooter) {
-            systemUpdatedElement.textContent = `${dateString} ${timeString}`;
-            dashboardFooter.style.display = 'block';
-        }
+        // Update just the system part without changing the main timestamp
+        // This could be expanded to show separate timestamps if needed
     }
 
-    updateNetworkTimestamp() {
+    updateLastUpdatedTimestamp() {
         const now = new Date();
         const timeString = now.toLocaleTimeString();
         const dateString = now.toLocaleDateString();
 
-        const networkUpdatedElement = document.getElementById('networkUpdatedTime');
+        const lastUpdatedElement = document.getElementById('lastUpdatedTime');
         const dashboardFooter = document.getElementById('dashboardFooter');
 
-        if (networkUpdatedElement && dashboardFooter) {
-            networkUpdatedElement.textContent = `${dateString} ${timeString}`;
+        if (lastUpdatedElement && dashboardFooter) {
+            lastUpdatedElement.textContent = `${dateString} ${timeString}`;
             dashboardFooter.style.display = 'block';
         }
     }
@@ -3040,10 +2793,10 @@ class NodeManager {
 
         const refreshText = `System: ${formatTime(systemSeconds)} | Network: ${formatTime(networkSeconds)}`;
 
-        // Update the refresh intervals element
-        const refreshIntervalsElement = document.getElementById('refreshIntervals');
-        if (refreshIntervalsElement) {
-            refreshIntervalsElement.textContent = refreshText;
+        // Find the refresh info span and update it
+        const footerElement = document.querySelector('.last-updated-info span:last-child span');
+        if (footerElement) {
+            footerElement.textContent = refreshText;
         }
     }
 
