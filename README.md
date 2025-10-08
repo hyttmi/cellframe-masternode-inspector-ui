@@ -3,7 +3,7 @@
 A modern, web-based dashboard for monitoring and managing Cellframe masternodes. Monitor multiple nodes, track rewards, analyze performance metrics, and visualize blockchain data—all from a sleek, responsive interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
-![Version](https://img.shields.io/badge/version-2.3.2-green.svg)
+![Version](https://img.shields.io/badge/version-2.6.0-green.svg)
 
 ## Features
 
@@ -115,6 +115,7 @@ If your node supports multiple networks, click the network pills in the navigati
 - **Drag & Drop**: SortableJS 1.15.0
 - **QR Codes**: QRious 4.0.2
 - **Icons**: Font Awesome 6.5.1
+- **Markdown**: marked.js (for release notes)
 - **Storage**: Browser localStorage (client-side only)
 
 ## File Structure
@@ -187,6 +188,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ---
 
-**Current Version**: 2.3.2
+**Current Version**: 2.6.0
 **Last Updated**: October 8, 2025
 **Repository**: https://github.com/hyttmi/cellframe-masternode-inspector-ui

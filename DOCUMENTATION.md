@@ -295,6 +295,7 @@ Custom styling:
 - **SortableJS 1.15.0**: Drag-and-drop functionality
 - **QRious 4.0.2**: QR code generation
 - **Font Awesome 6.5.1**: Icons
+- **marked.js**: Markdown parser for rendering release notes
 
 ### Fonts
 - **Inter**: Primary UI font
@@ -399,6 +400,74 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 For issues, feature requests, or contributions, please use the GitHub repository issue tracker.
 
 ## Change Log
+
+### October 8, 2025 - Version 2.6.0
+
+#### Block and Reward Explorer Tooltips
+- **Interactive Tooltips with Explorer Links**: Added hover tooltips for signed blocks and rewards with direct links to scan.cellframe.net
+  - **Signed Blocks Today**: Hover to see up to 5 latest blocks with block number and hash, each linking to block explorer
+  - **First Signed Blocks Today**: Same tooltip functionality for first signed blocks
+  - **Rewards Received Today**: Hover to see up to 5 latest rewards with amount and transaction hash, linking to transaction explorer
+  - **Sovereign Rewards Received Today**: Same tooltip functionality for sovereign rewards
+  - All links open in new tab with `target="_blank"` and `rel="noopener noreferrer"`
+  - Implemented `createBlocksTooltip()` method (script.js lines 2396-2434) for block tooltips
+  - Implemented `createRewardsTooltip()` method (script.js lines 2436-2491) for reward tooltips
+  - Updated NETWORK_METRICS_CONFIG to add tooltip properties (script.js lines 121-123, 41-43, 112-114, 181-183)
+  - Updated metric rendering to detect and display tooltips (script.js lines 2567-2572, 2645-2676)
+  - Updated hint message to inform users about tooltip feature (script.js lines 2591-2624)
+  - Block URLs: `https://scan.cellframe.net/block-details/{network}/{hash}`
+  - Reward URLs: `https://scan.cellframe.net/datum-details/{tx_hash}?net={network}`
+  - Rewards filtered to show only today's transactions
+  - Table display with column headers for better readability
+  - Shows count of items in footer ("Showing X latest blocks/rewards")
+
+#### Files Modified
+- `script.js`: Lines 41-43, 121-123, 112-114, 181-183 (config), 2396-2491 (tooltip functions), 2567-2572 (properties), 2591-2624 (hint), 2645-2676 (rendering)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
+### October 8, 2025 - Version 2.5.0
+
+#### Separated System and Network Timestamps
+- **Independent Update Timestamps**: Footer now displays separate timestamps for system and network data
+  - Replaced single "Last updated" timestamp with two separate timestamps (index.html lines 164-168)
+  - System timestamp shows when system data was last refreshed
+  - Network timestamp shows when network data was last refreshed
+  - Provides clearer visibility into different refresh cycles (system refreshes more frequently than network)
+  - Implemented `updateSystemTimestamp()` method (script.js lines 2843-2855)
+  - Implemented `updateNetworkTimestamp()` method (script.js lines 2857-2869)
+  - Updated `updateFooterRefreshInfo()` to use new element ID (script.js lines 2886-2889)
+  - Initial load updates both timestamps (script.js lines 1324-1325)
+  - System refresh updates only system timestamp (script.js line 2809)
+  - Network refresh updates only network timestamp (script.js line 2836)
+
+#### Files Modified
+- `index.html`: Lines 164-172 (separate timestamp display)
+- `script.js`: Lines 1324-1325, 2809, 2836, 2843-2869, 2886-2889
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
+### October 8, 2025 - Version 2.4.0
+
+#### Plugin Changelog Feature
+- **Release Notes Display**: Added ability to view plugin release notes/changelog directly in the UI
+  - Added "Show Changelog" button to plugin update notification banner (index.html lines 103-105)
+  - Button toggles collapsible changelog section with markdown rendering
+  - Added `marked.js` library via CDN for markdown parsing (index.html line 14)
+  - Implemented `fetchReleaseNotes()` method to fetch `plugin_release_notes` from API (script.js lines 1912-1945)
+  - Implemented `toggleChangelog()` method to show/hide changelog section (script.js lines 1947-1969)
+  - Implemented `loadChangelog()` method to fetch and render markdown changelog (script.js lines 1971-1989)
+  - Handles `\r\n` and `\n` line breaks from GitHub API response
+  - Renders markdown as HTML in scrollable container (max-height: 400px)
+  - Lazy loading: changelog only fetched when user clicks "Show Changelog"
+  - 10-second timeout with graceful error handling
+  - Collapsible UI with chevron icon that changes direction (up/down)
+
+#### Dependencies Added
+- **marked.js**: Lightweight markdown parser for rendering release notes
+
+#### Files Modified
+- `index.html`: Lines 14 (marked.js CDN), 103-114 (changelog UI)
+- `script.js`: Lines 1912-1989 (changelog methods)
+- `DOCUMENTATION.md`: Updated Change Log and version number
 
 ### October 8, 2025 - Version 2.3.2
 
@@ -645,4 +714,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 8, 2025
-**Version**: 2.3.2
+**Version**: 2.6.0
