@@ -1860,6 +1860,12 @@ class NodeManager {
             updateBtn.disabled = true;
             updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
 
+            // Hide the update notification banner immediately
+            const notificationBanner = document.getElementById('pluginUpdateNotification');
+            if (notificationBanner) {
+                notificationBanner.style.display = 'none';
+            }
+
             // Make API call to trigger update
             const url = `${activeNode.url}?access_token=${activeNode.token}&action=update_plugin`;
             const controller = new AbortController();
@@ -1889,11 +1895,6 @@ class NodeManager {
             // Check if update was successful
             if (updateMessage.includes('Update initiated')) {
                 showNotification(updateMessage, 'success');
-                // Hide the update notification banner after successful update
-                const notificationBanner = document.getElementById('pluginUpdateNotification');
-                if (notificationBanner) {
-                    notificationBanner.style.display = 'none';
-                }
                 // Note: Node will restart, so connection will be lost temporarily
                 setTimeout(() => {
                     showNotification('Node is restarting. Please refresh in a moment.', 'info');
