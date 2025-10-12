@@ -2150,13 +2150,13 @@ class NodeManager {
             rewardsChartContainer.style.display = this.isMetricVisible('rewards_chart', 'sections') ? 'block' : 'none';
         }
 
-        // Show/hide rewards download button based on data availability
+        // Show/hide rewards download button based on rewards_full availability
         const rewardsDownloadBtn = document.getElementById(`${nodeId}-download-rewards-btn`);
         if (rewardsDownloadBtn) {
-            const hasRewardsData = data.reward_wallet_all_sums_daily &&
-                                   (Array.isArray(data.reward_wallet_all_sums_daily) && data.reward_wallet_all_sums_daily.length > 0 ||
-                                    typeof data.reward_wallet_all_sums_daily === 'object' && Object.keys(data.reward_wallet_all_sums_daily).length > 0);
-            rewardsDownloadBtn.style.display = hasRewardsData ? 'inline-block' : 'none';
+            const hasRewardsFull = data.rewards_full &&
+                                   (Array.isArray(data.rewards_full) && data.rewards_full.length > 0 ||
+                                    typeof data.rewards_full === 'object' && Object.keys(data.rewards_full).length > 0);
+            rewardsDownloadBtn.style.display = hasRewardsFull ? 'inline-block' : 'none';
         }
 
         if ((chartType === 'all' || chartType === 'rewards') && this.isMetricVisible('rewards_chart', 'sections')) {
@@ -2192,13 +2192,13 @@ class NodeManager {
                 sovereignChartContainer.style.display = 'block';
             }
 
-            // Show/hide sovereign download button based on data availability
+            // Show/hide sovereign download button based on sovereign_rewards_full availability
             const sovereignDownloadBtn = document.getElementById(`${nodeId}-download-sovereign-btn`);
             if (sovereignDownloadBtn) {
-                const hasSovereignData = data.sovereign_wallet_all_sums_daily &&
-                                         (Array.isArray(data.sovereign_wallet_all_sums_daily) && data.sovereign_wallet_all_sums_daily.length > 0 ||
-                                          typeof data.sovereign_wallet_all_sums_daily === 'object' && Object.keys(data.sovereign_wallet_all_sums_daily).length > 0);
-                sovereignDownloadBtn.style.display = hasSovereignData ? 'inline-block' : 'none';
+                const hasSovereignRewardsFull = data.sovereign_rewards_full &&
+                                                (Array.isArray(data.sovereign_rewards_full) && data.sovereign_rewards_full.length > 0 ||
+                                                 typeof data.sovereign_rewards_full === 'object' && Object.keys(data.sovereign_rewards_full).length > 0);
+                sovereignDownloadBtn.style.display = hasSovereignRewardsFull ? 'inline-block' : 'none';
             }
 
             // Move blocks chart to second row by appending it there
