@@ -1117,7 +1117,7 @@ class NodeManager {
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Rewards Daily Chart</h5>
                                 <div class="d-flex align-items-center gap-2">
-                                    <button class="btn btn-sm btn-outline-light" onclick="nodeManager.downloadRewardsData('${node.id}', 'rewards_full')" title="Download Full Rewards Data" id="${node.id}-download-rewards-btn">
+                                    <button class="btn btn-sm btn-outline-light" onclick="nodeManager.downloadRewardsData('${node.id}', 'rewards_full')" title="Download Full Rewards Data" id="${node.id}-download-rewards-btn" style="display: none;">
                                         <i class="fas fa-download"></i>
                                     </button>
                                     <select class="form-select form-select-sm" style="width: auto;"
@@ -1140,7 +1140,7 @@ class NodeManager {
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Sovereign Rewards Daily Chart</h5>
                                 <div class="d-flex align-items-center gap-2">
-                                    <button class="btn btn-sm btn-outline-light" onclick="nodeManager.downloadRewardsData('${node.id}', 'sovereign_rewards_full')" title="Download Full Sovereign Rewards Data" id="${node.id}-download-sovereign-btn">
+                                    <button class="btn btn-sm btn-outline-light" onclick="nodeManager.downloadRewardsData('${node.id}', 'sovereign_rewards_full')" title="Download Full Sovereign Rewards Data" id="${node.id}-download-sovereign-btn" style="display: none;">
                                         <i class="fas fa-download"></i>
                                     </button>
                                     <select class="form-select form-select-sm" style="width: auto;"
@@ -2149,6 +2149,16 @@ class NodeManager {
         if (rewardsChartContainer) {
             rewardsChartContainer.style.display = this.isMetricVisible('rewards_chart', 'sections') ? 'block' : 'none';
         }
+
+        // Show/hide rewards download button based on data availability
+        const rewardsDownloadBtn = document.getElementById(`${nodeId}-download-rewards-btn`);
+        if (rewardsDownloadBtn) {
+            const hasRewardsData = data.reward_wallet_all_sums_daily &&
+                                   (Array.isArray(data.reward_wallet_all_sums_daily) && data.reward_wallet_all_sums_daily.length > 0 ||
+                                    typeof data.reward_wallet_all_sums_daily === 'object' && Object.keys(data.reward_wallet_all_sums_daily).length > 0);
+            rewardsDownloadBtn.style.display = hasRewardsData ? 'inline-block' : 'none';
+        }
+
         if ((chartType === 'all' || chartType === 'rewards') && this.isMetricVisible('rewards_chart', 'sections')) {
             console.log(`Updating rewards chart for ${nodeId}`, rewardsData);
             this.updateChart(`${nodeId}-rewards-chart`, 'Rewards', rewardsData, data.native_ticker, serverDate);
@@ -2182,6 +2192,15 @@ class NodeManager {
                 sovereignChartContainer.style.display = 'block';
             }
 
+            // Show/hide sovereign download button based on data availability
+            const sovereignDownloadBtn = document.getElementById(`${nodeId}-download-sovereign-btn`);
+            if (sovereignDownloadBtn) {
+                const hasSovereignData = data.sovereign_wallet_all_sums_daily &&
+                                         (Array.isArray(data.sovereign_wallet_all_sums_daily) && data.sovereign_wallet_all_sums_daily.length > 0 ||
+                                          typeof data.sovereign_wallet_all_sums_daily === 'object' && Object.keys(data.sovereign_wallet_all_sums_daily).length > 0);
+                sovereignDownloadBtn.style.display = hasSovereignData ? 'inline-block' : 'none';
+            }
+
             // Move blocks chart to second row by appending it there
             if (blocksChartContainer && secondRow) {
                 // Remove from first row and add to second row
@@ -2205,6 +2224,12 @@ class NodeManager {
             // Hide sovereign chart and keep blocks chart in first row
             if (sovereignChartContainer) {
                 sovereignChartContainer.style.display = 'none';
+            }
+
+            // Hide sovereign download button when no sovereign data
+            const sovereignDownloadBtn = document.getElementById(`${nodeId}-download-sovereign-btn`);
+            if (sovereignDownloadBtn) {
+                sovereignDownloadBtn.style.display = 'none';
             }
 
             // Ensure blocks chart stays in first row if no sovereign
