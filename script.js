@@ -1860,12 +1860,6 @@ class NodeManager {
             updateBtn.disabled = true;
             updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Updating...';
 
-            // Hide the update notification banner immediately
-            const notificationBanner = document.getElementById('pluginUpdateNotification');
-            if (notificationBanner) {
-                notificationBanner.style.display = 'none';
-            }
-
             // Make API call to trigger update
             const url = `${activeNode.url}?access_token=${activeNode.token}&action=update_plugin`;
             const controller = new AbortController();
@@ -1887,6 +1881,12 @@ class NodeManager {
             const data = await response.json();
             if (data.status !== 'ok') {
                 throw new Error(data.error || 'API request failed');
+            }
+
+            // Hide the update notification banner after node responds
+            const notificationBanner = document.getElementById('pluginUpdateNotification');
+            if (notificationBanner) {
+                notificationBanner.style.display = 'none';
             }
 
             // Get the update message from response
