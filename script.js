@@ -1116,11 +1116,16 @@ class NodeManager {
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Rewards Daily Chart</h5>
-                                <select class="form-select form-select-sm" style="width: auto;"
-                                        id="${node.id}-days-selector"
-                                        onchange="nodeManager.changeDays('${node.id}', parseInt(this.value), 'rewards')">
-                                    <!-- Days options will be populated dynamically -->
-                                </select>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button class="btn btn-sm btn-outline-light" onclick="nodeManager.downloadRewardsData('${node.id}', 'rewards_full')" title="Download Full Rewards Data" id="${node.id}-download-rewards-btn">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <select class="form-select form-select-sm" style="width: auto;"
+                                            id="${node.id}-days-selector"
+                                            onchange="nodeManager.changeDays('${node.id}', parseInt(this.value), 'rewards')">
+                                        <!-- Days options will be populated dynamically -->
+                                    </select>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -1134,11 +1139,16 @@ class NodeManager {
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Sovereign Rewards Daily Chart</h5>
-                                <select class="form-select form-select-sm" style="width: auto;"
-                                        id="${node.id}-sovereign-days-selector"
-                                        onchange="nodeManager.changeDays('${node.id}', parseInt(this.value), 'sovereign')">
-                                    <!-- Days options will be populated dynamically -->
-                                </select>
+                                <div class="d-flex align-items-center gap-2">
+                                    <button class="btn btn-sm btn-outline-light" onclick="nodeManager.downloadRewardsData('${node.id}', 'sovereign_rewards_full')" title="Download Full Sovereign Rewards Data" id="${node.id}-download-sovereign-btn">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <select class="form-select form-select-sm" style="width: auto;"
+                                            id="${node.id}-sovereign-days-selector"
+                                            onchange="nodeManager.changeDays('${node.id}', parseInt(this.value), 'sovereign')">
+                                        <!-- Days options will be populated dynamically -->
+                                    </select>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
@@ -1836,7 +1846,7 @@ class NodeManager {
     }
 
     async updatePlugin() {
-        const activeNode = this.getActiveNode();
+        const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
         if (!activeNode) {
             this.showNotification('No active node selected', 'error');
             return;
@@ -1909,6 +1919,104 @@ class NodeManager {
         }
     }
 
+    async downloadRewardsData(nodeId, dataType) {
+        const node = this.nodes.find(n => n.id === nodeId);
+        if (!node) {
+            this.showNotification('No active node selected', 'error');
+            return;
+        }
+
+        // Get the selected network for this node
+        const network = this.getSelectedNetwork(nodeId);
+        if (!network) {
+            this.showNotification('No network selected', 'error');
+            return;
+        }
+
+        // Determine button ID and data type name for filename
+        const isRewards = dataType === 'rewards_full';
+        const buttonId = isRewards ? `${nodeId}-download-rewards-btn` : `${nodeId}-download-sovereign-btn`;
+        const dataTypeName = isRewards ? 'rewards' : 'sovereign-rewards';
+
+        const downloadBtn = document.getElementById(buttonId);
+        if (!downloadBtn) {
+            this.showNotification('Download button not found', 'error');
+            return;
+        }
+
+        const originalBtnContent = downloadBtn.innerHTML;
+
+        try {
+            // Disable button and show loading state
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            // Fetch data from API
+            const url = `${node.url}?access_token=${node.token}&network=${network}&network_action=${dataType}`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+            const response = await fetch(url, {
+                headers: {
+                    'Accept-Encoding': 'gzip'
+                },
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            if (data.status !== 'ok') {
+                throw new Error(data.error || 'API request failed');
+            }
+
+            // Extract the data from response
+            const rewardsData = data.data[network][dataType];
+
+            if (!rewardsData) {
+                throw new Error('No data available for download');
+            }
+
+            // Create blob and download
+            const jsonString = JSON.stringify(rewardsData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+
+            // Generate filename with current date
+            const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+            const filename = `${node.name}-${network}-${dataTypeName}-${today}.json`;
+
+            // Create download link and trigger download
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = filename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+
+            // Clean up blob URL
+            URL.revokeObjectURL(downloadLink.href);
+
+            this.showNotification(`Downloaded ${filename}`, 'success');
+
+        } catch (error) {
+            console.error('Error downloading rewards data:', error);
+            let errorMessage = 'Failed to download data';
+            if (error.name === 'AbortError') {
+                errorMessage = 'Download request timeout (30 seconds)';
+            } else if (error.message) {
+                errorMessage = `Download failed: ${error.message}`;
+            }
+            this.showNotification(errorMessage, 'error');
+        } finally {
+            // Re-enable button and restore original content
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = originalBtnContent;
+        }
+    }
 
     async loadChartData(node, network, days, chartType = 'all') {
         try {

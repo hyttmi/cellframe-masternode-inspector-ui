@@ -400,6 +400,31 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 12, 2025 - Version 2.4.0
+
+#### JSON Export Feature
+- **Download Full Rewards Data**: Added ability to download complete rewards and sovereign rewards data as JSON files
+  - Added download button to Rewards chart header with Font Awesome download icon (script.js lines 1119-1122)
+  - Added download button to Sovereign Rewards chart header (script.js lines 1142-1145)
+  - Buttons show loading spinner during download
+  - Implemented `downloadRewardsData()` method in NodeManager class (script.js lines 1922-2019)
+  - Fetches data from backend using `rewards_full` and `sovereign_rewards_full` network actions
+  - Creates JSON Blob and triggers automatic download
+  - Filename format: `{NodeName}-{Network}-{DataType}-{YYYY-MM-DD}.json`
+  - Toast notifications for success/error states
+  - 30-second timeout with proper error handling
+
+#### Bug Fixes
+- **Fixed Update Plugin Button**: Corrected `updatePlugin()` method to use proper node lookup pattern
+  - Changed `this.getActiveNode()` to `this.nodes.find(n => n.id === this.activeNodeId)` (script.js line 1849)
+  - Fixed "Uncaught TypeError: this.getActiveNode is not a function" error
+  - Plugin update button now works correctly
+
+#### Files Modified
+- `script.js`: Lines 1119-1122 (rewards download button), 1142-1145 (sovereign download button), 1849 (updatePlugin fix), 1922-2019 (downloadRewardsData method)
+- `index.html`: Line 166 (version updated to 2.4.0)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
 ### October 8, 2025 - Version 2.3.2
 
 #### Mobile UI Improvements
@@ -644,5 +669,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: October 8, 2025
-**Version**: 2.3.2
+**Last Updated**: October 12, 2025
+**Version**: 2.4.0
