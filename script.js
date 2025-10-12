@@ -1848,7 +1848,7 @@ class NodeManager {
     async updatePlugin() {
         const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
         if (!activeNode) {
-            this.showNotification('No active node selected', 'error');
+            showNotification('No active node selected', 'error');
             return;
         }
 
@@ -1888,7 +1888,7 @@ class NodeManager {
 
             // Check if update was successful
             if (updateMessage.includes('Update initiated')) {
-                this.showNotification(updateMessage, 'success');
+                showNotification(updateMessage, 'success');
                 // Hide the update notification banner after successful update
                 const notificationBanner = document.getElementById('pluginUpdateNotification');
                 if (notificationBanner) {
@@ -1896,11 +1896,11 @@ class NodeManager {
                 }
                 // Note: Node will restart, so connection will be lost temporarily
                 setTimeout(() => {
-                    this.showNotification('Node is restarting. Please refresh in a moment.', 'info');
+                    showNotification('Node is restarting. Please refresh in a moment.', 'info');
                 }, 3000);
             } else {
                 // No update available or other message
-                this.showNotification(updateMessage, 'info');
+                showNotification(updateMessage, 'info');
             }
 
         } catch (error) {
@@ -1911,7 +1911,7 @@ class NodeManager {
             } else if (error.message) {
                 errorMessage = `Update failed: ${error.message}`;
             }
-            this.showNotification(errorMessage, 'error');
+            showNotification(errorMessage, 'error');
         } finally {
             // Re-enable button and restore original content
             updateBtn.disabled = false;
@@ -1922,14 +1922,14 @@ class NodeManager {
     async downloadRewardsData(nodeId, dataType) {
         const node = this.nodes.find(n => n.id === nodeId);
         if (!node) {
-            this.showNotification('No active node selected', 'error');
+            showNotification('No active node selected', 'error');
             return;
         }
 
         // Get the selected network for this node
         const network = this.getSelectedNetwork(nodeId);
         if (!network) {
-            this.showNotification('No network selected', 'error');
+            showNotification('No network selected', 'error');
             return;
         }
 
@@ -1940,7 +1940,7 @@ class NodeManager {
 
         const downloadBtn = document.getElementById(buttonId);
         if (!downloadBtn) {
-            this.showNotification('Download button not found', 'error');
+            showNotification('Download button not found', 'error');
             return;
         }
 
@@ -2000,7 +2000,7 @@ class NodeManager {
             // Clean up blob URL
             URL.revokeObjectURL(downloadLink.href);
 
-            this.showNotification(`Downloaded ${filename}`, 'success');
+            showNotification(`Downloaded ${filename}`, 'success');
 
         } catch (error) {
             console.error('Error downloading rewards data:', error);
@@ -2010,7 +2010,7 @@ class NodeManager {
             } else if (error.message) {
                 errorMessage = `Download failed: ${error.message}`;
             }
-            this.showNotification(errorMessage, 'error');
+            showNotification(errorMessage, 'error');
         } finally {
             // Re-enable button and restore original content
             downloadBtn.disabled = false;
