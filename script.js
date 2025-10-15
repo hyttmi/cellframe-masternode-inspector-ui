@@ -1927,6 +1927,64 @@ class NodeManager {
         }
     }
 
+    async viewPluginChangelog() {
+        const activeNode = this.nodes.find(n => n.id === this.activeNodeId);
+        if (!activeNode) {
+            showNotification('No active node selected', 'error');
+            return;
+        }
+
+        const changelogContent = document.getElementById('changelogContent');
+        const modal = new bootstrap.Modal(document.getElementById('pluginChangelogModal'));
+
+        // Show modal with loading state
+        changelogContent.textContent = 'Loading changelog...';
+        modal.show();
+
+        try {
+            // Fetch release notes from API
+            const url = `${activeNode.url}?access_token=${activeNode.token}&action=plugin_release_notes`;
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
+            const response = await fetch(url, {
+                headers: {
+                    'Accept-Encoding': 'gzip'
+                },
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            if (data.status !== 'ok') {
+                throw new Error(data.error || 'API request failed');
+            }
+
+            // Display the release notes
+            const releaseNotes = data.data.plugin_release_notes;
+            if (releaseNotes) {
+                changelogContent.textContent = releaseNotes;
+            } else {
+                changelogContent.textContent = 'No changelog information available.';
+            }
+
+        } catch (error) {
+            console.error('Error fetching changelog:', error);
+            let errorMessage = 'Failed to load changelog';
+            if (error.name === 'AbortError') {
+                errorMessage = 'Request timeout (30 seconds)';
+            } else if (error.message) {
+                errorMessage = `Error: ${error.message}`;
+            }
+            changelogContent.textContent = errorMessage;
+        }
+    }
+
     async downloadRewardsData(nodeId, dataType) {
         const node = this.nodes.find(n => n.id === nodeId);
         if (!node) {
