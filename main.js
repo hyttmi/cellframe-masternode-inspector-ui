@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, session } = require('electron');
 const path = require('path');
 
 function createWindow() {
@@ -11,6 +11,19 @@ function createWindow() {
       contextIsolation: true,
       webSecurity: false, // Allow HTTP requests from HTTPS context
     }
+  });
+
+  // Bypass CORS by intercepting and modifying response headers
+  session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Access-Control-Allow-Origin': ['*'],
+        'Access-Control-Allow-Methods': ['GET, POST, PUT, DELETE, OPTIONS'],
+        'Access-Control-Allow-Headers': ['*'],
+        'Access-Control-Allow-Credentials': ['true']
+      }
+    });
   });
 
   // Load the index.html file

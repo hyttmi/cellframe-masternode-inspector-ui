@@ -1,3 +1,83 @@
+// Store original fetch before overriding
+const originalFetch = window.fetch;
+
+// Capacitor HTTP wrapper to bypass CORS on mobile
+const capacitorFetch = async (url, options = {}) => {
+    // Check if we're running in Capacitor (mobile app)
+    const isCapacitor = typeof Capacitor !== 'undefined' &&
+                       Capacitor.isNativePlatform &&
+                       Capacitor.isNativePlatform();
+
+    if (isCapacitor) {
+        try {
+            // Try to get CapacitorHttp from different possible locations
+            let CapacitorHttp = null;
+
+            // Capacitor 5+ - Plugin is in Plugins namespace
+            if (Capacitor.Plugins && Capacitor.Plugins.CapacitorHttp) {
+                CapacitorHttp = Capacitor.Plugins.CapacitorHttp;
+            }
+            // Or directly from Http
+            else if (Capacitor.Plugins && Capacitor.Plugins.Http) {
+                CapacitorHttp = Capacitor.Plugins.Http;
+            }
+            // Check global scope
+            else if (typeof window.CapacitorHttp !== 'undefined') {
+                CapacitorHttp = window.CapacitorHttp;
+            }
+
+            if (CapacitorHttp) {
+                console.log('[Capacitor] Using native HTTP for:', url);
+
+                const nativeOptions = {
+                    url: url,
+                    method: options.method || 'GET',
+                    headers: options.headers || {},
+                };
+
+                const response = await CapacitorHttp.request(nativeOptions);
+
+                console.log('[Capacitor] Response status:', response.status);
+
+                // Convert Capacitor HTTP response to fetch-like response
+                return {
+                    ok: response.status >= 200 && response.status < 300,
+                    status: response.status,
+                    statusText: '',
+                    headers: new Headers(response.headers || {}),
+                    url: url,
+                    json: async () => {
+                        if (typeof response.data === 'object') {
+                            return response.data;
+                        }
+                        return JSON.parse(response.data);
+                    },
+                    text: async () => {
+                        if (typeof response.data === 'string') {
+                            return response.data;
+                        }
+                        return JSON.stringify(response.data);
+                    },
+                    blob: async () => new Blob([JSON.stringify(response.data)]),
+                    arrayBuffer: async () => new TextEncoder().encode(JSON.stringify(response.data)).buffer,
+                };
+            } else {
+                console.warn('[Capacitor] HTTP plugin not found, falling back to fetch');
+            }
+        } catch (error) {
+            console.error('[Capacitor] HTTP error:', error);
+            console.log('[Capacitor] Falling back to regular fetch');
+            // Fall through to regular fetch on error
+        }
+    }
+
+    // Fall back to regular fetch for web/desktop or if Capacitor HTTP failed
+    return originalFetch.call(window, url, options);
+};
+
+// Override fetch with our wrapper
+window.fetch = capacitorFetch;
+
 // Network metrics configuration - single source of truth for all metrics
 const NETWORK_METRICS_CONFIG = {
     autocollect_status: {
