@@ -1,7 +1,7 @@
 {
   "name": "cellframe-masternode-inspector",
   "productName": "Cellframe Masternode Inspector",
-  "version": "2.4.7",
+  "version": "2.4.8",
   "description": "A modern, web-based dashboard for monitoring and managing Cellframe masternodes. Monitor multiple nodes, track rewards, analyze performance metrics, and visualize blockchain data—all from a sleek, responsive interface.",
   "main": "main.js",
   "scripts": {
