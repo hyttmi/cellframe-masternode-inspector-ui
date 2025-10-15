@@ -46,10 +46,10 @@ const capacitorFetch = async (url, options = {}) => {
                         Object.assign(headers, options.headers);
                     }
                 }
-                // Ensure Accept-Encoding for gzip support
-                if (!headers['Accept-Encoding'] && !headers['accept-encoding']) {
-                    headers['Accept-Encoding'] = 'gzip, deflate';
-                }
+                // Remove Accept-Encoding header to get uncompressed responses
+                // Capacitor HTTP doesn't auto-decompress gzip, causing JSON parse errors
+                delete headers['Accept-Encoding'];
+                delete headers['accept-encoding'];
 
                 const nativeOptions = {
                     url: url,
