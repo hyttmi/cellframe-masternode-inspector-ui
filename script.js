@@ -151,6 +151,12 @@ const NETWORK_METRICS_CONFIG = {
         icon: 'fa-layer-group',
         formatter: (data) => (data.block_count || 0).toLocaleString()
     },
+    total_active_masternodes: {
+        label: 'Total Active Masternodes',
+        title: 'TOTAL ACTIVE MASTERNODES',
+        icon: 'fa-network-wired',
+        formatter: (data) => data.total_active_masternodes?.toLocaleString() || 'N/A'
+    },
     tx_hash: {
         label: 'Stake Transaction Hash',
         title: 'STAKE TRANSACTION HASH',
@@ -562,6 +568,7 @@ class NodeManager {
             'sovereign_wallet',
             'stake_value',
             'token_price',
+            'total_active_masternodes',
             'total_blocks_in_network',
             'tx_hash'
         ];

@@ -400,6 +400,22 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 15, 2025 - Version 2.4.1
+
+#### New Network Metric
+- **Total Active Masternodes**: Added new network metric to display the total number of active masternodes in the network
+  - Added `total_active_masternodes` to NETWORK_METRICS_CONFIG (script.js lines 154-159)
+  - Metric retrieves data from root-level `total_active_masternodes` field in network API response
+  - Displays formatted number with locale-specific thousand separators (e.g., "1,234")
+  - Shows "N/A" if data is not available
+  - Uses network-wired icon (fa-network-wired) for visual consistency
+  - Added to default enabled network metrics list (script.js line 571)
+  - Visible in Manage Metrics modal for all nodes
+
+#### Files Modified
+- `script.js`: Lines 154-159 (new metric config), 571 (default enabled list)
+- `DOCUMENTATION.md`: Updated Change Log
+
 ### October 12, 2025 - Version 2.4.0
 
 #### JSON Export Feature
@@ -669,5 +685,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: October 12, 2025
-**Version**: 2.4.0
+**Last Updated**: October 15, 2025
+**Version**: 2.4.1
