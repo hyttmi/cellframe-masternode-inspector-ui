@@ -1,5 +1,6 @@
 # Sensitive files - DO NOT COMMIT
 claude.md
+CLAUDE.md
 
 # Data files
 system_data.json
