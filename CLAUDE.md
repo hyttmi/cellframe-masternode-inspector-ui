@@ -1,0 +1,3 @@
+- Always commit and push to github
+- You can always do curl to my node or sovereign node if something seems to be too hard to understand.
+- always when making changes to the sources, build the packages to all platforms and make a new release
