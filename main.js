@@ -18,6 +18,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
       webSecurity: false, // Allow HTTP requests from HTTPS context
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 

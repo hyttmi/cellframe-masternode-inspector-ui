@@ -3712,10 +3712,8 @@ function handleDeepLink(url) {
 }
 
 // Listen for deep links from Electron
-if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
-    // Electron IPC - need to set up IPC renderer
-    const { ipcRenderer } = require('electron');
-    ipcRenderer.on('deep-link', (event, url) => {
+if (typeof window.electronAPI !== 'undefined') {
+    window.electronAPI.onDeepLink((url) => {
         console.log('[Electron] Deep link received:', url);
         handleDeepLink(url);
     });

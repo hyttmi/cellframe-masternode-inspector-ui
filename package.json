@@ -48,9 +48,8 @@
       "script.js",
       "styles.css",
       "main.js",
-      "logo.svg",
-      "network_data.json",
-      "system_data.json"
+      "preload.js",
+      "logo.svg"
     ],
     "directories": {
       "output": "dist",
