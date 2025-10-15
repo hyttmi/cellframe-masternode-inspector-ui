@@ -29,45 +29,131 @@ const capacitorFetch = async (url, options = {}) => {
             if (CapacitorHttp) {
                 console.log('[Capacitor] Using native HTTP for:', url);
 
+                // Check if request was already aborted
+                if (options.signal?.aborted) {
+                    throw new DOMException('Request aborted', 'AbortError');
+                }
+
+                // Merge headers properly
+                const headers = {};
+                if (options.headers) {
+                    // Handle Headers object or plain object
+                    if (options.headers instanceof Headers) {
+                        options.headers.forEach((value, key) => {
+                            headers[key] = value;
+                        });
+                    } else {
+                        Object.assign(headers, options.headers);
+                    }
+                }
+                // Ensure Accept-Encoding for gzip support
+                if (!headers['Accept-Encoding'] && !headers['accept-encoding']) {
+                    headers['Accept-Encoding'] = 'gzip, deflate';
+                }
+
                 const nativeOptions = {
                     url: url,
                     method: options.method || 'GET',
-                    headers: options.headers || {},
+                    headers: headers,
+                    readTimeout: 30000,
+                    connectTimeout: 30000,
                 };
 
-                const response = await CapacitorHttp.request(nativeOptions);
+                // Handle AbortSignal if provided
+                let abortHandler;
+                const requestPromise = CapacitorHttp.request(nativeOptions);
 
-                console.log('[Capacitor] Response status:', response.status);
+                if (options.signal) {
+                    const abortPromise = new Promise((_, reject) => {
+                        abortHandler = () => {
+                            reject(new DOMException('Request aborted', 'AbortError'));
+                        };
+                        options.signal.addEventListener('abort', abortHandler);
+                    });
 
-                // Convert Capacitor HTTP response to fetch-like response
-                return {
-                    ok: response.status >= 200 && response.status < 300,
-                    status: response.status,
-                    statusText: '',
-                    headers: new Headers(response.headers || {}),
-                    url: url,
-                    json: async () => {
-                        if (typeof response.data === 'object') {
-                            return response.data;
+                    // Race between request and abort
+                    try {
+                        const response = await Promise.race([requestPromise, abortPromise]);
+                        console.log('[Capacitor] Response status:', response.status);
+
+                        // Clean up abort listener
+                        if (abortHandler) {
+                            options.signal.removeEventListener('abort', abortHandler);
                         }
-                        return JSON.parse(response.data);
-                    },
-                    text: async () => {
-                        if (typeof response.data === 'string') {
-                            return response.data;
+
+                        // Return fetch-compatible response
+                        return {
+                            ok: response.status >= 200 && response.status < 300,
+                            status: response.status,
+                            statusText: '',
+                            headers: new Headers(response.headers || {}),
+                            url: url,
+                            json: async () => {
+                                if (typeof response.data === 'object') {
+                                    return response.data;
+                                }
+                                if (typeof response.data === 'string') {
+                                    return JSON.parse(response.data);
+                                }
+                                return response.data;
+                            },
+                            text: async () => {
+                                if (typeof response.data === 'string') {
+                                    return response.data;
+                                }
+                                return JSON.stringify(response.data);
+                            },
+                            blob: async () => new Blob([JSON.stringify(response.data)]),
+                            arrayBuffer: async () => new TextEncoder().encode(JSON.stringify(response.data)).buffer,
+                        };
+                    } catch (error) {
+                        // Clean up abort listener on error
+                        if (abortHandler) {
+                            options.signal.removeEventListener('abort', abortHandler);
                         }
-                        return JSON.stringify(response.data);
-                    },
-                    blob: async () => new Blob([JSON.stringify(response.data)]),
-                    arrayBuffer: async () => new TextEncoder().encode(JSON.stringify(response.data)).buffer,
-                };
+                        throw error;
+                    }
+                } else {
+                    // No signal, just await the response
+                    const response = await requestPromise;
+                    console.log('[Capacitor] Response status:', response.status);
+
+                    return {
+                        ok: response.status >= 200 && response.status < 300,
+                        status: response.status,
+                        statusText: '',
+                        headers: new Headers(response.headers || {}),
+                        url: url,
+                        json: async () => {
+                            if (typeof response.data === 'object') {
+                                return response.data;
+                            }
+                            if (typeof response.data === 'string') {
+                                return JSON.parse(response.data);
+                            }
+                            return response.data;
+                        },
+                        text: async () => {
+                            if (typeof response.data === 'string') {
+                                return response.data;
+                            }
+                            return JSON.stringify(response.data);
+                        },
+                        blob: async () => new Blob([JSON.stringify(response.data)]),
+                        arrayBuffer: async () => new TextEncoder().encode(JSON.stringify(response.data)).buffer,
+                    };
+                }
             } else {
                 console.warn('[Capacitor] HTTP plugin not found, falling back to fetch');
             }
         } catch (error) {
             console.error('[Capacitor] HTTP error:', error);
+            // Re-throw AbortError to maintain compatibility
+            if (error.name === 'AbortError') {
+                throw error;
+            }
             console.log('[Capacitor] Falling back to regular fetch');
-            // Fall through to regular fetch on error
+            // Fall through to regular fetch on other errors
         }
     }
 
