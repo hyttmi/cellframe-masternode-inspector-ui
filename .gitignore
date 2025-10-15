@@ -29,3 +29,8 @@ build/
 *.exe
 *.zip
 out/
+
+# Capacitor
+android/
+ios/
+www/

@@ -9,13 +9,24 @@
     "build": "electron-builder",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux"
+    "build:linux": "electron-builder --linux",
+    "android:sync": "mkdir -p www && cp index.html script.js styles.css logo.svg www/ && npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:build": "npm run android:sync && cd android && ./gradlew assembleDebug",
+    "android:release": "npm run android:sync && cd android && ./gradlew assembleRelease"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hyttmi/cellframe-masternode-inspector-ui.git"
   },
-  "keywords": ["cellframe", "masternode", "inspector", "dashboard", "blockchain", "monitoring"],
+  "keywords": [
+    "cellframe",
+    "masternode",
+    "inspector",
+    "dashboard",
+    "blockchain",
+    "monitoring"
+  ],
   "author": {
     "name": "hyttmi",
     "email": "hyttmi@users.noreply.github.com"
@@ -46,18 +57,32 @@
       "buildResources": "build"
     },
     "linux": {
-      "target": ["AppImage", "deb"],
+      "target": [
+        "AppImage",
+        "deb"
+      ],
       "category": "Network",
       "icon": "logo.svg"
     },
     "win": {
-      "target": ["nsis", "portable"],
+      "target": [
+        "nsis",
+        "portable"
+      ],
       "icon": "logo.svg"
     },
     "mac": {
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "category": "public.app-category.utilities",
       "icon": "logo.svg"
     }
+  },
+  "dependencies": {
+    "@capacitor/android": "^5.7.8",
+    "@capacitor/cli": "^5.7.8",
+    "@capacitor/core": "^5.7.8"
   }
 }

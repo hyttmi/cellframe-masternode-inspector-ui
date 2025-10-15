@@ -45,10 +45,12 @@ A modern, web-based dashboard for monitoring and managing Cellframe masternodes.
 
 ## Quick Start
 
-### Prerequisites
+### Web Application
+
+#### Prerequisites
 No installation required! This is a client-side web application that runs entirely in your browser.
 
-### Setup
+#### Setup
 
 1. **Clone the repository**
    ```bash
@@ -80,6 +82,83 @@ No installation required! This is a client-side web application that runs entire
 
 4. **Start monitoring!**
    Your dashboard will automatically load and display real-time data from your masternode.
+
+### Desktop Application (Electron)
+
+Download pre-built installers from the [Releases](https://github.com/hyttmi/cellframe-masternode-inspector-ui/releases) page, or build from source:
+
+#### Prerequisites
+- Node.js 18+ and npm
+
+#### Build Desktop App
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Build for your platform**
+   ```bash
+   # Linux (AppImage + .deb)
+   npm run build:linux
+
+   # Windows (NSIS installer + portable)
+   npm run build:win
+
+   # macOS (DMG + ZIP)
+   npm run build:mac
+   ```
+
+3. **Run in development**
+   ```bash
+   npm start
+   ```
+
+Installers will be in the `dist/` directory.
+
+### Android Application (Capacitor)
+
+Build the native Android app to bypass browser HTTP/HTTPS mixed content restrictions.
+
+#### Prerequisites
+- Node.js 18+ and npm
+- [Android Studio](https://developer.android.com/studio) installed
+- Android SDK and Gradle configured
+
+#### Build Android App
+
+1. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Sync web assets to Android project**
+   ```bash
+   npm run android:sync
+   ```
+
+3. **Option A: Build APK via command line**
+   ```bash
+   # Debug build
+   npm run android:build
+
+   # Release build (requires signing)
+   npm run android:release
+   ```
+
+   APKs will be in `android/app/build/outputs/apk/`
+
+4. **Option B: Build via Android Studio**
+   ```bash
+   npm run android:open
+   ```
+   Then build and run from Android Studio (Build > Make Project, then Run)
+
+#### Install on Device
+- **Debug APK**: `android/app/build/outputs/apk/debug/app-debug.apk`
+- **Release APK**: `android/app/build/outputs/apk/release/app-release.apk`
+
+Transfer the APK to your Android device and install it.
 
 ## Usage
 
@@ -116,6 +195,8 @@ If your node supports multiple networks, click the network pills in the navigati
 - **QR Codes**: QRious 4.0.2
 - **Icons**: Font Awesome 6.5.1
 - **Storage**: Browser localStorage (client-side only)
+- **Desktop**: Electron 38
+- **Mobile**: Capacitor 5 (Android)
 
 ## File Structure
 
