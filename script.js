@@ -3720,11 +3720,27 @@ if (typeof window.electronAPI !== 'undefined') {
 }
 
 // Listen for deep links from Capacitor (Android)
-if (typeof Capacitor !== 'undefined') {
-    document.addEventListener('DOMContentLoaded', () => {
-        Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
-            console.log('[Capacitor] App opened with URL:', data.url);
+// Register immediately, don't wait for DOMContentLoaded
+if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.App) {
+    // Handle app being opened with a URL (when app is already running)
+    Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+        console.log('[Capacitor] App opened with URL:', data.url);
+        // Wait a bit for nodeManager to be initialized if needed
+        if (typeof nodeManager === 'undefined') {
+            setTimeout(() => handleDeepLink(data.url), 1500);
+        } else {
             handleDeepLink(data.url);
-        });
+        }
+    });
+
+    // Check if app was launched with a URL (cold start)
+    Capacitor.Plugins.App.getLaunchUrl().then(launchUrl => {
+        if (launchUrl && launchUrl.url) {
+            console.log('[Capacitor] App launched with URL:', launchUrl.url);
+            // Wait for nodeManager to initialize
+            setTimeout(() => handleDeepLink(launchUrl.url), 1500);
+        }
+    }).catch(err => {
+        console.log('[Capacitor] No launch URL or error:', err);
     });
 }
