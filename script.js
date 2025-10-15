@@ -1141,7 +1141,7 @@ class NodeManager {
         }
     }
 
-    getShareUrl() {
+    getShareUrls() {
         const node = this.nodes.find(n => n.id === this.activeNodeId);
         if (!node) return null;
 
@@ -1151,30 +1151,102 @@ class NodeManager {
             name: node.name
         });
 
-        // Use custom URL scheme (cfmnui://) for apps, web URL for browser
         const isApp = (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform()) ||
                       (typeof process !== 'undefined' && process.versions && process.versions.electron);
 
-        if (isApp) {
-            return `cfmnui://add?${params.toString()}`;
-        } else {
+        // App URL (direct open in app if installed)
+        const appUrl = `cfmnui://add?${params.toString()}`;
+
+        // Web URL (works for everyone, even without app)
+        let webUrl = null;
+        if (!isApp) {
+            // In browser, use current URL
             const baseUrl = window.location.origin + window.location.pathname;
-            return `${baseUrl}?${params.toString()}`;
+            webUrl = `${baseUrl}?${params.toString()}`;
+        } else {
+            // In app, use fallback web URL (could be made configurable)
+            // This allows app users to share to non-app users
+            const webBaseUrl = 'https://hyttmi.github.io/cellframe-masternode-inspector-ui/';
+            webUrl = `${webBaseUrl}?${params.toString()}`;
         }
+
+        return { appUrl, webUrl, isApp };
+    }
+
+    // Legacy method for compatibility
+    getShareUrl() {
+        const urls = this.getShareUrls();
+        if (!urls) return null;
+        // Default to web URL (more universal)
+        return urls.webUrl;
     }
 
     shareCurrentNode() {
-        const shareUrl = this.getShareUrl();
-        if (!shareUrl) return;
+        const urls = this.getShareUrls();
+        if (!urls) return;
+
+        // Store URLs for other methods to access
+        this.currentShareUrls = urls;
 
         // Clear previous QR code
         const container = document.getElementById('qrCodeContainer');
         container.innerHTML = '<canvas id="qrcode"></canvas>';
 
-        // Generate QR code using QRious
+        // Always use web URL for QR code (universal compatibility)
         new QRious({
             element: document.getElementById('qrcode'),
-            value: shareUrl,
+            value: urls.webUrl,
+            size: 300,
+            level: 'H',
+            background: '#ffffff',
+            foreground: '#000000'
+        });
+
+        // Update share modal content with both URLs
+        const shareModalBody = document.querySelector('#shareNodeModal .modal-body');
+        const linksHtml = `
+            <p class="text-muted mb-3">Scan QR code or copy a link below</p>
+            <div id="qrCodeContainer" class="mb-4 d-flex justify-content-center"></div>
+
+            <div class="mb-3">
+                <label class="form-label small text-muted">
+                    <i class="fas fa-globe me-1"></i>Web Link (works for everyone)
+                </label>
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" value="${urls.webUrl}" readonly onclick="this.select()">
+                    <button class="btn btn-outline-secondary" onclick="nodeManager.copyLink('${urls.webUrl}', 'Web link')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+
+            ${urls.isApp ? `
+            <div class="mb-3">
+                <label class="form-label small text-muted">
+                    <i class="fas fa-mobile-screen me-1"></i>App Link (direct open if app installed)
+                </label>
+                <div class="input-group input-group-sm">
+                    <input type="text" class="form-control" value="${urls.appUrl}" readonly onclick="this.select()">
+                    <button class="btn btn-outline-secondary" onclick="nodeManager.copyLink('${urls.appUrl}', 'App link')">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            ` : ''}
+
+            <div class="d-grid gap-2 mt-4">
+                <button class="btn btn-primary" onclick="nodeManager.shareViaShareAPI()">
+                    <i class="fas fa-share me-2"></i>Share via Device
+                </button>
+            </div>
+        `;
+
+        shareModalBody.innerHTML = linksHtml;
+
+        // Re-generate QR code after HTML update
+        new QRious({
+            element: document.getElementById('qrcode'),
+            value: urls.webUrl,
             size: 300,
             level: 'H',
             background: '#ffffff',
@@ -1184,6 +1256,15 @@ class NodeManager {
         // Show modal
         const modal = new bootstrap.Modal(document.getElementById('shareNodeModal'));
         modal.show();
+    }
+
+    copyLink(url, label = 'Link') {
+        navigator.clipboard.writeText(url).then(() => {
+            showNotification(`${label} copied to clipboard!`, 'success');
+        }).catch(err => {
+            console.error('Failed to copy to clipboard:', err);
+            showNotification('Failed to copy to clipboard', 'error');
+        });
     }
 
     async shareViaShareAPI() {
