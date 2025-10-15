@@ -1145,13 +1145,22 @@ class NodeManager {
         const node = this.nodes.find(n => n.id === this.activeNodeId);
         if (!node) return null;
 
-        const baseUrl = window.location.origin + window.location.pathname;
         const params = new URLSearchParams({
             url: node.url,
             token: node.token,
             name: node.name
         });
-        return `${baseUrl}?${params.toString()}`;
+
+        // Use custom URL scheme (cfmnui://) for apps, web URL for browser
+        const isApp = (typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform()) ||
+                      (typeof process !== 'undefined' && process.versions && process.versions.electron);
+
+        if (isApp) {
+            return `cfmnui://add?${params.toString()}`;
+        } else {
+            const baseUrl = window.location.origin + window.location.pathname;
+            return `${baseUrl}?${params.toString()}`;
+        }
     }
 
     shareCurrentNode() {
@@ -3561,4 +3570,82 @@ function copyToClipboard(text, label = 'Value') {
 let nodeManager;
 document.addEventListener('DOMContentLoaded', function() {
     nodeManager = new NodeManager();
+
+    // Handle initial deep link from URL parameters (web version)
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('url') && params.has('token') && params.has('name')) {
+        // Construct a cfmnui:// URL and handle it
+        const fakeUrl = `cfmnui://add?url=${encodeURIComponent(params.get('url'))}&token=${encodeURIComponent(params.get('token'))}&name=${encodeURIComponent(params.get('name'))}`;
+        setTimeout(() => handleDeepLink(fakeUrl), 1000); // Wait for nodeManager to initialize
+    }
 });
+
+// Deep Link Handler - process cfmnui:// URLs
+function handleDeepLink(url) {
+    console.log('[Deep Link] Received:', url);
+
+    try {
+        // Parse cfmnui://add?url=X&token=Y&name=Z
+        const urlObj = new URL(url);
+        if (urlObj.protocol !== 'cfmnui:' || urlObj.hostname !== 'add') {
+            console.warn('[Deep Link] Invalid URL format');
+            return;
+        }
+
+        const params = urlObj.searchParams;
+        const nodeUrl = params.get('url');
+        const token = params.get('token');
+        const name = params.get('name');
+
+        if (!nodeUrl || !token || !name) {
+            showNotification('Invalid share link - missing required parameters', 'error');
+            return;
+        }
+
+        // Check if node already exists
+        const existingNode = nodeManager.nodes.find(n => n.url === nodeUrl);
+        if (existingNode) {
+            showNotification(`Node "${name}" already exists!`, 'info');
+            nodeManager.switchToNode(existingNode.id);
+            return;
+        }
+
+        // Add the node
+        const newNode = {
+            id: Date.now().toString(),
+            name: name,
+            url: nodeUrl,
+            token: token
+        };
+
+        nodeManager.nodes.push(newNode);
+        nodeManager.saveNodes();
+        nodeManager.renderNavigation();
+        nodeManager.switchToNode(newNode.id);
+
+        showNotification(`Node "${name}" added successfully!`, 'success');
+    } catch (error) {
+        console.error('[Deep Link] Parse error:', error);
+        showNotification('Failed to process share link', 'error');
+    }
+}
+
+// Listen for deep links from Electron
+if (typeof process !== 'undefined' && process.versions && process.versions.electron) {
+    // Electron IPC - need to set up IPC renderer
+    const { ipcRenderer } = require('electron');
+    ipcRenderer.on('deep-link', (event, url) => {
+        console.log('[Electron] Deep link received:', url);
+        handleDeepLink(url);
+    });
+}
+
+// Listen for deep links from Capacitor (Android)
+if (typeof Capacitor !== 'undefined') {
+    document.addEventListener('DOMContentLoaded', () => {
+        Capacitor.Plugins.App.addListener('appUrlOpen', (data) => {
+            console.log('[Capacitor] App opened with URL:', data.url);
+            handleDeepLink(data.url);
+        });
+    });
+}

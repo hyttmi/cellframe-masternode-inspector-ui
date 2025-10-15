@@ -8,6 +8,11 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     // Allow cleartext (HTTP) traffic for connecting to backend APIs
     cleartext: true
+  },
+  plugins: {
+    App: {
+      appUrlScheme: 'cfmnui'
+    }
   }
 };
 
