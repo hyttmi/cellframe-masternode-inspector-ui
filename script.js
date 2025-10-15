@@ -7,8 +7,8 @@ const NETWORK_METRICS_CONFIG = {
         formatter: (data) => data.autocollect_status?.active ? 'Active' : 'Inactive'
     },
     biggest_reward: {
-        label: 'Biggest Reward',
-        title: 'BIGGEST REWARD',
+        label: 'Biggest Reward All Time',
+        title: 'BIGGEST REWARD ALL TIME',
         icon: 'fa-crown',
         formatter: (data) => `${(parseFloat(data.reward_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
     },
@@ -126,8 +126,8 @@ const NETWORK_METRICS_CONFIG = {
         formatter: (data) => data.signed_blocks_yesterday_amount || 0
     },
     smallest_reward: {
-        label: 'Smallest Reward',
-        title: 'SMALLEST REWARD',
+        label: 'Smallest Reward All Time',
+        title: 'SMALLEST REWARD ALL TIME',
         icon: 'fa-arrow-down',
         formatter: (data) => `${(parseFloat(data.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
     },
@@ -187,15 +187,15 @@ const NETWORK_METRICS_CONFIG = {
         conditional: (data) => data.sovereign_reward_wallet_address
     },
     sovereign_wallet_biggest_reward: {
-        label: 'Biggest Sovereign Reward',
-        title: 'BIGGEST SOVEREIGN REWARD',
+        label: 'Biggest Sovereign Reward All Time',
+        title: 'BIGGEST SOVEREIGN REWARD ALL TIME',
         icon: 'fa-crown',
         formatter: (data) => `${(parseFloat(data.sovereign_wallet_biggest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
         conditional: (data) => data.sovereign_reward_wallet_address
     },
     sovereign_wallet_smallest_reward: {
-        label: 'Smallest Sovereign Reward',
-        title: 'SMALLEST SOVEREIGN REWARD',
+        label: 'Smallest Sovereign Reward All Time',
+        title: 'SMALLEST SOVEREIGN REWARD ALL TIME',
         icon: 'fa-arrow-down',
         formatter: (data) => `${(parseFloat(data.sovereign_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
         conditional: (data) => data.sovereign_reward_wallet_address
@@ -1358,8 +1358,8 @@ class NodeManager {
                         this.showCacheNotification(nodeId, 'network', selectedNetwork);
                         return;
                     }
-                }
             } else {
+                }
                 this.showError(nodeId, `Connection failed: ${error.message}`);
                 // Show offline status when there's an error and no cache
                 this.updateSystemInfo({}, false); // No system data, API not connected
