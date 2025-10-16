@@ -1762,6 +1762,8 @@ class NodeManager {
 
             // Update system info (without network status)
             const systemData = await this.fetchNodeData(node, 'all');
+            // Cache the system data
+            this.setStoredSystemData(node.id, systemData);
             this.updateSystemInfo(systemData, true); // API connected if we get here
 
         } catch (error) {
@@ -1943,14 +1945,13 @@ class NodeManager {
     }
 
     showPluginChangelog() {
-        // Get current system data to fetch plugin_release_notes
-        const systemDataStr = localStorage.getItem(`cfminspector_${this.activeNodeId}_system_data`);
-        if (!systemDataStr) {
+        // Get current system data from cache to fetch plugin_release_notes
+        const systemData = this.cachedSystemData[this.activeNodeId];
+        if (!systemData) {
             showNotification('No system data available', 'error');
             return;
         }
 
-        const systemData = JSON.parse(systemDataStr);
         const releaseNotes = systemData.plugin_release_notes;
 
         if (!releaseNotes) {
