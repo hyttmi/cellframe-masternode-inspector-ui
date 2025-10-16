@@ -400,6 +400,23 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 16, 2025 - Version 2.4.1
+
+#### Added Total Rewards Metrics
+- **Total Rewards Display**: Added missing total rewards metrics to the network performance section
+  - Added `total_rewards` metric (script.js lines 134-139) - displays total rewards received all time
+  - Added `sovereign_total_rewards` metric (script.js lines 209-215) - displays total sovereign rewards received all time (conditional on sovereign wallet)
+  - Both metrics display amount and native ticker (e.g., "28921.30 CELL")
+  - Use money bag icon (`fa-sack-dollar`) for visual consistency
+  - Added to default enabled metrics list (script.js lines 570, 576)
+  - Available in Manage Metrics modal and support drag-and-drop reordering
+
+#### Files Modified
+- `script.js`: Lines 134-139 (total_rewards metric), 209-215 (sovereign_total_rewards metric), 570, 576 (default enabled list)
+- `index.html`: Line 166 (version updated to 2.4.1)
+- `README.md`: Lines 6, 190-191 (version and date updated)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
 ### October 12, 2025 - Version 2.4.0
 
 #### JSON Export Feature
@@ -669,5 +686,5 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ---
 
-**Last Updated**: October 12, 2025
-**Version**: 2.4.0
+**Last Updated**: October 16, 2025
+**Version**: 2.4.1

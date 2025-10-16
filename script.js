@@ -131,6 +131,12 @@ const NETWORK_METRICS_CONFIG = {
         icon: 'fa-arrow-down',
         formatter: (data) => `${(parseFloat(data.reward_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
     },
+    total_rewards: {
+        label: 'Total Rewards All Time',
+        title: 'TOTAL REWARDS ALL TIME',
+        icon: 'fa-sack-dollar',
+        formatter: (data) => `${(parseFloat(data.reward_wallet_total_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`
+    },
     stake_value: {
         label: 'Stake Value',
         title: 'STAKE VALUE',
@@ -198,6 +204,13 @@ const NETWORK_METRICS_CONFIG = {
         title: 'SMALLEST SOVEREIGN REWARD ALL TIME',
         icon: 'fa-arrow-down',
         formatter: (data) => `${(parseFloat(data.sovereign_wallet_smallest_reward?.recv_coins) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
+        conditional: (data) => data.sovereign_reward_wallet_address
+    },
+    sovereign_total_rewards: {
+        label: 'Total Sovereign Rewards All Time',
+        title: 'TOTAL SOVEREIGN REWARDS ALL TIME',
+        icon: 'fa-sack-dollar',
+        formatter: (data) => `${(parseFloat(data.sovereign_wallet_total_rewards) || 0).toFixed(2)} ${data.native_ticker || 'TOKEN'}`,
         conditional: (data) => data.sovereign_reward_wallet_address
     },
     sovereign_wallet: {
@@ -554,11 +567,13 @@ class NodeManager {
             'signed_blocks_today',
             'signed_blocks_yesterday',
             'smallest_reward',
+            'total_rewards',
             'sovereign_rewards_received_today',
             'sovereign_rewards_received_yesterday',
             'sovereign_wallet_latest_reward',
             'sovereign_wallet_biggest_reward',
             'sovereign_wallet_smallest_reward',
+            'sovereign_total_rewards',
             'sovereign_wallet',
             'stake_value',
             'token_price',
