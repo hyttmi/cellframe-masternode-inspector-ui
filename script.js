@@ -68,6 +68,12 @@ const NETWORK_METRICS_CONFIG = {
         icon: 'fa-network-wired',
         formatter: (data) => data.network_status?.synced ? 'Synced' : 'Not Synced'
     },
+    node_in_node_list: {
+        label: 'Node in Node List',
+        title: 'NODE IN NODE LIST',
+        icon: 'fa-list-check',
+        formatter: (data) => data.node_in_node_list ? 'Yes' : 'No'
+    },
     node_address: {
         label: 'Node Address',
         title: 'NODE ADDRESS',
@@ -558,6 +564,7 @@ class NodeManager {
             'latest_reward',
             'network_state',
             'network_status',
+            'node_in_node_list',
             'node_address',
             'relative_weight',
             'remote_cache_updated',

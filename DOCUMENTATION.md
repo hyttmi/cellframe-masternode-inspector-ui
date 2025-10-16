@@ -400,6 +400,22 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 16, 2025 - Version 2.4.2
+
+#### Added Node in Node List Metric
+- **New Network Metric**: Added `node_in_node_list` metric to display whether the node is in the network's node list
+  - Added metric configuration (script.js lines 71-76) - displays "Yes" or "No" based on boolean value
+  - Uses list-check icon (`fa-list-check`) for visual consistency
+  - Added to default enabled metrics list (script.js line 567)
+  - Available in Manage Metrics modal and supports drag-and-drop reordering
+  - Helps users quickly verify their node's registration status in the network
+
+#### Files Modified
+- `script.js`: Lines 71-76 (node_in_node_list metric), 567 (default enabled list)
+- `index.html`: Line 166 (version updated to 2.4.2)
+- `README.md`: Lines 6, 190 (version updated)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
 ### October 16, 2025 - Version 2.4.1
 
 #### Added Total Rewards Metrics
@@ -687,4 +703,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 16, 2025
-**Version**: 2.4.1
+**Version**: 2.4.2

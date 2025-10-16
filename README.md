@@ -3,7 +3,7 @@
 A modern, web-based dashboard for monitoring and managing Cellframe masternodes. Monitor multiple nodes, track rewards, analyze performance metrics, and visualize blockchain data—all from a sleek, responsive interface.
 
 ![License](https://img.shields.io/badge/license-GPL--3.0-blue.svg)
-![Version](https://img.shields.io/badge/version-2.4.1-green.svg)
+![Version](https://img.shields.io/badge/version-2.4.2-green.svg)
 
 ## Features
 
@@ -187,6 +187,6 @@ This project is licensed under the GNU General Public License v3.0 - see the [LI
 
 ---
 
-**Current Version**: 2.4.1
+**Current Version**: 2.4.2
 **Last Updated**: October 16, 2025
 **Repository**: https://github.com/hyttmi/cellframe-masternode-inspector-ui
