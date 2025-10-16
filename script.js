@@ -1942,6 +1942,72 @@ class NodeManager {
         }
     }
 
+    showPluginChangelog() {
+        // Get current system data to fetch plugin_release_notes
+        const systemDataStr = localStorage.getItem(`cfminspector_${this.activeNodeId}_system_data`);
+        if (!systemDataStr) {
+            showNotification('No system data available', 'error');
+            return;
+        }
+
+        const systemData = JSON.parse(systemDataStr);
+        const releaseNotes = systemData.plugin_release_notes;
+
+        if (!releaseNotes) {
+            showNotification('No changelog available', 'info');
+            return;
+        }
+
+        // Convert markdown to HTML (simple conversion)
+        const htmlContent = this.markdownToHtml(releaseNotes);
+
+        // Show modal with changelog
+        const changelogContent = document.getElementById('pluginChangelogContent');
+        changelogContent.innerHTML = htmlContent;
+
+        const modal = new bootstrap.Modal(document.getElementById('pluginChangelogModal'));
+        modal.show();
+    }
+
+    markdownToHtml(markdown) {
+        let html = markdown;
+
+        // Convert headers
+        html = html.replace(/^### (.*$)/gim, '<h5>$1</h5>');
+        html = html.replace(/^## (.*$)/gim, '<h4>$1</h4>');
+        html = html.replace(/^# (.*$)/gim, '<h3>$1</h3>');
+
+        // Convert bold
+        html = html.replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>');
+
+        // Convert italic
+        html = html.replace(/\*(.*?)\*/gim, '<em>$1</em>');
+
+        // Convert lists (bullet points starting with -)
+        html = html.replace(/^- (.*$)/gim, '<li>$1</li>');
+        html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+
+        // Convert line breaks
+        html = html.replace(/\r\n/g, '<br>');
+        html = html.replace(/\n/g, '<br>');
+
+        // Clean up multiple <br> tags
+        html = html.replace(/(<br>){3,}/g, '<br><br>');
+
+        return html;
+    }
+
+    async updatePluginFromChangelog() {
+        // Close the changelog modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('pluginChangelogModal'));
+        if (modal) {
+            modal.hide();
+        }
+
+        // Call the existing updatePlugin method
+        await this.updatePlugin();
+    }
+
     async downloadRewardsData(nodeId, dataType) {
         const node = this.nodes.find(n => n.id === nodeId);
         if (!node) {

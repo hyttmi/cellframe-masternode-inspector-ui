@@ -96,7 +96,10 @@
         <div class="alert alert-warning alert-dismissible fade show mb-0" role="alert" style="border-radius: 0; border-left: 0; border-right: 0;">
             <i class="fas fa-exclamation-triangle me-2"></i>
             <strong>Plugin Update Available!</strong> A new version of the Cellframe Inspector plugin is available.
-            <button type="button" class="btn btn-sm btn-success ms-3" id="updatePluginBtn" onclick="nodeManager.updatePlugin()">
+            <button type="button" class="btn btn-sm btn-info ms-3" onclick="nodeManager.showPluginChangelog()">
+                <i class="fas fa-list me-1"></i>View Changelog
+            </button>
+            <button type="button" class="btn btn-sm btn-success ms-2" id="updatePluginBtn" onclick="nodeManager.updatePlugin()">
                 <i class="fas fa-download me-1"></i>Update Now
             </button>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -163,7 +166,7 @@
                             View on GitHub
                         </a>
                         <span class="mx-2" style="color: #666;">|</span>
-                        <span style="color: #999; font-size: 0.875rem;">v2.4.2</span>
+                        <span style="color: #999; font-size: 0.875rem;">v2.4.3</span>
                     </div>
                 </div>
             </div>
@@ -425,6 +428,31 @@
                             <i class="fas fa-copy me-2"></i>Copy Link
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Plugin Changelog Modal -->
+    <div class="modal fade" id="pluginChangelogModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-list me-2"></i>Plugin Update Changelog
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="pluginChangelogContent" class="changelog-content">
+                        <!-- Changelog will be inserted here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-success" onclick="nodeManager.updatePluginFromChangelog()">
+                        <i class="fas fa-download me-1"></i>Update Now
+                    </button>
                 </div>
             </div>
         </div>

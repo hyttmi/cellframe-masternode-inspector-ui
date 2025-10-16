@@ -400,6 +400,33 @@ For issues, feature requests, or contributions, please use the GitHub repository
 
 ## Change Log
 
+### October 16, 2025 - Version 2.4.3
+
+#### Added Plugin Changelog Viewer
+- **View Changelog Button**: Added "View Changelog" button to plugin update notification banner
+  - Button appears next to "Update Now" button when plugin update is available
+  - Opens modal with formatted changelog from backend `plugin_release_notes` field
+  - Added `showPluginChangelog()` method (script.js lines 1945-1970)
+  - Added `markdownToHtml()` helper to convert markdown to HTML (script.js lines 1972-1998)
+  - Added `updatePluginFromChangelog()` method to trigger update from modal (script.js lines 2000-2009)
+  - Modal includes "Update Now" button for quick updates after reading changelog
+  - Properly handles null release notes (when no update available)
+
+#### Added Plugin Changelog Modal
+- **New Modal**: Created dedicated modal for viewing plugin update changelog (index.html lines 436-459)
+  - Scrollable dialog for long changelogs
+  - Styled with theme colors and proper formatting
+  - Added CSS styling for changelog content (styles.css lines 658-712)
+  - Supports markdown formatting (headers, lists, bold, italic)
+  - Purple accent colors for headings and bullet points
+
+#### Files Modified
+- `index.html`: Lines 99-104 (added View Changelog button), 436-459 (changelog modal)
+- `script.js`: Lines 1945-2009 (changelog viewer functions)
+- `styles.css`: Lines 658-712 (changelog content styling)
+- `README.md`: Lines 6, 190 (version updated)
+- `DOCUMENTATION.md`: Updated Change Log and version number
+
 ### October 16, 2025 - Version 2.4.2
 
 #### Added Node in Node List Metric
@@ -703,4 +730,4 @@ For issues, feature requests, or contributions, please use the GitHub repository
 ---
 
 **Last Updated**: October 16, 2025
-**Version**: 2.4.2
+**Version**: 2.4.3

@@ -655,3 +655,59 @@ body {
     }
 }
 
+/* Plugin Changelog Content */
+.changelog-content {
+    color: var(--color-font-main);
+    line-height: 1.6;
+}
+
+.changelog-content h3,
+.changelog-content h4,
+.changelog-content h5 {
+    color: var(--color-accent-secondary);
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.changelog-content h3 {
+    font-size: 1.5rem;
+    border-bottom: 2px solid var(--color-accent-main);
+    padding-bottom: 0.5rem;
+}
+
+.changelog-content h4 {
+    font-size: 1.25rem;
+}
+
+.changelog-content h5 {
+    font-size: 1.1rem;
+}
+
+.changelog-content ul {
+    list-style: none;
+    padding-left: 0;
+    margin: 0.5rem 0;
+}
+
+.changelog-content li {
+    padding: 0.25rem 0;
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.changelog-content li::before {
+    content: "•";
+    position: absolute;
+    left: 0.5rem;
+    color: var(--color-accent-main);
+    font-weight: bold;
+}
+
+.changelog-content strong {
+    color: var(--color-accent-secondary);
+}
+
+.changelog-content em {
+    color: var(--color-font-secondary);
+}
+
