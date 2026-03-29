@@ -31,34 +31,6 @@ Caddy serves the static files. The browser connects directly to your node's API 
 
 Configuration (node URL + API key) is saved in your browser's localStorage.
 
-## HTTPS with a Domain
-
-To serve over HTTPS, replace the port with your domain in the `Caddyfile`:
-
-```
-yourdomain.com {
-    root * .
-    file_server
-    encode gzip
-}
-```
-
-Caddy automatically obtains and renews Let's Encrypt SSL certificates. Requirements:
-- DNS A record pointing to your server
-- Ports 80 and 443 open (Caddy uses these by default when a domain is configured, instead of `:8080`)
-
-Then run `caddy run` and access `https://yourdomain.com`.
-
-Free domains from [DuckDNS](https://www.duckdns.org/) work too:
-
-```
-mynode.duckdns.org {
-    root * .
-    file_server
-    encode gzip
-}
-```
-
 ## Features
 
 - System health (CPU, memory, uptime, IP)
