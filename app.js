@@ -57,7 +57,7 @@ createApp({
         const shareNode = (index) => {
             const node = nodes.value[index];
             const link = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(node.baseUrl)}&key=${encodeURIComponent(node.apiKey)}`;
-            navigator.clipboard.writeText(link).catch(() => {});
+            copyToClipboard(link);
             shareStatus.value = index;
             setTimeout(() => { shareStatus.value = -1; }, 2000);
         };
@@ -297,7 +297,18 @@ createApp({
         };
 
         const copyToClipboard = (text) => {
-            navigator.clipboard.writeText(text).catch(() => {});
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).catch(() => {});
+            } else {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            }
         };
 
         // --- Charts ---
