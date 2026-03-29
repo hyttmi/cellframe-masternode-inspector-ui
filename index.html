@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cellframe Masternode Inspector</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#A78BFA', dark: '#7C3AED', light: '#C4B5FD' },
+                        surface: { 0: '#0F172A', 1: '#1E293B', 2: '#334155', 3: '#475569' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        [v-cloak] { display: none; }
+        body { background-color: #0F172A; color: #E2E8F0; }
+        .card {
+            background-color: #1E293B;
+            border: 1px solid #334155;
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1E293B; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div id="app" v-cloak>
+        <!-- Setup Screen -->
+        <div v-if="showSetup" class="min-h-screen flex items-center justify-center p-4">
+            <div class="card max-w-md w-full">
+                <div class="flex items-center gap-3 mb-6">
+                    <img src="logo.svg" alt="Logo" class="w-10 h-10 rounded-lg">
+                    <h1 class="text-2xl font-bold">Masternode Inspector</h1>
+                </div>
+
+                <!-- Saved Nodes -->
+                <div v-if="nodes.length" class="mb-6">
+                    <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Saved Nodes</p>
+                    <div class="space-y-2">
+                        <div v-for="(node, i) in nodes" :key="i"
+                            class="flex items-center justify-between bg-surface-0 rounded-lg px-3 py-2">
+                            <button @click="switchNode(i); showSetup = false"
+                                class="flex-1 text-left hover:text-brand transition-colors">
+                                <span class="text-sm font-medium">{{ node.name }}</span>
+                                <span class="text-xs text-slate-500 ml-2">{{ node.baseUrl }}</span>
+                            </button>
+                            <button @click="removeNode(i)" class="text-slate-500 hover:text-red-400 ml-2 p-1 transition-colors">
+                                <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add New Node -->
+                <div class="space-y-4">
+                    <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Add Node</p>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">Base URL</label>
+                        <input v-model="setupForm.baseUrl" type="text"
+                            class="w-full bg-surface-0 border border-surface-2 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"
+                            placeholder="http://mynode:61000/mninspector">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-slate-400 mb-1">API Key</label>
+                        <input v-model="setupForm.apiKey" type="password"
+                            class="w-full bg-surface-0 border border-surface-2 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"
+                            placeholder="Enter your API key">
+                    </div>
+                    <button @click="testConnection"
+                        :disabled="setupLoading || !setupForm.apiKey || !setupForm.baseUrl"
+                        class="w-full bg-brand hover:bg-brand-dark disabled:opacity-50 text-slate-900 font-bold py-2 rounded-lg transition-colors">
+                        <span v-if="setupLoading">Testing...</span>
+                        <span v-else>Add Node</span>
+                    </button>
+                    <div v-if="setupError" class="text-red-400 text-sm text-center">{{ setupError }}</div>
+                    <div v-if="setupSuccess" class="text-green-400 text-sm text-center">{{ setupSuccess }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard (shown when configured) -->
+        <div v-else class="p-4 md:p-8 max-w-[1600px] mx-auto">
+            <!-- Loading State -->
+            <div v-if="loading && !network.native_ticker" class="flex items-center justify-center py-32">
+                <div class="text-center">
+                    <div class="animate-spin w-8 h-8 border-2 border-brand border-t-transparent rounded-full mx-auto mb-4"></div>
+                    <p class="text-slate-400">Loading dashboard...</p>
+                </div>
+            </div>
+
+            <div v-if="network.native_ticker || !loading">
+            <!-- Connection Error Banner -->
+            <div v-if="connectionError" class="mb-4 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 flex items-center justify-between">
+                <span class="text-red-400 text-sm">{{ connectionError }}</span>
+                <button @click="fetchAllData" class="text-red-400 hover:text-red-300 text-sm font-bold">Retry</button>
+            </div>
+
+            <!-- Header -->
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-3">
+                        <img src="logo.svg" alt="Logo" class="w-9 h-9 rounded-lg">
+                        {{ system.hostname || 'Masternode Inspector' }}
+                    </h1>
+                    <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-slate-400">
+                        <span class="flex items-center gap-1">
+                            <span :class="connectionError ? 'text-red-400' : 'text-green-400'">&#9679;</span>
+                            {{ connectionError ? 'Disconnected' : 'Connected' }}
+                        </span>
+                        <span class="text-surface-2">|</span>
+                        <span>Node v{{ system.current_node_version || '—' }}</span>
+                        <span class="text-surface-2">|</span>
+                        <span>
+                            Plugin v{{ system.current_plugin_version || '—' }}
+                            <span v-if="system.plugin_update_available" @click="updatePlugin"
+                                class="ml-1 text-xs bg-brand/20 text-brand px-1.5 py-0.5 rounded-full cursor-pointer hover:bg-brand/40 transition-colors">
+                                {{ updateStatus || 'Update to v' + (system.latest_plugin_version || '?') }}
+                            </span>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <select v-if="nodes.length > 1" :value="activeNodeIndex" @change="switchNode(Number($event.target.value))"
+                        class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
+                        <option v-for="(node, i) in nodes" :key="i" :value="i">{{ node.name }}</option>
+                    </select>
+                    <select v-if="activeNetworks.length > 1" v-model="networkName"
+                        class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
+                        <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
+                    </select>
+                    <div v-if="availableChartDays.length" class="flex items-center gap-2">
+                        <span class="text-xs text-slate-500 hidden sm:inline">Charts</span>
+                        <div class="flex gap-1">
+                            <button v-for="d in availableChartDays" :key="d" @click="chartDays = d"
+                                :class="chartDays === d ? 'bg-brand text-slate-900' : 'bg-surface-2 text-slate-400'"
+                                class="text-xs px-2 py-1 rounded font-bold transition-colors">
+                                {{ d }}D
+                            </button>
+                        </div>
+                    </div>
+                    <button @click="fetchAllData" class="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg transition-colors" title="Refresh">
+                        <i data-lucide="refresh-cw" class="w-4 h-4" :class="{'animate-spin': loading}"></i>
+                    </button>
+                    <button @click="openSettings" class="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg transition-colors" title="Settings">
+                        <i data-lucide="settings" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- System Health -->
+            <div class="card mb-8">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-400">CPU</span>
+                            <span>{{ system.node_cpu_usage ?? 0 }}%</span>
+                        </div>
+                        <div class="w-full bg-surface-0 rounded-full h-2">
+                            <div class="bg-brand h-2 rounded-full transition-all duration-500"
+                                :style="{width: Math.min(system.node_cpu_usage || 0, 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <span class="text-slate-400">Memory</span>
+                            <span>{{ system.node_memory_usage ? (system.node_memory_usage / 1024).toFixed(1) : '—' }} / {{ system.system_total_memory ? (system.system_total_memory / 1024).toFixed(1) + ' GB' : '—' }}</span>
+                        </div>
+                        <div v-if="system.system_total_memory" class="w-full bg-surface-0 rounded-full h-2">
+                            <div class="bg-brand h-2 rounded-full transition-all duration-500"
+                                :style="{width: Math.min((system.node_memory_usage || 0) / system.system_total_memory * 100, 100) + '%'}"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase">Node Uptime</p>
+                        <p class="font-mono text-sm mt-0.5">{{ formatUptime(system.node_uptime) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase">System Uptime</p>
+                        <p class="font-mono text-sm mt-0.5">{{ formatUptime(system.system_uptime) }}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase">External IP</p>
+                        <p class="font-mono mt-0.5">{{ system.external_ip || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase">Hostname</p>
+                        <p class="font-mono mt-0.5">{{ system.hostname || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase">Node PID</p>
+                        <p class="font-mono mt-0.5">{{ system.node_pid || '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 uppercase">Service</p>
+                        <p class="font-mono mt-0.5">{{ system.node_running_as_service ? 'systemd' : 'standalone' }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Overview Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+
+                <!-- Network Status -->
+                <div class="card">
+                    <h3 class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-3 flex items-center gap-2">
+                        <i data-lucide="wifi" class="w-3.5 h-3.5 text-brand"></i>
+                        Network Status
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">State</span>
+                            <span class="font-medium" :class="network.network_status?.current_state === 'NET_STATE_ONLINE' ? 'text-green-400' : 'text-brand'">
+                                {{ network.network_status?.current_state?.replace('NET_STATE_', '') || '—' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Sync</span>
+                            <span class="font-medium" :class="network.network_status?.synced ? 'text-green-400' : 'text-brand'">
+                                {{ network.network_status?.synced ? 'Synced' : 'Syncing...' }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Node List</span>
+                            <span class="font-medium" :class="network.node_in_node_list ? 'text-green-400' : 'text-red-400'">
+                                {{ network.node_in_node_list ? 'Listed' : 'Not Listed' }}
+                            </span>
+                        </div>
+                        <div class="pt-1 border-t border-surface-2">
+                            <p class="text-xs text-slate-500">Address</p>
+                            <p class="font-mono text-xs truncate" :title="network.network_status?.node_address">
+                                {{ network.network_status?.node_address || '—' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stake Info -->
+                <div class="card">
+                    <h3 class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-3 flex items-center gap-2">
+                        <i data-lucide="lock" class="w-3.5 h-3.5 text-brand"></i>
+                        Stake
+                    </h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Value</span>
+                            <span class="font-medium">{{ formatNumber(network.stake_value, 2) }} m{{ network.native_ticker }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Effective</span>
+                            <span class="font-medium">{{ formatNumber(network.effective_value, 2) }} m{{ network.native_ticker }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Weight</span>
+                            <span class="font-medium text-brand">{{ formatNumber(network.relative_weight, 2) }}%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Masternodes</span>
+                            <span class="font-medium">{{ network.total_active_masternodes ?? '—' }}</span>
+                        </div>
+                        <div class="pt-1 border-t border-surface-2">
+                            <p class="text-xs text-slate-500">Stake TX</p>
+                            <a :href="scanUrl(network.tx_hash)" target="_blank"
+                                class="font-mono text-xs hover:text-brand truncate block">
+                                {{ truncateHash(network.tx_hash) }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Balance -->
+                <div class="card">
+                    <h3 class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-3 flex items-center gap-2">
+                        <i data-lucide="wallet" class="w-3.5 h-3.5 text-brand"></i>
+                        Wallet Balance
+                    </h3>
+                    <div class="space-y-1.5 text-sm" v-if="network.reward_wallet_balance">
+                        <div v-for="(amount, token) in network.reward_wallet_balance" :key="token" class="flex justify-between">
+                            <span class="text-slate-400">{{ token }}</span>
+                            <span class="font-medium font-mono">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
+                        </div>
+                    </div>
+                    <p v-else class="text-slate-500 text-sm">—</p>
+                    <div class="pt-2 mt-2 border-t border-surface-2">
+                        <p class="text-xs text-slate-500">Reward Wallet</p>
+                        <p class="font-mono text-xs cursor-pointer hover:text-brand truncate"
+                            :title="network.reward_wallet_address" @click="copyToClipboard(network.reward_wallet_address)">
+                            {{ truncateHash(network.reward_wallet_address) }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Autocollect -->
+                <div class="card">
+                    <h3 class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-3 flex items-center gap-2">
+                        <i data-lucide="zap" class="w-3.5 h-3.5 text-brand"></i>
+                        Autocollect
+                    </h3>
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="w-3 h-3 rounded-full" :class="network.autocollect_status?.active ? 'bg-green-500 animate-pulse' : 'bg-red-500'"></span>
+                        <span class="text-lg font-bold">{{ network.autocollect_status?.active ? 'Active' : 'Disabled' }}</span>
+                    </div>
+                    <div class="text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Pending</span>
+                            <span class="font-medium">{{ formatNumber(network.autocollect_status?.rewards, 4) }} {{ network.native_ticker }}</span>
+                        </div>
+                    </div>
+                    <div class="pt-2 mt-2 border-t border-surface-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-slate-400">Token Price</span>
+                            <span class="font-medium">${{ formatNumber(network.token_price, 5) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rewards Section -->
+            <div class="mb-8">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="coins" class="w-5 h-5 text-brand"></i>
+                    Rewards
+                </h2>
+
+                <!-- Metrics Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Total Rewards</p>
+                        <p class="text-xl font-bold mt-1">{{ formatNumber(network.reward_wallet_total_rewards, 2) }}</p>
+                        <p class="text-xs text-slate-500">&asymp; ${{ formatNumber(network.reward_wallet_total_rewards * network.token_price, 2) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Today</p>
+                        <p class="text-xl font-bold mt-1">{{ formatNumber(network.reward_wallet_today_rewards, 2) }}</p>
+                        <p class="text-xs text-slate-500">&asymp; ${{ formatNumber(network.reward_wallet_today_rewards * network.token_price, 2) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Yesterday</p>
+                        <p class="text-xl font-bold mt-1">{{ formatNumber(network.reward_wallet_yesterday_rewards, 2) }}</p>
+                        <p class="text-xs text-slate-500">&asymp; ${{ formatNumber(network.reward_wallet_yesterday_rewards * network.token_price, 2) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Token Price</p>
+                        <p class="text-xl font-bold mt-1">${{ formatNumber(network.token_price, 5) }}</p>
+                        <p class="text-xs text-slate-500">{{ network.native_ticker || '' }}</p>
+                    </div>
+                </div>
+
+                <!-- Reward Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Biggest Reward</p>
+                        <p class="font-bold">{{ formatNumber(network.reward_wallet_biggest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_biggest_reward?.tx_created) }}</p>
+                        <a :href="scanUrl(network.reward_wallet_biggest_reward?.tx_hash)" target="_blank"
+                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                            {{ truncateHash(network.reward_wallet_biggest_reward?.tx_hash) }}
+                        </a>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Smallest Reward</p>
+                        <p class="font-bold">{{ formatNumber(network.reward_wallet_smallest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_smallest_reward?.tx_created) }}</p>
+                        <a :href="scanUrl(network.reward_wallet_smallest_reward?.tx_hash)" target="_blank"
+                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                            {{ truncateHash(network.reward_wallet_smallest_reward?.tx_hash) }}
+                        </a>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Earliest Reward</p>
+                        <p class="font-bold">{{ formatNumber(network.reward_wallet_earliest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_earliest_reward?.tx_created) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Latest Reward</p>
+                        <p class="font-bold">{{ formatNumber(network.reward_wallet_latest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_latest_reward?.tx_created) }}</p>
+                    </div>
+                </div>
+
+                <!-- Rewards Chart -->
+                <div class="card">
+                    <div class="mb-4">
+                        <h3 class="text-sm font-bold flex items-center gap-2">
+                            <i data-lucide="trending-up" class="w-4 h-4 text-brand"></i>
+                            Daily Rewards (Reward{{ isSovereign ? ' vs Sovereign' : '' }})
+                        </h3>
+                    </div>
+                    <div style="position: relative; height: 250px;">
+                        <canvas id="rewardsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blocks Section -->
+            <div class="mb-8">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="box" class="w-5 h-5 text-brand"></i>
+                    Blocks
+                </h2>
+
+                <!-- Metrics Row -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Total Signed</p>
+                        <p class="text-xl font-bold mt-1">{{ (network.signed_blocks_count ?? 0).toLocaleString() }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Total First-Signed</p>
+                        <p class="text-xl font-bold mt-1">{{ (network.first_signed_blocks_count ?? 0).toLocaleString() }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Signed Today / Yesterday</p>
+                        <p class="text-xl font-bold mt-1">{{ network.signed_blocks_today_amount ?? 0 }} / {{ network.signed_blocks_yesterday_amount ?? 0 }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">First-Signed Today / Yesterday</p>
+                        <p class="text-xl font-bold mt-1">{{ network.first_signed_blocks_today_amount ?? 0 }} / {{ network.first_signed_blocks_yesterday_amount ?? 0 }}</p>
+                    </div>
+                </div>
+
+                <!-- Block Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Earliest Signed</p>
+                        <p class="font-bold">#{{ network.signed_blocks_earliest?.['block number'] ?? '—' }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.signed_blocks_earliest?.ts_create) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Latest Signed</p>
+                        <p class="font-bold">#{{ network.signed_blocks_latest?.['block number'] ?? '—' }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.signed_blocks_latest?.ts_create) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Earliest First-Signed</p>
+                        <p class="font-bold">#{{ network.first_signed_blocks_earliest?.['block number'] ?? '—' }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.first_signed_blocks_earliest?.ts_create) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Latest First-Signed</p>
+                        <p class="font-bold">#{{ network.first_signed_blocks_latest?.['block number'] ?? '—' }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.first_signed_blocks_latest?.ts_create) }}</p>
+                    </div>
+                </div>
+
+                <!-- Chain Info + Chart -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <div class="card">
+                        <h3 class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-3">Chain Info</h3>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Network Blocks</span>
+                                <span class="font-medium">{{ (network.block_count ?? 0).toLocaleString() }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Block Reward</span>
+                                <span class="font-medium">{{ formatNumber(network.current_block_reward, 4) }} {{ network.native_ticker }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Chain Size</span>
+                                <span class="font-medium">{{ formatBytes(network.chain_size) }}</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-slate-400">Blocks Today</span>
+                                <span class="font-medium">{{ (network.block_count_today ?? 0).toLocaleString() }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-sm font-bold flex items-center gap-2">
+                                <i data-lucide="bar-chart-3" class="w-4 h-4 text-brand"></i>
+                                Daily Blocks (Signed vs First-Signed)
+                            </h3>
+                        </div>
+                        <div style="position: relative; height: 250px;">
+                            <canvas id="blocksChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sovereign Section (conditional) -->
+            <div v-if="isSovereign" class="mb-8">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-brand"></i>
+                    Sovereign Node
+                </h2>
+
+                <!-- Sovereign Info -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Tax Rate</p>
+                        <p class="text-xl font-bold mt-1 text-brand">{{ network.sovereign_tax ?? '—' }}%</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Total Sovereign Rewards</p>
+                        <p class="text-xl font-bold mt-1">{{ formatNumber(network.sovereign_wallet_total_rewards, 2) }}</p>
+                        <p class="text-xs text-slate-500">&asymp; ${{ formatNumber(network.sovereign_wallet_total_rewards * network.token_price, 2) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Today</p>
+                        <p class="text-xl font-bold mt-1">{{ formatNumber(network.sovereign_wallet_today_rewards, 2) }}</p>
+                        <p class="text-xs text-slate-500">&asymp; ${{ formatNumber(network.sovereign_wallet_today_rewards * network.token_price, 2) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider">Yesterday</p>
+                        <p class="text-xl font-bold mt-1">{{ formatNumber(network.sovereign_wallet_yesterday_rewards, 2) }}</p>
+                        <p class="text-xs text-slate-500">&asymp; ${{ formatNumber(network.sovereign_wallet_yesterday_rewards * network.token_price, 2) }}</p>
+                    </div>
+                </div>
+
+                <!-- Sovereign Wallet Balance -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-4">
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Sovereign Wallet</p>
+                        <div class="space-y-1 text-sm" v-if="network.sovereign_wallet_balance">
+                            <div v-for="(amount, token) in network.sovereign_wallet_balance" :key="token" class="flex justify-between">
+                                <span class="text-slate-400">{{ token }}</span>
+                                <span class="font-medium font-mono">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
+                            </div>
+                        </div>
+                        <p class="font-mono text-xs cursor-pointer hover:text-brand truncate mt-2"
+                            :title="network.sovereign_reward_wallet_address"
+                            @click="copyToClipboard(network.sovereign_reward_wallet_address)">
+                            {{ truncateHash(network.sovereign_reward_wallet_address) }}
+                        </p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Biggest Reward</p>
+                        <p class="font-bold">{{ formatNumber(network.sovereign_wallet_biggest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.sovereign_wallet_biggest_reward?.tx_created) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Smallest Reward</p>
+                        <p class="font-bold">{{ formatNumber(network.sovereign_wallet_smallest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.sovereign_wallet_smallest_reward?.tx_created) }}</p>
+                    </div>
+                    <div class="card">
+                        <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Latest Reward</p>
+                        <p class="font-bold">{{ formatNumber(network.sovereign_wallet_latest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
+                        <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.sovereign_wallet_latest_reward?.tx_created) }}</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Transaction History -->
+            <div class="mb-8">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i data-lucide="list" class="w-5 h-5 text-brand"></i>
+                    Reward Transaction History
+                </h2>
+
+                <div class="card">
+                    <!-- Tabs + count -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <div v-if="isSovereign && txLoaded" class="flex gap-1">
+                            <button @click="txTab = 'reward'; txPage = 1"
+                                :class="txTab === 'reward' ? 'bg-brand text-slate-900' : 'bg-surface-2 text-slate-400'"
+                                class="text-xs px-3 py-1.5 rounded font-bold transition-colors">
+                                Reward Wallet
+                            </button>
+                            <button @click="txTab = 'sovereign'; txPage = 1"
+                                :class="txTab === 'sovereign' ? 'bg-brand text-slate-900' : 'bg-surface-2 text-slate-400'"
+                                class="text-xs px-3 py-1.5 rounded font-bold transition-colors">
+                                Sovereign Wallet
+                            </button>
+                        </div>
+                        <span v-if="txLoaded" class="text-xs text-slate-500">
+                            {{ txActiveList.length.toLocaleString() }} transactions
+                        </span>
+                    </div>
+
+                    <!-- Table -->
+                    <div v-if="txLoaded" class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b border-surface-2 text-left">
+                                    <th class="pb-2 pr-4 text-slate-500 cursor-pointer hover:text-slate-300 select-none"
+                                        @click="toggleTxSort('tx_created')">
+                                        Date <span v-if="txSort.field === 'tx_created'">{{ txSort.asc ? '&#9650;' : '&#9660;' }}</span>
+                                    </th>
+                                    <th class="pb-2 pr-4 text-slate-500 cursor-pointer hover:text-slate-300 select-none"
+                                        @click="toggleTxSort('amount')">
+                                        Amount <span v-if="txSort.field === 'amount'">{{ txSort.asc ? '&#9650;' : '&#9660;' }}</span>
+                                    </th>
+                                    <th class="pb-2 pr-4 text-slate-500">Token</th>
+                                    <th class="pb-2 text-slate-500">TX Hash</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="tx in txPageData" :key="tx.hash" class="border-b border-surface-2/50 hover:bg-surface-2/30">
+                                    <td class="py-2 pr-4 whitespace-nowrap">{{ formatDate(tx.tx_created) }}</td>
+                                    <td class="py-2 pr-4 font-mono whitespace-nowrap">{{ formatNumber(tx.amount, 4) }}</td>
+                                    <td class="py-2 pr-4">{{ tx.token }}</td>
+                                    <td class="py-2 font-mono text-xs truncate max-w-[200px]">
+                                        <a :href="scanUrl(tx.hash)" target="_blank" class="hover:text-brand">
+                                            {{ truncateHash(tx.hash) }}
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <!-- Pagination -->
+                        <div class="flex items-center justify-between mt-4">
+                            <span class="text-xs text-slate-500">
+                                Page {{ txPage }} of {{ txTotalPages }}
+                            </span>
+                            <div class="flex gap-1">
+                                <button @click="txPage = 1" :disabled="txPage <= 1"
+                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&laquo;</button>
+                                <button @click="txPage--" :disabled="txPage <= 1"
+                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&lsaquo;</button>
+                                <button @click="txPage++" :disabled="txPage >= txTotalPages"
+                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&rsaquo;</button>
+                                <button @click="txPage = txTotalPages" :disabled="txPage >= txTotalPages"
+                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&raquo;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <footer class="border-t border-surface-2 pt-4 mt-8 flex flex-wrap justify-between items-center text-xs text-slate-600 gap-2">
+                <div class="flex items-center gap-4">
+                    <span v-if="network.cache_last_updated">
+                        Cache: {{ formatDate(network.cache_last_updated) }}
+                    </span>
+                    <span class="flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                        Auto-refresh active
+                    </span>
+                </div>
+                <div>
+                    Cellframe Masternode Inspector
+                    <span v-if="system.current_plugin_version">v{{ system.current_plugin_version }}</span>
+                </div>
+            </footer>
+            </div><!-- end v-if="network.native_ticker || !loading" -->
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
