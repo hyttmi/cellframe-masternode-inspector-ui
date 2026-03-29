@@ -54,6 +54,16 @@ createApp({
             showSetup.value = true;
         };
 
+        const shareNode = (index) => {
+            const node = nodes.value[index];
+            const link = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(node.baseUrl)}&key=${encodeURIComponent(node.apiKey)}`;
+            navigator.clipboard.writeText(link).catch(() => {});
+            shareStatus.value = index;
+            setTimeout(() => { shareStatus.value = -1; }, 2000);
+        };
+
+        const shareStatus = ref(-1);
+
         const removeNode = (index) => {
             nodes.value.splice(index, 1);
             if (nodes.value.length === 0) {
@@ -70,8 +80,19 @@ createApp({
             saveNodes();
         };
 
+        // Check for shared link params
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedUrl = urlParams.get('url');
+        const sharedKey = urlParams.get('key');
+        if (sharedUrl && sharedKey) {
+            setupForm.baseUrl = sharedUrl;
+            setupForm.apiKey = sharedKey;
+            // Clean URL without reloading
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+
         // Init active node
-        if (nodes.value.length && loadActiveNode()) {
+        if (!sharedUrl && nodes.value.length && loadActiveNode()) {
             showSetup.value = false;
         }
 
@@ -448,7 +469,7 @@ createApp({
             // Config
             showSetup, setupForm, setupLoading, setupError, setupSuccess,
             testConnection, openSettings, config, updatePlugin, updateStatus,
-            nodes, activeNodeIndex, switchNode, removeNode,
+            nodes, activeNodeIndex, switchNode, removeNode, shareNode, shareStatus,
             // State
             system, network, networkName, activeNetworks, isSovereign,
             loading, connectionError, lastCacheTimestamp,
