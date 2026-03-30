@@ -341,7 +341,7 @@ createApp({
             };
             const chartOptsLegend = {
                 ...chartOpts,
-                plugins: { legend: { labels: { color: '#94A3B8' } } },
+                plugins: { legend: { labels: { color: '#94A3B8', usePointStyle: true, pointStyle: 'circle' } } },
             };
 
             // Rewards Chart (combined: reward wallet + sovereign if present)
