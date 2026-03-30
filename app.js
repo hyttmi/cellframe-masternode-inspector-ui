@@ -243,25 +243,26 @@ createApp({
             networkTimer = setInterval(() => fetchNetwork(false), 60000);
         };
 
-        const exportCSV = () => {
-            const daily = network.value.reward_wallet_all_sums_daily || [];
-            if (!daily.length) return;
-            const sovDaily = network.value.sovereign_wallet_all_sums_daily || [];
-            const sovMap = Object.fromEntries(sovDaily.map(d => [d.date, d.total_rewards]));
-            const ticker = network.value.native_ticker || 'CELL';
-            const hasSov = sovDaily.length > 0;
-            const header = hasSov ? `Date,Rewards (${ticker}),Sovereign Rewards (${ticker})` : `Date,Rewards (${ticker})`;
+        const downloadCSV = (data, filename, header) => {
+            if (!data.length) return;
             const rows = [header];
-            for (const d of daily) {
-                const row = hasSov ? `${d.date},${d.total_rewards},${sovMap[d.date] || 0}` : `${d.date},${d.total_rewards}`;
-                rows.push(row);
-            }
+            for (const d of data) rows.push(`${d.date},${d.total_rewards}`);
             const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = `rewards_${networkName.value}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.download = filename;
             a.click();
             URL.revokeObjectURL(a.href);
+        };
+
+        const exportCSV = () => {
+            const ticker = network.value.native_ticker || 'CELL';
+            downloadCSV(network.value.reward_wallet_all_sums_daily || [], `rewards_${networkName.value}_${new Date().toISOString().split('T')[0]}.csv`, `Date,Rewards (${ticker})`);
+        };
+
+        const exportSovereignCSV = () => {
+            const ticker = network.value.native_ticker || 'CELL';
+            downloadCSV(network.value.sovereign_wallet_all_sums_daily || [], `sovereign_rewards_${networkName.value}_${new Date().toISOString().split('T')[0]}.csv`, `Date,Sovereign Rewards (${ticker})`);
         };
 
         const stopPolling = () => {
@@ -533,7 +534,7 @@ createApp({
             txHistory, txSovHistory, txLoading, txLoaded, txTab, txPage, txPerPage, txSort,
             loadTransactions, toggleTxSort, txActiveList, txTotalPages, txPageData,
             // Actions
-            fetchAllData, startPolling, exportCSV,
+            fetchAllData, startPolling, exportCSV, exportSovereignCSV,
         };
     }
 }).mount('#app');
