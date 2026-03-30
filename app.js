@@ -301,6 +301,11 @@ createApp({
             toastTimer = setTimeout(() => { toast.value = ''; }, 2000);
         };
 
+        const sortedBalances = (balances) => {
+            if (!balances) return [];
+            return Object.entries(balances).sort((a, b) => b[1] - a[1]);
+        };
+
         const copyToClipboard = (text) => {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).catch(() => {});
@@ -492,7 +497,7 @@ createApp({
             loading, connectionError, lastCacheTimestamp,
             // Formatting
             formatNumber, formatUptime, formatBytes, formatDate, formatDateShort,
-            truncateHash, copyToClipboard, scanUrl, toast,
+            truncateHash, copyToClipboard, scanUrl, toast, sortedBalances,
             // Charts
             chartDays, availableChartDays,
             // Transactions

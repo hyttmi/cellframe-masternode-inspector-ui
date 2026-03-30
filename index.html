@@ -302,7 +302,7 @@
                         Wallet Balance
                     </h3>
                     <div class="space-y-1.5 text-sm" v-if="network.reward_wallet_balance">
-                        <div v-for="(amount, token) in network.reward_wallet_balance" :key="token" class="flex justify-between">
+                        <div v-for="[token, amount] in sortedBalances(network.reward_wallet_balance)" :key="token" class="flex justify-between">
                             <span class="text-slate-400">{{ token }}</span>
                             <span class="font-medium font-mono">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
                         </div>
@@ -542,7 +542,7 @@
                     <div class="card">
                         <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Sovereign Wallet</p>
                         <div class="space-y-1 text-sm" v-if="network.sovereign_wallet_balance">
-                            <div v-for="(amount, token) in network.sovereign_wallet_balance" :key="token" class="flex justify-between">
+                            <div v-for="[token, amount] in sortedBalances(network.sovereign_wallet_balance)" :key="token" class="flex justify-between">
                                 <span class="text-slate-400">{{ token }}</span>
                                 <span class="font-medium font-mono">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
                             </div>
