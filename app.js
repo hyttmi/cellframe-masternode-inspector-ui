@@ -126,9 +126,17 @@ createApp({
                     return;
                 }
                 const hostname = json.data.hostname;
-                setupSuccess.value = `Connected to ${hostname}`;
                 const nodeUrl = setupForm.baseUrl.replace(/\/+$/, '');
-                nodes.value.push({ name: hostname, baseUrl: nodeUrl, apiKey: setupForm.apiKey });
+                const existing = nodes.value.findIndex(n => n.baseUrl === nodeUrl);
+                if (existing >= 0) {
+                    nodes.value[existing].apiKey = setupForm.apiKey;
+                    nodes.value[existing].name = hostname;
+                    activeNodeIndex.value = existing;
+                } else {
+                    nodes.value.push({ name: hostname, baseUrl: nodeUrl, apiKey: setupForm.apiKey });
+                    activeNodeIndex.value = nodes.value.length - 1;
+                }
+                setupSuccess.value = `Connected to ${hostname}`;
                 activeNodeIndex.value = nodes.value.length - 1;
                 saveNodes();
                 loadActiveNode();
