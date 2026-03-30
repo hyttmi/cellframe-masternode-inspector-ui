@@ -243,6 +243,22 @@ createApp({
             networkTimer = setInterval(() => fetchNetwork(false), 60000);
         };
 
+        const exportSovereignCSV = () => {
+            const daily = network.value.sovereign_wallet_all_sums_daily || [];
+            if (!daily.length) return;
+            const ticker = network.value.native_ticker || 'CELL';
+            const rows = [`Date,Sovereign Rewards (${ticker})`];
+            for (const d of daily) {
+                rows.push(`${d.date},${d.total_rewards}`);
+            }
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `sovereign_rewards_${networkName.value}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        };
+
         const exportCSV = () => {
             const daily = network.value.reward_wallet_all_sums_daily || [];
             if (!daily.length) return;
@@ -528,7 +544,7 @@ createApp({
             txHistory, txSovHistory, txLoading, txLoaded, txTab, txPage, txPerPage, txSort,
             loadTransactions, toggleTxSort, txActiveList, txTotalPages, txPageData,
             // Actions
-            fetchAllData, startPolling, exportCSV,
+            fetchAllData, startPolling, exportCSV, exportSovereignCSV,
         };
     }
 }).mount('#app');
