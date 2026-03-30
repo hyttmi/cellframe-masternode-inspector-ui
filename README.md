@@ -31,6 +31,33 @@ Caddy serves the static files. The browser connects directly to your node's API 
 
 Configuration (node URL + API key) is saved in your browser's localStorage.
 
+## Password Protecting the Dashboard
+
+To require a username and password before accessing the dashboard, add `basicauth` to your Caddyfile:
+
+```
+:8080 {
+    root * /srv/mninspector-ui
+    basicauth {
+        admin $2a$14$HASHED_PASSWORD_HERE
+    }
+    file_server
+    encode gzip
+}
+```
+
+Generate a password hash with:
+
+```bash
+caddy hash-password
+```
+
+Enter your desired password and it will output a bcrypt hash. Replace `admin` with your username and `$2a$14$HASHED_PASSWORD_HERE` with the hash. Then restart Caddy:
+
+```bash
+sudo systemctl restart caddy
+```
+
 ## Features
 
 - System health (CPU, memory, uptime, IP)
