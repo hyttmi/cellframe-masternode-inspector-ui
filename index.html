@@ -344,10 +344,17 @@
 
             <!-- Rewards Section -->
             <div class="mb-8">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
-                    <i data-lucide="coins" class="w-5 h-5 text-brand"></i>
-                    Rewards
-                </h2>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
+                        <i data-lucide="coins" class="w-5 h-5 text-brand"></i>
+                        Rewards
+                    </h2>
+                    <button v-if="network.reward_wallet_all_sums_daily" @click="exportCSV"
+                        class="text-xs text-slate-400 hover:text-brand transition-colors flex items-center gap-1">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        Export CSV
+                    </button>
+                </div>
 
                 <!-- Metrics Row -->
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">

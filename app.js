@@ -243,6 +243,22 @@ createApp({
             networkTimer = setInterval(() => fetchNetwork(false), 60000);
         };
 
+        const exportCSV = () => {
+            const daily = network.value.reward_wallet_all_sums_daily || [];
+            if (!daily.length) return;
+            const ticker = network.value.native_ticker || 'CELL';
+            const rows = [`Date,Rewards (${ticker})`];
+            for (const d of daily) {
+                rows.push(`${d.date},${d.total_rewards}`);
+            }
+            const blob = new Blob([rows.join('\n')], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `rewards_${networkName.value}_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(a.href);
+        };
+
         const stopPolling = () => {
             if (systemTimer) { clearInterval(systemTimer); systemTimer = null; }
             if (networkTimer) { clearInterval(networkTimer); networkTimer = null; }
@@ -512,7 +528,7 @@ createApp({
             txHistory, txSovHistory, txLoading, txLoaded, txTab, txPage, txPerPage, txSort,
             loadTransactions, toggleTxSort, txActiveList, txTotalPages, txPageData,
             // Actions
-            fetchAllData, startPolling,
+            fetchAllData, startPolling, exportCSV,
         };
     }
 }).mount('#app');
