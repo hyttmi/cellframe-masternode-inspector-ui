@@ -62,7 +62,7 @@ sudo systemctl restart caddy
 
 - System health (CPU, memory, uptime, IP)
 - Network status, stake info, wallet balances (multi-token)
-- Reward metrics with daily chart (7/30/90 day toggle)
+- Reward metrics with daily chart (7/14/30/90 day toggle)
 - Block metrics with signed vs first-signed chart
 - Sovereign node support (tax rate, sovereign wallet, combined rewards chart)
 - Reward transaction history (sortable, paginated)
