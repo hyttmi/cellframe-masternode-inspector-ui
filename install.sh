@@ -61,4 +61,3 @@ systemctl restart caddy
 
 echo ""
 echo "Done! Open http://localhost:8080 in your browser."
-echo "To use HTTPS with a domain, edit ${CADDY_CONFIG} and replace :8080 with your domain."
