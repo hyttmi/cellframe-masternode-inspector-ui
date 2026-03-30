@@ -58,11 +58,7 @@ createApp({
             const node = nodes.value[index];
             const link = `${window.location.origin}${window.location.pathname}?url=${encodeURIComponent(node.baseUrl)}&key=${encodeURIComponent(node.apiKey)}`;
             copyToClipboard(link);
-            shareStatus.value = index;
-            setTimeout(() => { shareStatus.value = -1; }, 2000);
         };
-
-        const shareStatus = ref(-1);
 
         const removeNode = (index) => {
             nodes.value.splice(index, 1);
@@ -296,6 +292,15 @@ createApp({
             return `https://scan.cellframe.net/datum-details/${hash}?net=${networkName.value}`;
         };
 
+        const toast = ref('');
+        let toastTimer = null;
+
+        const showToast = (msg) => {
+            toast.value = msg;
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => { toast.value = ''; }, 2000);
+        };
+
         const copyToClipboard = (text) => {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).catch(() => {});
@@ -309,6 +314,7 @@ createApp({
                 document.execCommand('copy');
                 document.body.removeChild(ta);
             }
+            showToast('Copied to clipboard');
         };
 
         // --- Charts ---
@@ -480,13 +486,13 @@ createApp({
             // Config
             showSetup, setupForm, setupLoading, setupError, setupSuccess,
             testConnection, openSettings, config, updatePlugin, updateStatus,
-            nodes, activeNodeIndex, switchNode, removeNode, shareNode, shareStatus,
+            nodes, activeNodeIndex, switchNode, removeNode, shareNode,
             // State
             system, network, networkName, activeNetworks, isSovereign,
             loading, connectionError, lastCacheTimestamp,
             // Formatting
             formatNumber, formatUptime, formatBytes, formatDate, formatDateShort,
-            truncateHash, copyToClipboard, scanUrl,
+            truncateHash, copyToClipboard, scanUrl, toast,
             // Charts
             chartDays, availableChartDays,
             // Transactions
