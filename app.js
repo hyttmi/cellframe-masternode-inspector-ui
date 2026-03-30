@@ -400,7 +400,7 @@ createApp({
                                 pointRadius: days <= 30 ? 3 : 0,
                             },
                             {
-                                label: 'First Signed',
+                                label: 'First Signed Blocks',
                                 data: firstBlocksData.map(d => d.block_count),
                                 borderColor: '#F87171',
                                 backgroundColor: 'transparent',
