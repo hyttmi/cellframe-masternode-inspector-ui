@@ -136,7 +136,9 @@
                         <span>
                             Plugin v{{ system.current_plugin_version || '—' }}
                             <span v-if="system.plugin_update_available" @click="updatePlugin"
-                                class="ml-1 text-xs bg-brand/20 text-brand px-1.5 py-0.5 rounded-full cursor-pointer hover:bg-brand/40 transition-colors">
+                                :class="['ml-1 text-xs px-1.5 py-0.5 rounded-full transition-colors',
+                                    updateFailed ? 'bg-red-500/20 text-red-400 cursor-not-allowed' :
+                                    'bg-brand/20 text-brand cursor-pointer hover:bg-brand/40']">
                                 {{ updateStatus || 'Update to v' + (system.latest_plugin_version || '?') }}
                             </span>
                         </span>

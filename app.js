@@ -42,6 +42,7 @@ createApp({
                 txHistory.value = [];
                 txSovHistory.value = [];
                 updateStatus.value = '';
+                updateFailed.value = false;
                 startPolling();
             }
         };
@@ -153,15 +154,22 @@ createApp({
 
         // --- Plugin Update ---
         const updateStatus = ref('');
+        const updateFailed = ref(false);
 
         const updatePlugin = async () => {
             if (updateStatus.value) return;
             updateStatus.value = 'Updating...';
+            updateFailed.value = false;
             try {
                 const data = await apiFetch('action=update_plugin');
-                updateStatus.value = data.update_plugin || 'Update initiated';
+                const msg = data.update_plugin || 'Update initiated';
+                updateStatus.value = msg;
+                if (!msg.includes('initiated') && !msg.includes('restarted')) {
+                    updateFailed.value = true;
+                }
             } catch (e) {
                 updateStatus.value = 'Update failed';
+                updateFailed.value = true;
             }
         };
 
@@ -520,7 +528,7 @@ createApp({
         return {
             // Config
             showSetup, setupForm, setupLoading, setupError, setupSuccess,
-            testConnection, openSettings, config, updatePlugin, updateStatus,
+            testConnection, openSettings, config, updatePlugin, updateStatus, updateFailed,
             nodes, activeNodeIndex, switchNode, removeNode, shareNode,
             // State
             system, network, networkName, activeNetworks, isSovereign,
