@@ -18,6 +18,16 @@ sudo ./install.sh
 
 The install script copies files to `/srv/mninspector-ui`, sets up the Caddyfile at `/etc/caddy/Caddyfile`, and enables the Caddy systemd service.
 
+## Updating
+
+To update to the latest release:
+
+```bash
+sudo ./install.sh update
+```
+
+This fetches the latest release from GitHub and updates the UI files. No Caddy reconfiguration needed.
+
 For a manual setup or development, just run `caddy run` from the repo directory. The port is configured in `Caddyfile` (default `:8080`).
 
 ## Requirements
