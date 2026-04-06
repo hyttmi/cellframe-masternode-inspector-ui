@@ -27,29 +27,10 @@ install_files() {
 }
 
 do_update() {
-    echo "Fetching latest release from GitHub..."
-    local tarball_url
-    tarball_url=$(curl -sf "${REPO_URL}/releases/latest" -o /dev/null -w '%{redirect_url}' | sed 's|/tag/|/archive/refs/tags/|').tar.gz
-    if [ -z "$tarball_url" ] || [ "$tarball_url" = ".tar.gz" ]; then
-        echo "Error: Could not determine latest release URL"
-        exit 1
-    fi
-
-    local tmp_dir
-    tmp_dir=$(mktemp -d)
-    trap 'rm -rf "$tmp_dir"' EXIT
-
-    echo "Downloading ${tarball_url}..."
-    curl -sfL "$tarball_url" | tar -xz -C "$tmp_dir"
-
-    local extracted
-    extracted=$(ls -d "$tmp_dir"/*/ 2>/dev/null | head -1)
-    if [ -z "$extracted" ]; then
-        echo "Error: Failed to extract archive"
-        exit 1
-    fi
-
-    install_files "$extracted"
+    echo "Updating..."
+    cd "$SCRIPT_DIR"
+    git pull
+    install_files "$SCRIPT_DIR"
     echo "Update complete!"
 }
 
