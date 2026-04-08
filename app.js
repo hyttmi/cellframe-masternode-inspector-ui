@@ -603,7 +603,7 @@ createApp({
         onUnmounted(() => stopPolling());
 
         watch(showSetup, (val) => {
-            if (!val) nextTick(() => { try { lucide.createIcons(); } catch(e) {} startTutorial(); });
+            if (!val) setTimeout(() => { try { lucide.createIcons(); } catch(e) {} startTutorial(); }, 500);
         });
         watch(networkName, () => { lastCacheTimestamp.value = ''; fetchNetwork(true); });
         watch(chartDays, () => updateCharts());
