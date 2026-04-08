@@ -382,7 +382,12 @@
             </header>
 
             <!-- System Health -->
-            <div class="card mb-8">
+            <div class="mb-8">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
+                    <i data-lucide="activity" class="w-5 h-5 text-brand"></i>
+                    System Health
+                </h2>
+            <div class="card">
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                     <div>
                         <div class="flex justify-between text-sm mb-1">
@@ -431,6 +436,7 @@
                         <p class="font-mono mt-0.5">{{ system.node_running_as_service ? 'systemd' : 'standalone' }}</p>
                     </div>
                 </div>
+            </div>
             </div>
 
             <!-- Overview Cards -->
@@ -606,11 +612,19 @@
                         <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Earliest Reward</p>
                         <p class="font-bold">{{ formatNumber(network.reward_wallet_earliest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_earliest_reward?.tx_created) }}</p>
+                        <a :href="scanUrl(network.reward_wallet_earliest_reward?.tx_hash)" target="_blank"
+                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                            {{ truncateHash(network.reward_wallet_earliest_reward?.tx_hash) }}
+                        </a>
                     </div>
                     <div class="card">
                         <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Latest Reward</p>
                         <p class="font-bold">{{ formatNumber(network.reward_wallet_latest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_latest_reward?.tx_created) }}</p>
+                        <a :href="scanUrl(network.reward_wallet_latest_reward?.tx_hash)" target="_blank"
+                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                            {{ truncateHash(network.reward_wallet_latest_reward?.tx_hash) }}
+                        </a>
                     </div>
                 </div>
 
