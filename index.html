@@ -395,7 +395,7 @@
                         class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
                         <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
                     </select>
-                    <div v-if="availableChartDays.length" class="h-8 inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
+                    <div id="tour-days" v-if="availableChartDays.length" class="h-8 inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
                         <button v-for="(d, i) in availableChartDays" :key="d" @click="chartDays = d"
                             :class="[chartDays === d ? 'btn-active' : 'hover:bg-surface-2 text-slate-400 hover:text-slate-300',
                                 i === 0 ? 'rounded-l-lg' : '', i === availableChartDays.length - 1 ? 'rounded-r-lg' : '']"
@@ -404,19 +404,19 @@
                         </button>
                     </div>
                     <div class="h-8 inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
-                        <button @click="refreshDashboard" class="px-2 hover:bg-surface-2 rounded-l-lg transition-colors flex items-center" title="Refresh">
+                        <button id="tour-refresh" @click="refreshDashboard" class="px-2 hover:bg-surface-2 rounded-l-lg transition-colors flex items-center" title="Refresh">
                             <span class="inline-flex" :class="{'animate-spin': loading}">
                                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
                             </span>
                         </button>
-                        <button @click="shareNode(activeNodeIndex)" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Share node link">
+                        <button id="tour-share" @click="shareNode(activeNodeIndex)" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Share node link">
                             <i data-lucide="share-2" class="w-4 h-4"></i>
                         </button>
-                        <button @click="toggleTheme" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Toggle theme">
+                        <button id="tour-theme" @click="toggleTheme" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Toggle theme">
                             <i v-if="darkMode" data-lucide="sun" class="w-4 h-4"></i>
                             <i v-else data-lucide="moon" class="w-4 h-4"></i>
                         </button>
-                        <button @click="openSettings" class="px-2 hover:bg-surface-2 rounded-r-lg transition-colors flex items-center" title="Settings">
+                        <button id="tour-settings" @click="openSettings" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Settings">
                             <i data-lucide="settings" class="w-4 h-4"></i>
                         </button>
                     </div>
