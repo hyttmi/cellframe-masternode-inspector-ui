@@ -255,7 +255,14 @@ createApp({
             await fetchSystem();
             await fetchNetwork(true);
             loading.value = false;
-            nextTick(() => { try { lucide.createIcons(); } catch(e) {} });
+            nextTick(() => {
+                document.querySelectorAll('.card').forEach(el => {
+                    el.style.animation = 'none';
+                    el.offsetHeight; // force reflow
+                    el.style.animation = '';
+                });
+                try { lucide.createIcons(); } catch(e) {}
+            });
         };
 
         const startPolling = () => {
