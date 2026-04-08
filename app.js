@@ -602,6 +602,9 @@ createApp({
 
         onUnmounted(() => stopPolling());
 
+        watch(showSetup, (val) => {
+            if (!val) nextTick(() => { try { lucide.createIcons(); } catch(e) {} startTutorial(); });
+        });
         watch(networkName, () => { lastCacheTimestamp.value = ''; fetchNetwork(true); });
         watch(chartDays, () => updateCharts());
 
