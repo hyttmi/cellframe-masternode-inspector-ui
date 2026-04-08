@@ -565,10 +565,39 @@ createApp({
             return txActiveList.value.slice(start, start + txPerPage);
         });
 
+        // --- Tutorial ---
+        const startTutorial = (manual = false) => {
+            if (manual) localStorage.removeItem('mni_tutorial_seen');
+            if (!manual && localStorage.getItem('mni_tutorial_seen')) return;
+
+            const steps = [
+                { element: '#tour-days', popover: { title: 'Chart Range', description: 'Choose how many days of data to display in the charts.', side: 'bottom' } },
+                { element: '#tour-refresh', popover: { title: 'Refresh', description: 'Manually refresh the dashboard data.', side: 'bottom' } },
+                { element: '#tour-share', popover: { title: 'Share', description: 'Copy a shareable link to this node\'s dashboard.', side: 'bottom' } },
+                { element: '#tour-theme', popover: { title: 'Theme', description: 'Switch between dark and light mode.', side: 'bottom' } },
+                { element: '#tour-settings', popover: { title: 'Settings', description: 'Configure auto-refresh interval and other options.', side: 'bottom' } },
+                { element: '#tour-help', popover: { title: 'Help', description: 'Click here anytime to replay this tour.', side: 'bottom' } },
+            ];
+
+            // Filter out steps whose target element doesn't exist (e.g. day selector hidden when no data)
+            const activeSteps = steps.filter(s => document.querySelector(s.element));
+
+            const driverObj = window.driver.js.driver({
+                showProgress: true,
+                animate: true,
+                onDestroyed: () => { localStorage.setItem('mni_tutorial_seen', 'true'); },
+                steps: activeSteps,
+            });
+            driverObj.drive();
+        };
+
         // --- Lifecycle ---
         onMounted(() => {
             if (loadActiveNode()) startPolling();
-            nextTick(() => { try { lucide.createIcons(); } catch(e) {} });
+            nextTick(() => {
+                try { lucide.createIcons(); } catch(e) {}
+                if (!showSetup.value) startTutorial();
+            });
         });
 
         onUnmounted(() => stopPolling());
@@ -593,7 +622,7 @@ createApp({
             txHistory, txSovHistory, txLoading, txLoaded, txTab, txPage, txPerPage, txSort,
             loadTransactions, toggleTxSort, txActiveList, txTotalPages, txPageData,
             // Actions
-            fetchAllData, refreshDashboard, startPolling, exportCSV, exportSovereignCSV,
+            fetchAllData, refreshDashboard, startPolling, exportCSV, exportSovereignCSV, startTutorial,
         };
     }
 }).mount('#app');
