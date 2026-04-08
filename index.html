@@ -93,6 +93,7 @@
         html.light .text-slate-500 { color: #475569; }
         html.light .text-green-400 { color: #16A34A; }
         html.light .text-red-400 { color: #DC2626; }
+        html.light .text-yellow-400 { color: #CA8A04; }
         html.light .text-brand { color: #7C3AED; }
         html.light .hover\:text-brand:hover { color: #6D28D9; }
         html.light select { color: var(--text); }
@@ -440,7 +441,12 @@
             </div>
 
             <!-- Overview Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+            <div class="mb-8">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
+                    <i data-lucide="layout-grid" class="w-5 h-5 text-brand"></i>
+                    Overview
+                </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
 
                 <!-- Network Status -->
                 <div class="card">
@@ -451,7 +457,7 @@
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
                             <span class="text-slate-400">State</span>
-                            <span class="font-medium" :class="network.network_status?.current_state === 'NET_STATE_ONLINE' ? 'text-green-400' : 'text-brand'">
+                            <span class="font-medium" :class="network.network_status?.current_state === 'NET_STATE_ONLINE' ? 'text-green-400' : network.network_status?.current_state === 'NET_STATE_OFFLINE' ? 'text-red-400' : 'text-yellow-400'">
                                 {{ network.network_status?.current_state?.replace('NET_STATE_', '') || '—' }}
                             </span>
                         </div>
@@ -548,6 +554,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
 
             <!-- Rewards Section -->
