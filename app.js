@@ -378,13 +378,13 @@ createApp({
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { grid: { color: '#334155' }, ticks: { color: '#94A3B8' } },
-                    x: { grid: { color: '#334155' }, ticks: { color: '#94A3B8', maxRotation: 45, maxTicksLimit: 15 } },
+                    y: { grid: { color: 'rgba(30, 41, 59, 0.4)' }, ticks: { color: '#64748B' } },
+                    x: { grid: { color: 'rgba(30, 41, 59, 0.4)' }, ticks: { color: '#64748B', maxRotation: 45, maxTicksLimit: 15 } },
                 },
             };
             const chartOptsLegend = {
                 ...chartOpts,
-                plugins: { legend: { labels: { color: '#94A3B8', usePointStyle: true, pointStyle: 'circle' } } },
+                plugins: { legend: { labels: { color: '#94A3B8', usePointStyle: true, pointStyle: 'circle', font: { family: 'Outfit' } } } },
             };
 
             // Rewards Chart (combined: reward wallet + sovereign if present)
@@ -393,24 +393,35 @@ createApp({
             const ctxR = document.getElementById('rewardsChart');
             if (ctxR) {
                 if (rewardsChart) rewardsChart.destroy();
+                const ctx2d = ctxR.getContext('2d');
+                const rewardGradient = ctx2d.createLinearGradient(0, 0, 0, 250);
+                rewardGradient.addColorStop(0, 'rgba(167, 139, 250, 0.25)');
+                rewardGradient.addColorStop(1, 'rgba(167, 139, 250, 0)');
                 const datasets = [{
                     label: 'Reward Wallet',
                     data: rewardsData.map(d => d.total_rewards),
                     borderColor: '#A78BFA',
-                    backgroundColor: 'rgba(167, 139, 250, 0.1)',
+                    backgroundColor: rewardGradient,
                     fill: true,
                     tension: 0.3,
                     pointRadius: days <= 30 ? 3 : 0,
+                    pointBackgroundColor: '#A78BFA',
+                    borderWidth: 2,
                 }];
                 if (sovData.length) {
+                    const sovGradient = ctx2d.createLinearGradient(0, 0, 0, 250);
+                    sovGradient.addColorStop(0, 'rgba(251, 191, 36, 0.2)');
+                    sovGradient.addColorStop(1, 'rgba(251, 191, 36, 0)');
                     datasets.push({
                         label: 'Sovereign Wallet',
                         data: sovData.map(d => d.total_rewards),
                         borderColor: '#FBBF24',
-                        backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                        backgroundColor: sovGradient,
                         fill: true,
                         tension: 0.3,
                         pointRadius: days <= 30 ? 3 : 0,
+                        pointBackgroundColor: '#FBBF24',
+                        borderWidth: 2,
                     });
                 }
                 rewardsChart = new Chart(ctxR.getContext('2d'), {
@@ -429,7 +440,14 @@ createApp({
             const ctxB = document.getElementById('blocksChart');
             if (ctxB) {
                 if (blocksChart) blocksChart.destroy();
-                blocksChart = new Chart(ctxB.getContext('2d'), {
+                const ctxB2d = ctxB.getContext('2d');
+                const signedGradient = ctxB2d.createLinearGradient(0, 0, 0, 250);
+                signedGradient.addColorStop(0, 'rgba(96, 165, 250, 0.15)');
+                signedGradient.addColorStop(1, 'rgba(96, 165, 250, 0)');
+                const firstGradient = ctxB2d.createLinearGradient(0, 0, 0, 250);
+                firstGradient.addColorStop(0, 'rgba(248, 113, 113, 0.1)');
+                firstGradient.addColorStop(1, 'rgba(248, 113, 113, 0)');
+                blocksChart = new Chart(ctxB2d, {
                     type: 'line',
                     data: {
                         labels: blocksData.map(d => d.date),
@@ -438,17 +456,23 @@ createApp({
                                 label: 'Signed Blocks',
                                 data: blocksData.map(d => d.block_count),
                                 borderColor: '#60A5FA',
-                                backgroundColor: 'transparent',
+                                backgroundColor: signedGradient,
+                                fill: true,
                                 tension: 0.3,
                                 pointRadius: days <= 30 ? 3 : 0,
+                                pointBackgroundColor: '#60A5FA',
+                                borderWidth: 2,
                             },
                             {
                                 label: 'First Signed Blocks',
                                 data: firstBlocksData.map(d => d.block_count),
                                 borderColor: '#F87171',
-                                backgroundColor: 'transparent',
+                                backgroundColor: firstGradient,
+                                fill: true,
                                 tension: 0.3,
                                 pointRadius: days <= 30 ? 3 : 0,
+                                pointBackgroundColor: '#F87171',
+                                borderWidth: 2,
                             },
                         ],
                     },

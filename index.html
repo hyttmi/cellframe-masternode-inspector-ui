@@ -9,48 +9,183 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="icon" type="image/svg+xml" href="logo.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     colors: {
                         brand: { DEFAULT: '#A78BFA', dark: '#7C3AED', light: '#C4B5FD' },
-                        surface: { 0: '#0F172A', 1: '#1E293B', 2: '#334155', 3: '#475569' },
-                    }
+                        accent: { DEFAULT: '#22D3EE', dark: '#06B6D4', light: '#67E8F9' },
+                        surface: { 0: '#060B18', 1: '#111827', 2: '#1E293B', 3: '#334155' },
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'system-ui', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
                 }
             }
         }
     </script>
     <style>
         [v-cloak] { display: none; }
-        body { background-color: #0F172A; color: #E2E8F0; }
-        .card {
-            background-color: #1E293B;
-            border: 1px solid #334155;
-            border-radius: 0.75rem;
-            padding: 1.25rem;
+
+        body {
+            background-color: #060B18;
+            color: #E2E8F0;
+            font-family: 'Outfit', system-ui, sans-serif;
         }
+
+        /* Atmospheric background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 80% 60% at 15% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 80% at 85% 80%, rgba(34, 211, 238, 0.06) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(124, 58, 237, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #app { position: relative; z-index: 1; }
+
+        /* Glass cards */
+        .card {
+            background: linear-gradient(145deg, rgba(17, 24, 39, 0.85), rgba(6, 11, 24, 0.95));
+            border: 1px solid rgba(30, 41, 59, 0.6);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(167, 139, 250, 0.25);
+            box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), 0 0 24px -8px rgba(167, 139, 250, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        /* Section heading accent bar */
+        .section-heading {
+            position: relative;
+            padding-left: 1rem;
+        }
+        .section-heading::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.15em;
+            bottom: 0.15em;
+            width: 3px;
+            border-radius: 3px;
+            background: linear-gradient(180deg, #7C3AED, #22D3EE);
+        }
+
+        /* Gradient progress bars */
+        .progress-fill {
+            background: linear-gradient(90deg, #7C3AED, #A78BFA, #22D3EE);
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.4);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #E2E8F0, #A78BFA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #1E293B; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        .toast-enter-active, .toast-leave-active { transition: opacity 0.3s; }
-        .toast-enter-from, .toast-leave-to { opacity: 0; }
+        ::-webkit-scrollbar-track { background: #111827; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Toast */
+        .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
+        .toast-enter-from, .toast-leave-to { opacity: 0; transform: translateY(-8px); }
+
+        /* Card entrance animation */
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card { animation: cardIn 0.4s ease-out both; }
+        .grid > .card:nth-child(1) { animation-delay: 0ms; }
+        .grid > .card:nth-child(2) { animation-delay: 60ms; }
+        .grid > .card:nth-child(3) { animation-delay: 120ms; }
+        .grid > .card:nth-child(4) { animation-delay: 180ms; }
+
+        /* Active toggle button */
+        .btn-active {
+            background: linear-gradient(135deg, #7C3AED, #A78BFA) !important;
+            color: #fff !important;
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.3);
+        }
+
+        /* Primary CTA button */
+        .btn-primary {
+            background: linear-gradient(135deg, #7C3AED, #A78BFA);
+            color: #fff;
+            font-weight: 700;
+            padding: 0.625rem 1.25rem;
+            border-radius: 0.75rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px -4px rgba(124, 58, 237, 0.4);
+        }
+        .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 8px 24px -4px rgba(124, 58, 237, 0.6);
+            transform: translateY(-1px);
+        }
+        .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        /* Setup card */
+        .setup-card {
+            background: linear-gradient(145deg, rgba(17, 24, 39, 0.9), rgba(6, 11, 24, 0.95));
+            border: 1px solid rgba(30, 41, 59, 0.6);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 0 64px -16px rgba(124, 58, 237, 0.15);
+        }
+
+        /* Input focus glow */
+        input:focus {
+            border-color: #A78BFA !important;
+            box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+        }
+
+        /* Status pulse */
+        @keyframes statusPulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+            50% { box-shadow: 0 0 0 4px rgba(16, 185, 129, 0); }
+        }
+        .status-online { animation: statusPulse 2s ease-in-out infinite; }
+
+        /* Table rows */
+        tbody tr { transition: background-color 0.15s ease; }
     </style>
 </head>
 <body>
     <div id="app" v-cloak>
         <!-- Toast -->
         <transition name="toast">
-            <div v-if="toast" class="fixed top-4 right-4 bg-surface-1 border border-surface-2 text-sm px-4 py-2 rounded-lg shadow-lg z-50">
+            <div v-if="toast" class="fixed top-4 right-4 bg-surface-1/80 backdrop-blur-xl border border-surface-2/50 text-sm px-4 py-2.5 rounded-xl shadow-2xl z-50">
                 {{ toast }}
             </div>
         </transition>
         <!-- Setup Screen -->
         <div v-if="showSetup" class="min-h-screen flex items-center justify-center p-4">
-            <div class="card max-w-md w-full">
+            <div class="setup-card max-w-md w-full">
                 <div class="flex items-center gap-3 mb-6">
                     <img src="logo.svg" alt="Logo" class="w-10 h-10 rounded-lg">
-                    <h1 class="text-2xl font-bold">Masternode Inspector</h1>
+                    <h1 class="text-2xl font-bold gradient-text">Masternode Inspector</h1>
                 </div>
 
                 <!-- Saved Nodes -->
@@ -91,7 +226,7 @@
                     </div>
                     <button @click="testConnection"
                         :disabled="setupLoading || !setupForm.apiKey || !setupForm.baseUrl"
-                        class="w-full bg-brand hover:bg-brand-dark disabled:opacity-50 text-slate-900 font-bold py-2 rounded-lg transition-colors">
+                        class="w-full btn-primary">
                         <span v-if="setupLoading">Testing...</span>
                         <span v-else>Add Node</span>
                     </button>
@@ -123,16 +258,16 @@
                 <div>
                     <h1 class="text-2xl font-bold flex items-center gap-3">
                         <img src="logo.svg" alt="Logo" class="w-9 h-9 rounded-lg">
-                        {{ system.hostname || 'Masternode Inspector' }}
+                        <span class="gradient-text">{{ system.hostname || 'Masternode Inspector' }}</span>
                     </h1>
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-sm text-slate-400">
-                        <span class="flex items-center gap-1">
-                            <span :class="connectionError ? 'text-red-400' : 'text-green-400'">&#9679;</span>
+                        <span class="flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full" :class="connectionError ? 'bg-red-400' : 'bg-green-400 status-online'"></span>
                             {{ connectionError ? 'Disconnected' : 'Connected' }}
                         </span>
-                        <span class="text-surface-2">|</span>
+                        <span class="text-slate-600">|</span>
                         <span>Node v{{ system.current_node_version || '—' }}</span>
-                        <span class="text-surface-2">|</span>
+                        <span class="text-slate-600">|</span>
                         <span>
                             Plugin v{{ system.current_plugin_version || '—' }}
                             <span v-if="system.plugin_update_available" @click="updatePlugin"
@@ -157,8 +292,8 @@
                         <span class="text-xs text-slate-500 hidden sm:inline">Charts</span>
                         <div class="flex gap-1">
                             <button v-for="d in availableChartDays" :key="d" @click="chartDays = d"
-                                :class="chartDays === d ? 'bg-brand text-slate-900' : 'bg-surface-2 text-slate-400'"
-                                class="text-xs px-2 py-1 rounded font-bold transition-colors">
+                                :class="chartDays === d ? 'btn-active' : 'bg-surface-2/80 text-slate-400 hover:text-slate-300'"
+                                class="text-xs px-2 py-1 rounded font-bold transition-all">
                                 {{ d }}D
                             </button>
                         </div>
@@ -184,7 +319,7 @@
                             <span>{{ system.node_cpu_usage ?? 0 }}%</span>
                         </div>
                         <div class="w-full bg-surface-0 rounded-full h-2">
-                            <div class="bg-brand h-2 rounded-full transition-all duration-500"
+                            <div class="progress-fill h-2 rounded-full transition-all duration-500"
                                 :style="{width: Math.min(system.node_cpu_usage || 0, 100) + '%'}"></div>
                         </div>
                     </div>
@@ -194,7 +329,7 @@
                             <span>{{ system.node_memory_usage ? (system.node_memory_usage / 1024).toFixed(1) : '—' }} / {{ system.system_total_memory ? (system.system_total_memory / 1024).toFixed(1) + ' GB' : '—' }}</span>
                         </div>
                         <div v-if="system.system_total_memory" class="w-full bg-surface-0 rounded-full h-2">
-                            <div class="bg-brand h-2 rounded-full transition-all duration-500"
+                            <div class="progress-fill h-2 rounded-full transition-all duration-500"
                                 :style="{width: Math.min((system.node_memory_usage || 0) / system.system_total_memory * 100, 100) + '%'}"></div>
                         </div>
                     </div>
@@ -341,7 +476,7 @@
             <!-- Rewards Section -->
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold flex items-center gap-2">
+                    <h2 class="text-lg font-bold flex items-center gap-2 section-heading">
                         <i data-lucide="coins" class="w-5 h-5 text-brand"></i>
                         Rewards
                     </h2>
@@ -424,7 +559,7 @@
 
             <!-- Blocks Section -->
             <div class="mb-8">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
                     <i data-lucide="box" class="w-5 h-5 text-brand"></i>
                     Blocks
                 </h2>
@@ -513,7 +648,7 @@
             <!-- Sovereign Section (conditional) -->
             <div v-if="isSovereign" class="mb-8">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold flex items-center gap-2">
+                    <h2 class="text-lg font-bold flex items-center gap-2 section-heading">
                         <i data-lucide="shield-check" class="w-5 h-5 text-brand"></i>
                         Sovereign Node
                     </h2>
@@ -584,7 +719,7 @@
 
             <!-- Transaction History -->
             <div class="mb-8">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
                     <i data-lucide="list" class="w-5 h-5 text-brand"></i>
                     Reward Transaction History
                 </h2>
@@ -594,13 +729,13 @@
                     <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <div v-if="isSovereign && txLoaded" class="flex gap-1">
                             <button @click="txTab = 'reward'; txPage = 1"
-                                :class="txTab === 'reward' ? 'bg-brand text-slate-900' : 'bg-surface-2 text-slate-400'"
-                                class="text-xs px-3 py-1.5 rounded font-bold transition-colors">
+                                :class="txTab === 'reward' ? 'btn-active' : 'bg-surface-2/80 text-slate-400 hover:text-slate-300'"
+                                class="text-xs px-3 py-1.5 rounded font-bold transition-all">
                                 Reward Wallet
                             </button>
                             <button @click="txTab = 'sovereign'; txPage = 1"
-                                :class="txTab === 'sovereign' ? 'bg-brand text-slate-900' : 'bg-surface-2 text-slate-400'"
-                                class="text-xs px-3 py-1.5 rounded font-bold transition-colors">
+                                :class="txTab === 'sovereign' ? 'btn-active' : 'bg-surface-2/80 text-slate-400 hover:text-slate-300'"
+                                class="text-xs px-3 py-1.5 rounded font-bold transition-all">
                                 Sovereign Wallet
                             </button>
                         </div>
@@ -661,7 +796,7 @@
             </div>
 
             <!-- Footer -->
-            <footer class="border-t border-surface-2 pt-4 mt-8 flex flex-wrap justify-between items-center text-xs text-slate-600 gap-2">
+            <footer class="pt-4 mt-8 flex flex-wrap justify-between items-center text-xs text-slate-600 gap-2" style="border-top: 1px solid transparent; border-image: linear-gradient(90deg, transparent, rgba(167,139,250,0.3), transparent) 1;">
                 <div class="flex items-center gap-4">
                     <span v-if="network.cache_last_updated">
                         Cache: {{ formatDate(network.cache_last_updated) }}
