@@ -255,13 +255,17 @@ createApp({
             await fetchSystem();
             await fetchNetwork(true);
             loading.value = false;
+            nextTick(() => { try { lucide.createIcons(); } catch(e) {} });
+        };
+
+        const refreshDashboard = async () => {
+            await fetchAllData();
             nextTick(() => {
                 document.querySelectorAll('.card').forEach(el => {
                     el.style.animation = 'none';
-                    el.offsetHeight; // force reflow
+                    el.offsetHeight;
                     el.style.animation = '';
                 });
-                try { lucide.createIcons(); } catch(e) {}
             });
         };
 
@@ -589,7 +593,7 @@ createApp({
             txHistory, txSovHistory, txLoading, txLoaded, txTab, txPage, txPerPage, txSort,
             loadTransactions, toggleTxSort, txActiveList, txTotalPages, txPageData,
             // Actions
-            fetchAllData, startPolling, exportCSV, exportSovereignCSV,
+            fetchAllData, refreshDashboard, startPolling, exportCSV, exportSovereignCSV,
         };
     }
 }).mount('#app');
