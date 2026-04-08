@@ -411,11 +411,11 @@
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 sm:gap-4">
-                    <select v-if="nodes.length > 1" :value="activeNodeIndex" @change="switchNode(Number($event.target.value))"
+                    <select v-if="nodes.length > 1" id="tour-nodes" :value="activeNodeIndex" @change="switchNode(Number($event.target.value))"
                         class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
                         <option v-for="(node, i) in nodes" :key="i" :value="i">{{ node.name }}</option>
                     </select>
-                    <select v-if="activeNetworks.length > 1" v-model="networkName"
+                    <select v-if="activeNetworks.length > 1" id="tour-network" v-model="networkName"
                         class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
                         <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
                     </select>

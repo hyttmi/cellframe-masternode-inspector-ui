@@ -571,6 +571,8 @@ createApp({
             if (!manual && localStorage.getItem('mni_tutorial_seen')) return;
 
             const steps = [
+                { element: '#tour-nodes', popover: { title: 'Node Selector', description: 'Switch between your configured nodes.', side: 'bottom' } },
+                { element: '#tour-network', popover: { title: 'Network', description: 'Switch between available networks on this node.', side: 'bottom' } },
                 { element: '#tour-days', popover: { title: 'Chart Range', description: 'Choose how many days of data to display in the charts.', side: 'bottom' } },
                 { element: '#tour-refresh', popover: { title: 'Refresh', description: 'Manually refresh the dashboard data.', side: 'bottom' } },
                 { element: '#tour-share', popover: { title: 'Share', description: 'Copy a shareable link to this node\'s dashboard.', side: 'bottom' } },
