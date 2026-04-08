@@ -354,7 +354,7 @@
                         class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
                         <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
                     </select>
-                    <div v-if="availableChartDays.length" class="inline-flex items-center bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
+                    <div v-if="availableChartDays.length" class="inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
                         <button v-for="(d, i) in availableChartDays" :key="d" @click="chartDays = d"
                             :class="[chartDays === d ? 'btn-active' : 'hover:bg-surface-2 text-slate-400 hover:text-slate-300',
                                 i === 0 ? 'rounded-l-lg' : '', i === availableChartDays.length - 1 ? 'rounded-r-lg' : '']"
@@ -362,7 +362,7 @@
                             {{ d }}D
                         </button>
                     </div>
-                    <div class="inline-flex items-center bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
+                    <div class="inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
                         <button @click="refreshDashboard" class="p-2 hover:bg-surface-2 rounded-l-lg transition-colors" title="Refresh">
                             <span class="inline-flex" :class="{'animate-spin': loading}">
                                 <i data-lucide="refresh-cw" class="w-4 h-4"></i>
