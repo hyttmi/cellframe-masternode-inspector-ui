@@ -19,7 +19,12 @@
                     colors: {
                         brand: { DEFAULT: '#A78BFA', dark: '#7C3AED', light: '#C4B5FD' },
                         accent: { DEFAULT: '#22D3EE', dark: '#06B6D4', light: '#67E8F9' },
-                        surface: { 0: '#060B18', 1: '#111827', 2: '#1E293B', 3: '#334155' },
+                        surface: {
+                            0: 'rgb(var(--s0) / <alpha-value>)',
+                            1: 'rgb(var(--s1) / <alpha-value>)',
+                            2: 'rgb(var(--s2) / <alpha-value>)',
+                            3: 'rgb(var(--s3) / <alpha-value>)',
+                        },
                     },
                     fontFamily: {
                         sans: ['Outfit', 'system-ui', 'sans-serif'],
@@ -32,9 +37,69 @@
     <style>
         [v-cloak] { display: none; }
 
+        /* ── Theme tokens ── */
+        :root {
+            --s0: 6 11 24;
+            --s1: 17 24 39;
+            --s2: 30 41 59;
+            --s3: 51 65 85;
+            --bg: #060B18;
+            --text: #E2E8F0;
+            --card-bg: linear-gradient(145deg, rgba(17, 24, 39, 0.85), rgba(6, 11, 24, 0.95));
+            --card-border: rgba(30, 41, 59, 0.6);
+            --card-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4);
+            --card-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            --card-hover-border: rgba(167, 139, 250, 0.25);
+            --card-hover-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), 0 0 24px -8px rgba(167, 139, 250, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            --setup-bg: linear-gradient(145deg, rgba(17, 24, 39, 0.9), rgba(6, 11, 24, 0.95));
+            --setup-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 0 64px -16px rgba(124, 58, 237, 0.15);
+            --gradient-from: #E2E8F0;
+            --gradient-to: #A78BFA;
+            --scrollbar-track: #111827;
+            --scrollbar-thumb: #334155;
+            --scrollbar-thumb-hover: #475569;
+            --atmo-1: rgba(124, 58, 237, 0.1);
+            --atmo-2: rgba(34, 211, 238, 0.06);
+            --atmo-3: rgba(124, 58, 237, 0.03);
+        }
+
+        html.light {
+            --s0: 241 245 249;
+            --s1: 255 255 255;
+            --s2: 226 232 240;
+            --s3: 203 213 225;
+            --bg: #F8FAFC;
+            --text: #1E293B;
+            --card-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.95));
+            --card-border: rgba(203, 213, 225, 0.6);
+            --card-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.06);
+            --card-inset: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            --card-hover-border: rgba(124, 58, 237, 0.3);
+            --card-hover-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.1), 0 0 24px -8px rgba(124, 58, 237, 0.08);
+            --setup-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.98));
+            --setup-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.08), 0 0 64px -16px rgba(124, 58, 237, 0.06);
+            --gradient-from: #1E293B;
+            --gradient-to: #7C3AED;
+            --scrollbar-track: #F1F5F9;
+            --scrollbar-thumb: #CBD5E1;
+            --scrollbar-thumb-hover: #94A3B8;
+            --atmo-1: rgba(124, 58, 237, 0.04);
+            --atmo-2: rgba(34, 211, 238, 0.03);
+            --atmo-3: rgba(124, 58, 237, 0.02);
+        }
+
+        /* Light mode contrast overrides */
+        html.light .text-slate-400 { color: #64748B; }
+        html.light .text-slate-500 { color: #475569; }
+        html.light .text-green-400 { color: #16A34A; }
+        html.light .text-red-400 { color: #DC2626; }
+        html.light .text-brand { color: #7C3AED; }
+        html.light .hover\:text-brand:hover { color: #6D28D9; }
+        html.light select { color: var(--text); }
+
         body {
-            background-color: #060B18;
-            color: #E2E8F0;
+            background-color: var(--bg);
+            color: var(--text);
             font-family: 'Outfit', system-ui, sans-serif;
         }
 
@@ -44,9 +109,9 @@
             position: fixed;
             inset: 0;
             background:
-                radial-gradient(ellipse 80% 60% at 15% 20%, rgba(124, 58, 237, 0.1) 0%, transparent 70%),
-                radial-gradient(ellipse 60% 80% at 85% 80%, rgba(34, 211, 238, 0.06) 0%, transparent 70%),
-                radial-gradient(ellipse 50% 50% at 50% 50%, rgba(124, 58, 237, 0.03) 0%, transparent 70%);
+                radial-gradient(ellipse 80% 60% at 15% 20%, var(--atmo-1) 0%, transparent 70%),
+                radial-gradient(ellipse 60% 80% at 85% 80%, var(--atmo-2) 0%, transparent 70%),
+                radial-gradient(ellipse 50% 50% at 50% 50%, var(--atmo-3) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
         }
@@ -55,19 +120,19 @@
 
         /* Glass cards */
         .card {
-            background: linear-gradient(145deg, rgba(17, 24, 39, 0.85), rgba(6, 11, 24, 0.95));
-            border: 1px solid rgba(30, 41, 59, 0.6);
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
             border-radius: 1rem;
             padding: 1.25rem;
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.03);
+            box-shadow: var(--card-shadow), var(--card-inset);
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .card:hover {
-            border-color: rgba(167, 139, 250, 0.25);
-            box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), 0 0 24px -8px rgba(167, 139, 250, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+            border-color: var(--card-hover-border);
+            box-shadow: var(--card-hover-shadow);
         }
 
         /* Section heading accent bar */
@@ -94,7 +159,7 @@
 
         /* Gradient text */
         .gradient-text {
-            background: linear-gradient(135deg, #E2E8F0, #A78BFA);
+            background: linear-gradient(135deg, var(--gradient-from), var(--gradient-to));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -102,9 +167,9 @@
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #111827; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        ::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
         /* Toast */
         .toast-enter-active, .toast-leave-active { transition: all 0.3s ease; }
@@ -146,13 +211,13 @@
 
         /* Setup card */
         .setup-card {
-            background: linear-gradient(145deg, rgba(17, 24, 39, 0.9), rgba(6, 11, 24, 0.95));
-            border: 1px solid rgba(30, 41, 59, 0.6);
+            background: var(--setup-bg);
+            border: 1px solid var(--card-border);
             border-radius: 1.25rem;
             padding: 2rem;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.5), 0 0 64px -16px rgba(124, 58, 237, 0.15);
+            box-shadow: var(--setup-shadow);
         }
 
         /* Input focus glow */
@@ -303,6 +368,10 @@
                     </button>
                     <button @click="shareNode(activeNodeIndex)" class="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg transition-colors" title="Share node link">
                         <i data-lucide="share-2" class="w-4 h-4"></i>
+                    </button>
+                    <button @click="toggleTheme" class="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg transition-colors" title="Toggle theme">
+                        <i v-if="darkMode" data-lucide="sun" class="w-4 h-4"></i>
+                        <i v-else data-lucide="moon" class="w-4 h-4"></i>
                     </button>
                     <button @click="openSettings" class="p-2 bg-surface-1 hover:bg-surface-2 rounded-lg transition-colors" title="Settings">
                         <i data-lucide="settings" class="w-4 h-4"></i>

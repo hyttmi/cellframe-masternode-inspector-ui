@@ -183,6 +183,20 @@ createApp({
         const connectionError = ref('');
         const lastCacheTimestamp = ref('');
 
+        // --- Theme ---
+        const darkMode = ref(localStorage.getItem('mni_theme') !== 'light');
+        if (!darkMode.value) document.documentElement.classList.add('light');
+
+        const toggleTheme = () => {
+            darkMode.value = !darkMode.value;
+            document.documentElement.classList.toggle('light', !darkMode.value);
+            localStorage.setItem('mni_theme', darkMode.value ? 'dark' : 'light');
+            nextTick(() => {
+                try { lucide.createIcons(); } catch(e) {}
+                updateCharts();
+            });
+        };
+
         // --- Polling ---
         let systemTimer = null;
         let networkTimer = null;
@@ -373,13 +387,15 @@ createApp({
 
         const updateCharts = () => {
             const days = chartDays.value;
+            const gridColor = darkMode.value ? 'rgba(30, 41, 59, 0.4)' : 'rgba(148, 163, 184, 0.2)';
+            const tickColor = '#64748B';
             const chartOpts = {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { grid: { color: 'rgba(30, 41, 59, 0.4)' }, ticks: { color: '#64748B' } },
-                    x: { grid: { color: 'rgba(30, 41, 59, 0.4)' }, ticks: { color: '#64748B', maxRotation: 45, maxTicksLimit: 15 } },
+                    y: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Outfit' } } },
+                    x: { grid: { color: gridColor }, ticks: { color: tickColor, font: { family: 'Outfit' }, maxRotation: 45, maxTicksLimit: 15 } },
                 },
             };
             const chartOptsLegend = {
@@ -556,7 +572,7 @@ createApp({
             nodes, activeNodeIndex, switchNode, removeNode, shareNode,
             // State
             system, network, networkName, activeNetworks, isSovereign,
-            loading, connectionError, lastCacheTimestamp,
+            loading, connectionError, lastCacheTimestamp, darkMode, toggleTheme,
             // Formatting
             formatNumber, formatUptime, formatBytes, formatDate, formatDateShort,
             truncateHash, copyToClipboard, scanUrl, toast, sortedBalances,
