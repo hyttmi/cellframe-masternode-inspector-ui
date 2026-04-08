@@ -575,8 +575,8 @@ createApp({
                 { element: '#tour-refresh', popover: { title: 'Refresh', description: 'Manually refresh the dashboard data.', side: 'bottom' } },
                 { element: '#tour-share', popover: { title: 'Share', description: 'Copy a shareable link to this node\'s dashboard.', side: 'bottom' } },
                 { element: '#tour-theme', popover: { title: 'Theme', description: 'Switch between dark and light mode.', side: 'bottom' } },
-                { element: '#tour-settings', popover: { title: 'Settings', description: 'Configure auto-refresh interval and other options.', side: 'bottom' } },
-                { element: '#tour-help', popover: { title: 'Help', description: 'Click here anytime to replay this tour.', side: 'bottom' } },
+                { element: '#tour-settings', popover: { title: 'Node Selector', description: 'Go back to the node selector to add or switch between nodes.', side: 'bottom', align: 'end' } },
+                { element: '#tour-help', popover: { title: 'Help', description: 'Click here anytime to replay this tour.', side: 'bottom', align: 'end' } },
             ];
 
             // Filter out steps whose target element doesn't exist (e.g. day selector hidden when no data)
