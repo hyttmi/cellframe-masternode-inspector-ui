@@ -144,6 +144,7 @@ createApp({
                 setTimeout(() => {
                     showSetup.value = false;
                     startPolling();
+                    nextTick(() => { try { lucide.createIcons(); } catch(e) {} startTutorial(); });
                 }, 800);
             } catch (e) {
                 setupError.value = e.message === 'Failed to fetch' ? 'Cannot reach node. Check the URL.' : e.message;
