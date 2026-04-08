@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css">
+    <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
     <link rel="icon" type="image/svg+xml" href="logo.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -192,6 +194,45 @@
             background: linear-gradient(135deg, #7C3AED, #A78BFA) !important;
             color: #fff !important;
             box-shadow: 0 0 12px rgba(167, 139, 250, 0.3);
+        }
+
+        /* Driver.js tour theme */
+        .driver-popover {
+            background: var(--card-bg) !important;
+            border: 1px solid var(--card-border) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            color: var(--text) !important;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5) !important;
+        }
+        .driver-popover .driver-popover-title {
+            color: var(--text) !important;
+            font-family: 'Outfit', system-ui, sans-serif;
+            font-weight: 600;
+        }
+        .driver-popover .driver-popover-description {
+            color: var(--text-secondary) !important;
+            font-family: 'Outfit', system-ui, sans-serif;
+        }
+        .driver-popover .driver-popover-progress-text {
+            color: var(--text-secondary) !important;
+        }
+        .driver-popover button.driver-popover-next-btn {
+            background: linear-gradient(135deg, #7C3AED, #A78BFA) !important;
+            color: #fff !important;
+            border: none !important;
+            border-radius: 0.5rem !important;
+            font-family: 'Outfit', system-ui, sans-serif;
+            font-weight: 600;
+            text-shadow: none !important;
+        }
+        .driver-popover button.driver-popover-prev-btn,
+        .driver-popover button.driver-popover-close-btn {
+            color: var(--text-secondary) !important;
+            border: 1px solid var(--card-border) !important;
+            border-radius: 0.5rem !important;
+            font-family: 'Outfit', system-ui, sans-serif;
+            text-shadow: none !important;
         }
 
         /* Primary CTA button */
