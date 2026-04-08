@@ -353,15 +353,13 @@
                         class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
                         <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
                     </select>
-                    <div v-if="availableChartDays.length" class="flex items-center gap-2">
-                        <span class="text-xs text-slate-500 hidden sm:inline">Charts</span>
-                        <div class="flex gap-1">
-                            <button v-for="d in availableChartDays" :key="d" @click="chartDays = d"
-                                :class="chartDays === d ? 'btn-active' : 'bg-surface-2/80 text-slate-400 hover:text-slate-300'"
-                                class="text-xs px-2 py-1 rounded font-bold transition-all">
-                                {{ d }}D
-                            </button>
-                        </div>
+                    <div v-if="availableChartDays.length" class="inline-flex items-center bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
+                        <button v-for="(d, i) in availableChartDays" :key="d" @click="chartDays = d"
+                            :class="[chartDays === d ? 'btn-active' : 'hover:bg-surface-2 text-slate-400 hover:text-slate-300',
+                                i === 0 ? 'rounded-l-lg' : '', i === availableChartDays.length - 1 ? 'rounded-r-lg' : '']"
+                            class="text-xs px-2.5 py-2 font-bold transition-all">
+                            {{ d }}D
+                        </button>
                     </div>
                     <div class="inline-flex items-center bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
                         <button @click="refreshDashboard" class="p-2 hover:bg-surface-2 rounded-l-lg transition-colors" title="Refresh">
