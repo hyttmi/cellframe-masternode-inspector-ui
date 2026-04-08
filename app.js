@@ -144,7 +144,6 @@ createApp({
                 setTimeout(() => {
                     showSetup.value = false;
                     startPolling();
-                    nextTick(() => { try { lucide.createIcons(); } catch(e) {} startTutorial(); });
                 }, 800);
             } catch (e) {
                 setupError.value = e.message === 'Failed to fetch' ? 'Cannot reach node. Check the URL.' : e.message;
@@ -256,7 +255,7 @@ createApp({
             await fetchSystem();
             await fetchNetwork(true);
             loading.value = false;
-            nextTick(() => { try { lucide.createIcons(); } catch(e) {} });
+            nextTick(() => { try { lucide.createIcons(); } catch(e) {} startTutorial(); });
         };
 
         const refreshDashboard = async () => {
@@ -595,17 +594,11 @@ createApp({
         // --- Lifecycle ---
         onMounted(() => {
             if (loadActiveNode()) startPolling();
-            nextTick(() => {
-                try { lucide.createIcons(); } catch(e) {}
-                if (!showSetup.value) startTutorial();
-            });
+            nextTick(() => { try { lucide.createIcons(); } catch(e) {} });
         });
 
         onUnmounted(() => stopPolling());
 
-        watch(showSetup, (val) => {
-            if (!val) setTimeout(() => { try { lucide.createIcons(); } catch(e) {} startTutorial(); }, 500);
-        });
         watch(networkName, () => { lastCacheTimestamp.value = ''; fetchNetwork(true); });
         watch(chartDays, () => updateCharts());
 
