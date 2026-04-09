@@ -324,9 +324,9 @@
                     <p class="text-xs text-slate-500 uppercase tracking-wider font-semibold mb-2">Saved Nodes</p>
                     <div class="space-y-2">
                         <div v-for="(node, i) in nodes" :key="i"
-                            class="flex items-center justify-between bg-surface-0 rounded-lg px-3 py-2">
+                           class="flex items-center justify-between bg-surface-0 rounded-lg px-3 py-2">
                             <button @click="switchNode(i); showSetup = false"
-                                class="flex-1 text-left hover:text-brand transition-colors">
+                               class="flex-1 text-left hover:text-brand transition-colors">
                                 <span class="text-sm font-medium">{{ node.name }}</span>
                                 <span class="text-xs text-slate-500 ml-2">{{ node.baseUrl }}</span>
                             </button>
@@ -346,18 +346,18 @@
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">Base URL</label>
                         <input v-model="setupForm.baseUrl" type="text"
-                            class="w-full bg-surface-0 border border-surface-2 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"
+                           class="w-full bg-surface-0 border border-surface-2 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"
                             placeholder="http://mynode:61000/mninspector">
                     </div>
                     <div>
                         <label class="block text-sm text-slate-400 mb-1">API Key</label>
                         <input v-model="setupForm.apiKey" type="password"
-                            class="w-full bg-surface-0 border border-surface-2 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"
+                           class="w-full bg-surface-0 border border-surface-2 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand"
                             placeholder="Enter your API key">
                     </div>
                     <button @click="testConnection"
                         :disabled="setupLoading || !setupForm.apiKey || !setupForm.baseUrl"
-                        class="w-full btn-primary">
+                       class="w-full btn-primary">
                         <span v-if="setupLoading">Testing...</span>
                         <span v-else>Add Node</span>
                     </button>
@@ -412,18 +412,18 @@
                 </div>
                 <div class="flex flex-wrap items-center gap-2 sm:gap-4">
                     <select v-if="nodes.length > 1" id="tour-nodes" :value="activeNodeIndex" @change="switchNode(Number($event.target.value))"
-                        class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
+                       class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
                         <option v-for="(node, i) in nodes" :key="i" :value="i">{{ node.name }}</option>
                     </select>
                     <select v-if="activeNetworks.length > 1" id="tour-network" v-model="networkName"
-                        class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
+                       class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
                         <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
                     </select>
                     <div id="tour-days" v-if="availableChartDays.length" class="h-8 inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
                         <button v-for="(d, i) in availableChartDays" :key="d" @click="chartDays = d"
                             :class="[chartDays === d ? 'btn-active' : 'hover:bg-surface-2 text-slate-400 hover:text-slate-300',
                                 i === 0 ? 'rounded-l-lg' : '', i === availableChartDays.length - 1 ? 'rounded-r-lg' : '']"
-                            class="text-xs px-2.5 font-bold transition-all flex items-center">
+                           class="text-xs px-2.5 font-bold transition-all flex items-center">
                             {{ d }}D
                         </button>
                     </div>
@@ -480,29 +480,29 @@
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 uppercase">Node Uptime</p>
-                        <p class="font-mono text-sm mt-0.5">{{ formatUptime(system.node_uptime) }}</p>
+                        <p class="text-sm mt-0.5">{{ formatUptime(system.node_uptime) }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 uppercase">System Uptime</p>
-                        <p class="font-mono text-sm mt-0.5">{{ formatUptime(system.system_uptime) }}</p>
+                        <p class="text-sm mt-0.5">{{ formatUptime(system.system_uptime) }}</p>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                     <div>
                         <p class="text-xs text-slate-500 uppercase">External IP</p>
-                        <p class="font-mono mt-0.5">{{ system.external_ip || '—' }}</p>
+                        <p class="mt-0.5">{{ system.external_ip || '—' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 uppercase">Hostname</p>
-                        <p class="font-mono mt-0.5">{{ system.hostname || '—' }}</p>
+                        <p class="mt-0.5">{{ system.hostname || '—' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 uppercase">Node PID</p>
-                        <p class="font-mono mt-0.5">{{ system.node_pid || '—' }}</p>
+                        <p class="mt-0.5">{{ system.node_pid || '—' }}</p>
                     </div>
                     <div>
                         <p class="text-xs text-slate-500 uppercase">Service</p>
-                        <p class="font-mono mt-0.5">{{ system.node_running_as_service ? 'systemd' : 'standalone' }}</p>
+                        <p class="mt-0.5">{{ system.node_running_as_service ? 'systemd' : 'standalone' }}</p>
                     </div>
                 </div>
             </div>
@@ -543,7 +543,7 @@
                         </div>
                         <div class="pt-1 border-t border-surface-2">
                             <p class="text-xs text-slate-500">Address</p>
-                            <p class="font-mono text-xs truncate" :title="network.network_status?.node_address">
+                            <p class="text-xs truncate" :title="network.network_status?.node_address">
                                 {{ network.network_status?.node_address || '—' }}
                             </p>
                         </div>
@@ -576,7 +576,7 @@
                         <div class="pt-1 border-t border-surface-2">
                             <p class="text-xs text-slate-500">Stake TX</p>
                             <a :href="scanUrl(network.tx_hash)" target="_blank"
-                                class="font-mono text-xs hover:text-brand truncate block">
+                               class="text-xs hover:text-brand truncate block">
                                 {{ truncateHash(network.tx_hash) }}
                             </a>
                         </div>
@@ -592,13 +592,13 @@
                     <div class="space-y-1.5 text-sm" v-if="network.reward_wallet_balance">
                         <div v-for="[token, amount] in sortedBalances(network.reward_wallet_balance)" :key="token" class="flex justify-between">
                             <span class="text-slate-400">{{ token }}</span>
-                            <span class="font-medium font-mono">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
+                            <span class="font-medium ">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
                         </div>
                     </div>
                     <p v-else class="text-slate-500 text-sm">—</p>
                     <div class="pt-2 mt-2 border-t border-surface-2">
                         <p class="text-xs text-slate-500">Reward Wallet</p>
-                        <p class="font-mono text-xs cursor-pointer hover:text-brand truncate"
+                        <p class="text-xs cursor-pointer hover:text-brand truncate"
                             :title="network.reward_wallet_address" @click="copyToClipboard(network.reward_wallet_address)">
                             {{ truncateHash(network.reward_wallet_address) }}
                         </p>
@@ -633,7 +633,7 @@
                         Rewards
                     </h2>
                     <button v-if="network.reward_wallet_all_sums_daily" @click="exportCSV"
-                        class="text-xs text-slate-400 hover:text-brand transition-colors flex items-center gap-1">
+                       class="text-xs text-slate-400 hover:text-brand transition-colors flex items-center gap-1">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         Export CSV
                     </button>
@@ -670,7 +670,7 @@
                         <p class="font-bold">{{ formatNumber(network.reward_wallet_biggest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_biggest_reward?.tx_created) }}</p>
                         <a :href="scanUrl(network.reward_wallet_biggest_reward?.tx_hash)" target="_blank"
-                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
                             {{ truncateHash(network.reward_wallet_biggest_reward?.tx_hash) }}
                         </a>
                     </div>
@@ -679,7 +679,7 @@
                         <p class="font-bold">{{ formatNumber(network.reward_wallet_smallest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_smallest_reward?.tx_created) }}</p>
                         <a :href="scanUrl(network.reward_wallet_smallest_reward?.tx_hash)" target="_blank"
-                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
                             {{ truncateHash(network.reward_wallet_smallest_reward?.tx_hash) }}
                         </a>
                     </div>
@@ -688,7 +688,7 @@
                         <p class="font-bold">{{ formatNumber(network.reward_wallet_earliest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_earliest_reward?.tx_created) }}</p>
                         <a :href="scanUrl(network.reward_wallet_earliest_reward?.tx_hash)" target="_blank"
-                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
                             {{ truncateHash(network.reward_wallet_earliest_reward?.tx_hash) }}
                         </a>
                     </div>
@@ -697,7 +697,7 @@
                         <p class="font-bold">{{ formatNumber(network.reward_wallet_latest_reward?.recv_coins, 4) }} {{ network.native_ticker }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.reward_wallet_latest_reward?.tx_created) }}</p>
                         <a :href="scanUrl(network.reward_wallet_latest_reward?.tx_hash)" target="_blank"
-                            class="text-xs text-slate-500 font-mono hover:text-brand truncate block">
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
                             {{ truncateHash(network.reward_wallet_latest_reward?.tx_hash) }}
                         </a>
                     </div>
@@ -813,7 +813,7 @@
                         Sovereign Node
                     </h2>
                     <button v-if="network.sovereign_wallet_all_sums_daily" @click="exportSovereignCSV"
-                        class="text-xs text-slate-400 hover:text-brand transition-colors flex items-center gap-1">
+                       class="text-xs text-slate-400 hover:text-brand transition-colors flex items-center gap-1">
                         <i data-lucide="download" class="w-3.5 h-3.5"></i>
                         Export CSV
                     </button>
@@ -849,10 +849,10 @@
                         <div class="space-y-1 text-sm" v-if="network.sovereign_wallet_balance">
                             <div v-for="[token, amount] in sortedBalances(network.sovereign_wallet_balance)" :key="token" class="flex justify-between">
                                 <span class="text-slate-400">{{ token }}</span>
-                                <span class="font-medium font-mono">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
+                                <span class="font-medium ">{{ formatNumber(amount, token === network.native_ticker ? 4 : 2) }}</span>
                             </div>
                         </div>
-                        <p class="font-mono text-xs cursor-pointer hover:text-brand truncate mt-2"
+                        <p class="text-xs cursor-pointer hover:text-brand truncate mt-2"
                             :title="network.sovereign_reward_wallet_address"
                             @click="copyToClipboard(network.sovereign_reward_wallet_address)">
                             {{ truncateHash(network.sovereign_reward_wallet_address) }}
@@ -890,12 +890,12 @@
                         <div v-if="isSovereign && txLoaded" class="flex gap-1">
                             <button @click="txTab = 'reward'; txPage = 1"
                                 :class="txTab === 'reward' ? 'btn-active' : 'bg-surface-2/80 text-slate-400 hover:text-slate-300'"
-                                class="text-xs px-3 py-1.5 rounded font-bold transition-all">
+                               class="text-xs px-3 py-1.5 rounded font-bold transition-all">
                                 Reward Wallet
                             </button>
                             <button @click="txTab = 'sovereign'; txPage = 1"
                                 :class="txTab === 'sovereign' ? 'btn-active' : 'bg-surface-2/80 text-slate-400 hover:text-slate-300'"
-                                class="text-xs px-3 py-1.5 rounded font-bold transition-all">
+                               class="text-xs px-3 py-1.5 rounded font-bold transition-all">
                                 Sovereign Wallet
                             </button>
                         </div>
@@ -924,9 +924,9 @@
                             <tbody>
                                 <tr v-for="tx in txPageData" :key="tx.hash" class="border-b border-surface-2/50 hover:bg-surface-2/30">
                                     <td class="py-2 pr-4 whitespace-nowrap">{{ formatDate(tx.tx_created) }}</td>
-                                    <td class="py-2 pr-4 font-mono whitespace-nowrap">{{ formatNumber(tx.amount, 4) }}</td>
+                                    <td class="py-2 pr-4  whitespace-nowrap">{{ formatNumber(tx.amount, 4) }}</td>
                                     <td class="py-2 pr-4">{{ tx.token }}</td>
-                                    <td class="py-2 font-mono text-xs truncate max-w-[200px]">
+                                    <td class="py-2  text-xs truncate max-w-[200px]">
                                         <a :href="scanUrl(tx.hash)" target="_blank" class="hover:text-brand">
                                             {{ truncateHash(tx.hash) }}
                                         </a>
@@ -942,13 +942,13 @@
                             </span>
                             <div class="flex gap-1">
                                 <button @click="txPage = 1" :disabled="txPage <= 1"
-                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&laquo;</button>
+                                   class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&laquo;</button>
                                 <button @click="txPage--" :disabled="txPage <= 1"
-                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&lsaquo;</button>
+                                   class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&lsaquo;</button>
                                 <button @click="txPage++" :disabled="txPage >= txTotalPages"
-                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&rsaquo;</button>
+                                   class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&rsaquo;</button>
                                 <button @click="txPage = txTotalPages" :disabled="txPage >= txTotalPages"
-                                    class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&raquo;</button>
+                                   class="px-2 py-1 text-xs bg-surface-2 rounded disabled:opacity-30">&raquo;</button>
                             </div>
                         </div>
                     </div>
