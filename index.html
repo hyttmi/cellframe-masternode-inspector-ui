@@ -138,22 +138,6 @@
             box-shadow: var(--card-hover-shadow);
         }
 
-        /* Section heading accent bar */
-        .section-heading {
-            position: relative;
-            padding-left: 1rem;
-        }
-        .section-heading::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0.15em;
-            bottom: 0.15em;
-            width: 3px;
-            border-radius: 3px;
-            background: linear-gradient(180deg, #7C3AED, #22D3EE);
-        }
-
         /* Gradient progress bars */
         .progress-fill {
             background: linear-gradient(90deg, #7C3AED, #A78BFA, #22D3EE);
@@ -427,7 +411,7 @@
 
             <!-- System Health -->
             <div class="mb-8">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
                     <i data-lucide="activity" class="w-5 h-5 text-brand"></i>
                     System Information
                 </h2>
@@ -485,7 +469,7 @@
 
             <!-- Overview Cards -->
             <div class="mb-8">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
                     <i data-lucide="layout-grid" class="w-5 h-5 text-brand"></i>
                     Overview
                 </h2>
@@ -603,7 +587,7 @@
             <!-- Rewards Section -->
             <div class="mb-8">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold flex items-center gap-2 section-heading">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
                         <i data-lucide="coins" class="w-5 h-5 text-brand"></i>
                         Rewards
                     </h2>
@@ -694,7 +678,7 @@
 
             <!-- Blocks Section -->
             <div class="mb-8">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
                     <i data-lucide="box" class="w-5 h-5 text-brand"></i>
                     Blocks
                 </h2>
@@ -783,7 +767,7 @@
             <!-- Sovereign Section (conditional) -->
             <div v-if="isSovereign" class="mb-8">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-lg font-bold flex items-center gap-2 section-heading">
+                    <h2 class="text-lg font-bold flex items-center gap-2">
                         <i data-lucide="shield-check" class="w-5 h-5 text-brand"></i>
                         Sovereign Node
                     </h2>
@@ -854,7 +838,7 @@
 
             <!-- Transaction History -->
             <div class="mb-8">
-                <h2 class="text-lg font-bold mb-4 flex items-center gap-2 section-heading">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
                     <i data-lucide="list" class="w-5 h-5 text-brand"></i>
                     Reward Transaction History
                 </h2>
