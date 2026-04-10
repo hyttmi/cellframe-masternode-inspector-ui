@@ -396,8 +396,8 @@
                             <i data-lucide="share-2" class="w-4 h-4"></i>
                         </button>
                         <button id="tour-theme" @click="toggleTheme" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Toggle theme">
-                            <i v-if="darkMode" data-lucide="sun" class="w-4 h-4"></i>
-                            <i v-else data-lucide="moon" class="w-4 h-4"></i>
+                            <i v-show="darkMode" data-lucide="sun" class="w-4 h-4"></i>
+                            <i v-show="!darkMode" data-lucide="moon" class="w-4 h-4"></i>
                         </button>
                         <button id="tour-settings" @click="openSettings" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Settings">
                             <i data-lucide="settings" class="w-4 h-4"></i>
