@@ -191,8 +191,8 @@ createApp({
             darkMode.value = !darkMode.value;
             document.documentElement.classList.toggle('light', !darkMode.value);
             localStorage.setItem('mni_theme', darkMode.value ? 'dark' : 'light');
+            lucide.createIcons();
             nextTick(() => {
-                try { lucide.createIcons(); } catch(e) {}
                 updateCharts();
             });
         };
@@ -289,12 +289,12 @@ createApp({
         };
 
         const exportCSV = () => {
-            const ticker = network.value.native_ticker || 'CELL';
+            const ticker = network.value.native_ticker || 'unknown';
             downloadCSV(network.value.reward_wallet_all_sums_daily || [], `rewards_${networkName.value}_${new Date().toISOString().split('T')[0]}.csv`, `Date,Rewards (${ticker})`);
         };
 
         const exportSovereignCSV = () => {
-            const ticker = network.value.native_ticker || 'CELL';
+            const ticker = network.value.native_ticker || 'unknown';
             downloadCSV(network.value.sovereign_wallet_all_sums_daily || [], `sovereign_rewards_${networkName.value}_${new Date().toISOString().split('T')[0]}.csv`, `Date,Sovereign Rewards (${ticker})`);
         };
 
