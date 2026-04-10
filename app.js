@@ -191,8 +191,8 @@ createApp({
             darkMode.value = !darkMode.value;
             document.documentElement.classList.toggle('light', !darkMode.value);
             localStorage.setItem('mni_theme', darkMode.value ? 'dark' : 'light');
-            lucide.createIcons();
             nextTick(() => {
+                try { lucide.createIcons(); } catch (e) {}
                 updateCharts();
             });
         };
