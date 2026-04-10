@@ -192,6 +192,11 @@ createApp({
             document.documentElement.classList.toggle('light', !darkMode.value);
             localStorage.setItem('mni_theme', darkMode.value ? 'dark' : 'light');
             nextTick(() => {
+                const btn = document.getElementById('tour-theme');
+                if (btn) {
+                    const iconName = darkMode.value ? 'sun' : 'moon';
+                    btn.innerHTML = `<i data-lucide="${iconName}" class="w-4 h-4"></i>`;
+                }
                 try { lucide.createIcons(); } catch (e) {}
                 updateCharts();
             });
