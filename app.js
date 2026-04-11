@@ -357,7 +357,7 @@ createApp({
 
         const scanUrl = (hash) => {
             if (!hash) return '';
-            return `https://scan.cellframe.net/datum-details/${hash}?net=${networkName.value}`;
+            return `https://scan.cellframe.net/search/${hash}?net=${networkName.value}`;
         };
 
         const toast = ref('');

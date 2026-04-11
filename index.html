@@ -708,21 +708,37 @@
                         <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Earliest Signed</p>
                         <p class="font-bold">#{{ network.signed_blocks_earliest?.['block number'] ?? '—' }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.signed_blocks_earliest?.ts_create) }}</p>
+                        <a :href="scanUrl(network.signed_blocks_earliest?.hash)" target="_blank"
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
+                            {{ truncateHash(network.signed_blocks_earliest?.hash) }}
+                        </a>
                     </div>
                     <div class="card">
                         <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Latest Signed</p>
                         <p class="font-bold">#{{ network.signed_blocks_latest?.['block number'] ?? '—' }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.signed_blocks_latest?.ts_create) }}</p>
+                        <a :href="scanUrl(network.signed_blocks_latest?.hash)" target="_blank"
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
+                            {{ truncateHash(network.signed_blocks_latest?.hash) }}
+                        </a>
                     </div>
                     <div class="card">
                         <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Earliest First-Signed</p>
                         <p class="font-bold">#{{ network.first_signed_blocks_earliest?.['block number'] ?? '—' }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.first_signed_blocks_earliest?.ts_create) }}</p>
+                        <a :href="scanUrl(network.first_signed_blocks_earliest?.hash)" target="_blank"
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
+                            {{ truncateHash(network.first_signed_blocks_earliest?.hash) }}
+                        </a>
                     </div>
                     <div class="card">
                         <p class="text-xs text-slate-500 uppercase tracking-wider mb-2">Latest First-Signed</p>
                         <p class="font-bold">#{{ network.first_signed_blocks_latest?.['block number'] ?? '—' }}</p>
                         <p class="text-xs text-slate-500 mt-1">{{ formatDate(network.first_signed_blocks_latest?.ts_create) }}</p>
+                        <a :href="scanUrl(network.first_signed_blocks_latest?.hash)" target="_blank"
+                           class="text-xs text-slate-500  hover:text-brand truncate block">
+                            {{ truncateHash(network.first_signed_blocks_latest?.hash) }}
+                        </a>
                     </div>
                 </div>
 
