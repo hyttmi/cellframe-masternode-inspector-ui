@@ -60,7 +60,7 @@ do_install() {
 
     # Write Caddyfile
     cat > "$CADDY_CONFIG" << EOF
-:8080 {
+:8081 {
     root * ${INSTALL_DIR}
     file_server
     encode gzip
@@ -74,7 +74,7 @@ EOF
     systemctl restart caddy
 
     echo ""
-    echo "Done! Open http://localhost:8080 in your browser."
+    echo "Done! Open http://localhost:8081 in your browser."
 }
 
 # Check if running as root
