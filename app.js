@@ -393,12 +393,13 @@ createApp({
         // --- Charts ---
         const chartDays = ref(30);
         const availableChartDays = computed(() => {
-            const totalDays = Math.min(
+            const lengths = [
                 (network.value.reward_wallet_all_sums_daily || []).length,
                 (network.value.sovereign_wallet_all_sums_daily || []).length,
                 (network.value.signed_blocks_all_sums_daily || []).length,
                 (network.value.first_signed_blocks_all_sums_daily || []).length
-            );
+            ].filter(l => l > 0);
+            const totalDays = lengths.length ? Math.min(...lengths) : 0;
             if (!totalDays) return [];
             let options = [7, 14, 30, 90].filter(d => d <= totalDays);
             if (options.length === 0) {
