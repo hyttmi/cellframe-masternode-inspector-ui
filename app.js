@@ -393,9 +393,18 @@ createApp({
         // --- Charts ---
         const chartDays = ref(30);
         const availableChartDays = computed(() => {
-            const totalDays = (network.value.reward_wallet_all_sums_daily || []).length;
+            const totalDays = Math.min(
+                (network.value.reward_wallet_all_sums_daily || []).length,
+                (network.value.sovereign_wallet_all_sums_daily || []).length,
+                (network.value.signed_blocks_all_sums_daily || []).length,
+                (network.value.first_signed_blocks_all_sums_daily || []).length
+            );
             if (!totalDays) return [];
-            return [7, 14, 30, 90].filter(d => d <= totalDays);
+            let options = [7, 14, 30, 90].filter(d => d <= totalDays);
+            if (options.length === 0) {
+                options = [totalDays];
+            }
+            return options;
         });
         let rewardsChart = null;
         let blocksChart = null;
@@ -608,6 +617,11 @@ createApp({
 
         watch(networkName, () => { lastCacheTimestamp.value = ''; fetchNetwork(true); });
         watch(chartDays, () => updateCharts());
+        watch(availableChartDays, (newVal) => {
+            if (newVal.length > 0 && !newVal.includes(chartDays.value)) {
+                chartDays.value = newVal[newVal.length - 1];
+            }
+        });
 
         return {
             // Config
