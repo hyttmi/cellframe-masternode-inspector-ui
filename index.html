@@ -415,7 +415,8 @@
                     </div>
                 </div>
             </header>
-
+            
+            <div v-if="!connectionError">
             <!-- System Health -->
             <div class="mb-8">
                 <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
@@ -953,6 +954,7 @@
                     <span v-if="system.current_plugin_version">v{{ system.current_plugin_version }}</span>
                 </div>
             </footer>
+            </div><!-- end v-if="!connectionError" -->
             </div><!-- end v-if="network.native_ticker || !loading" -->
         </div>
     </div>
