@@ -189,18 +189,16 @@ createApp({
             return version >= requiredVersion;
         };
 
+        const showLogsModal = ref(false);
+        const logsContent = ref('');
+
         const fetchLogs = async () => {
             try {
                 const logs = await apiFetch('action=plugin_logs');
-                if (logs && logs.plugin_logs) {
-                    const blob = new Blob([logs.plugin_logs.join('\n')], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `mninspector_${new Date().toISOString().split('T')[0]}.log`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    showToast('Logs downloaded');
+                if (logs && logs.plugin_logs && logs.plugin_logs.length > 0) {
+                    logsContent.value = logs.plugin_logs.join('\n');
+                    showLogsModal.value = true;
+                    nextTick(() => { try { lucide.createIcons(); } catch(e) {} });
                 } else {
                     showToast('No logs available');
                 }
@@ -208,6 +206,17 @@ createApp({
                 if (e.message === 'auth') { connectionError.value = 'Authentication failed'; openSettings(); return; }
                 showToast(`Failed to fetch logs: ${e.message}`);
             }
+        };
+
+        const downloadLogsSync = () => {
+            const blob = new Blob([logsContent.value], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mninspector_${new Date().toISOString().split('T')[0]}.log`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Logs downloaded');
         };
 
 
@@ -670,7 +679,7 @@ createApp({
             loadTransactions, toggleTxSort, txActiveList, txTotalPages, txPageData,
             // Actions
             fetchAllData, refreshDashboard, startPolling, exportCSV, exportSovereignCSV, startTutorial,
-            fetchLogs, checkVersion,
+            fetchLogs, checkVersion, showLogsModal, logsContent, downloadLogsSync,
         };
     }
 }).mount('#app');

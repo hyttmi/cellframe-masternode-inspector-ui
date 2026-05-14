@@ -956,6 +956,30 @@
             </footer>
             </div><!-- end v-if="!connectionError" -->
             </div><!-- end v-if="network.native_ticker || !loading" -->
+
+            <!-- Logs Modal -->
+            <div v-if="showLogsModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div class="card w-full max-w-4xl max-h-[90vh] flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5 text-brand"></i>
+                            Plugin Logs
+                        </h2>
+                        <div class="flex gap-2">
+                            <button @click="downloadLogsSync" class="btn-primary text-sm py-1.5 px-3 flex items-center gap-2">
+                                <i data-lucide="download" class="w-4 h-4"></i> Download
+                            </button>
+                            <button @click="showLogsModal = false" class="text-slate-400 hover:text-white p-1">
+                                <i data-lucide="x" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-auto bg-surface-0 rounded-lg p-4 font-mono text-xs whitespace-pre-wrap text-slate-300">
+                        {{ logsContent }}
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
