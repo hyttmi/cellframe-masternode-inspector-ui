@@ -238,6 +238,19 @@ createApp({
 
         const NETWORK_ACTIONS = 'all';
 
+        const checkOtherNodes = async () => {
+            for (let i = 0; i < nodes.value.length; i++) {
+                if (i === activeNodeIndex.value) continue;
+                try {
+                    const node = nodes.value[i];
+                    const url = `${node.baseUrl}?${SYSTEM_ACTIONS}`;
+                    const res = await fetch(url, { headers: { 'X-API-Key': node.apiKey } });
+                    if (res.ok) return i;
+                } catch(e) {}
+            }
+            return -1;
+        };
+
         const fetchSystem = async () => {
             try {
                 const data = await apiFetch(SYSTEM_ACTIONS);
@@ -250,7 +263,16 @@ createApp({
                 connectionError.value = '';
             } catch (e) {
                 if (e.message === 'auth') { connectionError.value = 'Authentication failed'; openSettings(); return; }
-                connectionError.value = e.message;
+                
+                if (nodes.value.length > 1 && (e.message === 'Failed to fetch' || e.message.includes('HTTP'))) {
+                    const workingNodeIndex = await checkOtherNodes();
+                    if (workingNodeIndex !== -1) {
+                        switchNode(workingNodeIndex);
+                        return;
+                    }
+                }
+                
+                connectionError.value = e.message === 'Failed to fetch' ? 'Cannot reach node. It might be offline.' : e.message;
             }
         };
 
