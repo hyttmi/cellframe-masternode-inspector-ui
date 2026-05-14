@@ -183,6 +183,34 @@ createApp({
         const connectionError = ref('');
         const lastCacheTimestamp = ref('');
 
+        // --- Version Check ---
+        const checkVersion = (requiredVersion) => {
+            const version = parseFloat(system.value?.current_plugin_version || "0");
+            return version >= requiredVersion;
+        };
+
+        const fetchLogs = async () => {
+            try {
+                const logs = await apiFetch('action=plugin_logs');
+                if (logs && logs.plugin_logs) {
+                    const blob = new Blob([logs.plugin_logs.join('\n')], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `mninspector_${new Date().toISOString().split('T')[0]}.log`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    showToast('Logs downloaded');
+                } else {
+                    showToast('No logs available');
+                }
+            } catch (e) {
+                if (e.message === 'auth') { connectionError.value = 'Authentication failed'; openSettings(); return; }
+                showToast(`Failed to fetch logs: ${e.message}`);
+            }
+        };
+
+
         // --- Theme ---
         const darkMode = ref(localStorage.getItem('mni_theme') !== 'light');
         if (!darkMode.value) document.documentElement.classList.add('light');
@@ -642,6 +670,7 @@ createApp({
             loadTransactions, toggleTxSort, txActiveList, txTotalPages, txPageData,
             // Actions
             fetchAllData, refreshDashboard, startPolling, exportCSV, exportSovereignCSV, startTutorial,
+            fetchLogs, checkVersion,
         };
     }
 }).mount('#app');

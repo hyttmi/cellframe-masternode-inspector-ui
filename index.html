@@ -374,36 +374,44 @@
                         </span>
                     </div>
                 </div>
-                <div class="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-4">
-                    <select v-if="nodes.length > 1" id="tour-nodes" :value="activeNodeIndex" @change="switchNode(Number($event.target.value))"
-                       class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
-                        <option v-for="(node, i) in nodes" :key="i" :value="i">{{ node.name }}</option>
-                    </select>
-                    <select v-if="activeNetworks.length > 1" id="tour-network" v-model="networkName"
-                       class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
-                        <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
-                    </select>
-                    <select id="tour-days" v-if="availableChartDays.length" v-model="chartDays"
-                        class="bg-surface-1 border border-surface-2 rounded-lg px-2.5 py-1 text-xs font-bold focus:outline-none focus:border-brand h-8">
-                        <option v-for="d in availableChartDays" :key="d" :value="d">{{ d }}D</option>
-                    </select>                    <div class="h-8 inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
-                        <button id="tour-refresh" @click="refreshDashboard" class="px-2 hover:bg-surface-2 rounded-l-lg transition-colors flex items-center" title="Refresh">
-                            <span class="inline-flex" :class="{'animate-spin': loading}">
-                                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
-                            </span>
-                        </button>
-                        <button id="tour-share" @click="shareNode(activeNodeIndex)" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Share node link">
-                            <i data-lucide="share-2" class="w-4 h-4"></i>
-                        </button>
-                        <button id="tour-theme" @click="toggleTheme" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Toggle theme">
-                            <i :key="darkMode ? 'sun' : 'moon'" :data-lucide="darkMode ? 'sun' : 'moon'" class="w-4 h-4"></i>
-                        </button>
-                        <button id="tour-settings" @click="openSettings" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Settings">
-                            <i data-lucide="settings" class="w-4 h-4"></i>
-                        </button>
-                        <button id="tour-help" @click="startTutorial(true)" class="px-2 hover:bg-surface-2 rounded-r-lg transition-colors flex items-center" title="Help / Replay tour">
-                            <i data-lucide="circle-help" class="w-4 h-4"></i>
-                        </button>
+                <div class="flex flex-col items-center md:items-end gap-2">
+                    <div class="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-4">
+                        <select v-if="nodes.length > 1" id="tour-nodes" :value="activeNodeIndex" @change="switchNode(Number($event.target.value))"
+                           class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
+                            <option v-for="(node, i) in nodes" :key="i" :value="i">{{ node.name }}</option>
+                        </select>
+                        <select v-if="activeNetworks.length > 1" id="tour-network" v-model="networkName"
+                           class="bg-surface-1 border border-surface-2 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:border-brand">
+                            <option v-for="n in activeNetworks" :key="n" :value="n">{{ n }}</option>
+                        </select>
+                        <select id="tour-days" v-if="availableChartDays.length" v-model="chartDays"
+                            class="bg-surface-1 border border-surface-2 rounded-lg px-2.5 py-1 text-xs font-bold focus:outline-none focus:border-brand h-8">
+                            <option v-for="d in availableChartDays" :key="d" :value="d">{{ d }}D</option>
+                        </select>
+                    </div>
+                    <div class="flex flex-wrap items-center justify-center md:justify-end gap-2 sm:gap-4">
+                        <div class="h-8 inline-flex items-stretch bg-surface-1 rounded-lg border border-surface-2 divide-x divide-surface-2">
+                            <button v-if="checkVersion(1.51)" id="tour-logs" @click="fetchLogs" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="View Plugin Logs">
+                                <i data-lucide="file-text" class="w-4 h-4"></i>
+                            </button>
+                            <button id="tour-refresh" @click="refreshDashboard" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Refresh">
+                                <span class="inline-flex" :class="{'animate-spin': loading}">
+                                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                </span>
+                            </button>
+                            <button id="tour-share" @click="shareNode(activeNodeIndex)" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Share node link">
+                                <i data-lucide="share-2" class="w-4 h-4"></i>
+                            </button>
+                            <button id="tour-theme" @click="toggleTheme" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Toggle theme">
+                                <i :key="darkMode ? 'sun' : 'moon'" :data-lucide="darkMode ? 'sun' : 'moon'" class="w-4 h-4"></i>
+                            </button>
+                            <button id="tour-settings" @click="openSettings" class="px-2 hover:bg-surface-2 transition-colors flex items-center" title="Settings">
+                                <i data-lucide="settings" class="w-4 h-4"></i>
+                            </button>
+                            <button id="tour-help" @click="startTutorial(true)" class="px-2 hover:bg-surface-2 rounded-r-lg transition-colors flex items-center" title="Help / Replay tour">
+                                <i data-lucide="circle-help" class="w-4 h-4"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
